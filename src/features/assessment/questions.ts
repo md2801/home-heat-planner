@@ -1,0 +1,66 @@
+import type { AnswerValue, AssessmentAnswers } from "../../domain/models.ts";
+
+export interface Choice { label: string; value: AnswerValue; icon?: "morning" | "afternoon" | "evening" | "overnight" }
+export interface Question {
+  id: string;
+  title: string;
+  context: "Your room" | "Your cooling" | "Your next step";
+  why: string;
+  hint?: string;
+  kind: "choice" | "text" | "number" | "date";
+  choices?: Choice[];
+  multiple?: boolean;
+  unit?: string;
+  max?: number;
+  maxLength?: number;
+  integer?: boolean;
+}
+const options = (...labels: [string, AnswerValue][]): Choice[] => labels.map(([label, value]) => ({ label, value }));
+const yesNo = options(["Yes", true], ["No", false]);
+export const CORE_QUESTION_IDS = ["heatTiming", "position", "aboveRoom", "windowOrientation", "externalShading", "insulation", "cooling"] as const;
+
+export const questions: Question[] = [
+  { id: "heatTiming", title: "When does it get hottest?", context: "Your room", kind: "choice", multiple: true, hint: "Choose one or more times.", choices: (["morning", "afternoon", "evening", "overnight"] as const).map(value => ({ label: value[0]!.toUpperCase() + value.slice(1), value, icon: value })), why: "The time you feel uncomfortable helps frame the room assessment. It doesn’t tell us the window direction or prove what causes the heat." },
+  { id: "position", title: "Which floor is your bedroom on?", context: "Your room", kind: "choice", choices: options(["Ground floor", "ground-floor"], ["Upper floor", "upper-floor"]), why: "Room position is useful context. An upper-floor room isn’t necessarily directly below the roof." },
+  { id: "aboveRoom", title: "What’s directly above your bedroom?", context: "Your room", kind: "choice", choices: options(["The roof", "roof"], ["Another room in my home", "another-room"], ["Another dwelling", "another-dwelling"]), why: "Roof exposure and shared building elements affect what needs to be checked before an improvement." },
+  { id: "windowOrientation", title: "Which way do your windows face?", context: "Your room", kind: "choice", multiple: true, hint: "Select the directions you know. Choose Not sure if you don’t know any. Individual window details can be confirmed at review.", choices: options(["North", "north"], ["North-east", "north-east"], ["East", "east"], ["South-east", "south-east"], ["South", "south"], ["South-west", "south-west"], ["West", "west"], ["North-west", "north-west"]), why: "Compass directions must come from you. Sunlight in the illustration doesn’t establish your windows’ orientation." },
+  { id: "externalShading", title: "Are your windows shaded outside?", context: "Your room", kind: "choice", choices: options(["All relevant windows have external shade", "all"], ["Some have external shade", "some"], ["None have external shade", "none"]), hint: "Think of awnings, eaves, trees or other outside shade. Indoor curtains are a separate question.", why: "External shade and internal coverings are different room details. Partial shading needs a closer window-by-window review." },
+  { id: "insulation", title: "Is there ceiling or roof insulation?", context: "Your room", kind: "choice", choices: yesNo, hint: "Choose Not sure if you haven’t confirmed it.", why: "Insulation is hidden construction information. Room position or appearance can’t confirm whether it exists." },
+  { id: "cooling", title: "How do you cool this bedroom?", context: "Your cooling", kind: "choice", multiple: true, choices: options(["Fan", "fan"], ["Air conditioner", "air-conditioner"], ["No cooling equipment", "none"]), why: "We need your actual equipment, rather than the air conditioner shown in the illustrative room." },
+  { id: "coolingUsage", title: "How do you use your cooling?", context: "Your cooling", kind: "text", maxLength: 500, hint: "Describe when you use the fan or air conditioner, and whether you use them together.", why: "Your routine gives context. We won’t turn a description into assumed operating hours or equipment power." },
+  { id: "location", title: "Where is your bedroom?", context: "Your room", kind: "text", maxLength: 100, hint: "Enter your Greater Sydney suburb or postcode. No street address needed. You’ll confirm the location at review.", why: "Location gives context for later guidance. We won’t guess a suburb from an ambiguous name or postcode." },
+  { id: "goal", title: "What would you like to improve?", context: "Your room", kind: "text", maxLength: 500, hint: "For example, describe your cooling bill concern, when comfort matters, or whether you’re considering replacing equipment.", why: "Your spending decision and comfort priorities help guide which options to investigate." },
+  { id: "internalCoverings", title: "What covers your windows inside?", context: "Your room", kind: "choice", multiple: true, choices: options(["Curtains", "curtains"], ["Blinds", "blinds"], ["Shutters", "shutters"], ["No internal coverings", "none"]), why: "Existing coverings help describe your starting point. We won’t assume their performance or condition." },
+  { id: "windowsOpen", title: "Can your bedroom windows open?", context: "Your room", kind: "choice", choices: options(["All relevant windows can open", "all"], ["Some can open", "some"], ["None can open", "none"]), why: "Openable windows and practical limits matter when considering ventilation. They don’t establish a cooling benefit." },
+  { id: "ventilationConstraints", title: "What limits opening your windows?", context: "Your room", kind: "text", maxLength: 500, hint: "Describe security, noise, smoke or outdoor conditions. Enter “No known limits” only if that is true for you.", why: "A practical constraint may rule out an otherwise plausible action." },
+  { id: "servesOnlyRoom", title: "Does that cooling serve only this room?", context: "Your cooling", kind: "choice", choices: yesNo, why: "A shared system’s consumption can’t automatically be attributed to one bedroom. Attribution evidence is checked at review." },
+  { id: "energyBasis", title: "What cooling-use information do you have?", context: "Your cooling", kind: "choice", choices: options(["Measured cooling-specific energy (kWh)", "measured"], ["I want to enter an assumed electrical-input scenario", "scenario"]), hint: "A whole-home electricity bill isn’t bedroom cooling use. An assumed scenario stays a what-if.", why: "Measured energy is preferred. A scenario needs an explicitly assumed average electrical input, operating time and cooling days." },
+  { id: "coolingKwh", title: "How much cooling energy was measured?", context: "Your cooling", kind: "number", unit: "kWh", why: "Enter cooling-specific meter data only. We won’t attribute a whole-home bill to bedroom cooling." },
+  { id: "energyScope", title: "What does that measurement cover?", context: "Your cooling", kind: "text", maxLength: 500, hint: "Describe the cooling meter or record, which equipment it covers, and whether it includes other rooms.", why: "This records your account of the measurement. Evidence and bedroom attribution still need confirmation before a personalised estimate." },
+  { id: "periodStart", title: "When does the measured period start?", context: "Your cooling", kind: "date", why: "Measured consumption needs its actual date range. We won’t assume it represents a month or year." },
+  { id: "periodEnd", title: "When does the measured period end?", context: "Your cooling", kind: "date", why: "The end date must be on or after the start date. Unknown dates leave the period unknown." },
+  { id: "averageElectricalInputKw", title: "What average electrical input will you assume?", context: "Your cooling", kind: "number", unit: "kW electrical input", hint: "This is an explicit assumption for a what-if. Don’t use advertised cooling capacity. Rated input isn’t automatically average consumption.", why: "Electrical input and cooling capacity are different. No equipment power is filled in for you." },
+  { id: "hoursPerDay", title: "How many hours per cooling day?", context: "Your cooling", kind: "number", unit: "hours per day", max: 24, hint: "Enter the total operating time for the equipment covered by your scenario.", why: "These hours are a user-entered scenario assumption, not a claimed effect of an improvement." },
+  { id: "coolingDays", title: "How many cooling days are in your scenario?", context: "Your cooling", kind: "number", unit: "cooling days", integer: true, why: "Enter days when this equipment runs. We won’t multiply a short period into an annual estimate." },
+  { id: "periodDescription", title: "Which period does your scenario cover?", context: "Your cooling", kind: "text", maxLength: 200, hint: "Name the stated period, such as a particular summer or date range. This flow does not annualise it.", why: "The period gives the cooling-day schedule its scope. No annual savings will be inferred." },
+  { id: "flatTariffAudPerKwh", title: "What’s your flat electricity usage rate?", context: "Your cooling", kind: "number", unit: "AUD per kWh", hint: "Use dollars per kWh, not cents. Exclude fixed supply charges. Choose Not sure for time-of-use or an unknown rate.", why: "The initial calculator supports a flat usage rate. We won’t substitute a sample tariff." },
+  { id: "budgetAud", title: "What could you spend now?", context: "Your next step", kind: "number", unit: "AUD", hint: "Enter a maximum budget, or choose Not sure. A larger improvement can still be investigated later.", why: "Your current spending limit helps frame affordability. It does not establish any improvement’s cost." },
+  { id: "externalChangesPermitted", title: "Can you make external building changes?", context: "Your next step", kind: "choice", choices: options(["Yes, permission is confirmed", true], ["No, external changes are restricted", false]), hint: "Owning a home doesn’t automatically mean shared or external building changes are permitted.", why: "Permissions must be confirmed before treating an external or shared-building action as suitable." },
+  { id: "willingToObtainQuotes", title: "Would you be willing to get quotes?", context: "Your next step", kind: "choice", choices: yesNo, why: "Quotes and professional checks may be a useful next step when cost or suitability is unknown." },
+];
+const reportedValue = (answers: AssessmentAnswers, id: string) => answers[id]?.status === "known" ? answers[id].value : undefined;
+export function activeQuestions(answers: AssessmentAnswers): Question[] {
+  const equipment = reportedValue(answers, "cooling");
+  const hasEquipment = Array.isArray(equipment) && equipment.some(value => value === "fan" || value === "air-conditioner");
+  const basis = reportedValue(answers, "energyBasis");
+  const measured = ["coolingKwh", "energyScope", "periodStart", "periodEnd"];
+  const scenario = ["averageElectricalInputKw", "hoursPerDay", "coolingDays", "periodDescription"];
+  return questions.filter(q => {
+    if (q.id === "ventilationConstraints") return reportedValue(answers, "windowsOpen") !== "none";
+    if (["servesOnlyRoom", "coolingUsage", "energyBasis"].includes(q.id)) return hasEquipment;
+    if (measured.includes(q.id)) return hasEquipment && basis === "measured";
+    if (scenario.includes(q.id)) return hasEquipment && basis === "scenario";
+    if (q.id === "flatTariffAudPerKwh") return hasEquipment && (basis === "measured" || basis === "scenario");
+    return true;
+  });
+}

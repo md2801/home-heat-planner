@@ -1,5 +1,5 @@
 import type { JourneyState } from "@/domain/models";
-import { unknown } from "@/domain/unknown";
+import { unknown } from "../../domain/unknown.ts";
 
 export function createEmptyJourney(): JourneyState {
   return {
