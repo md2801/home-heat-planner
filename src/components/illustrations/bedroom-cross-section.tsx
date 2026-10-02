@@ -1,9 +1,10 @@
 import { useId } from "react";
 
-export interface IllustrationCallout { text: string; x: number; y: number; width: number; accent?: "heat" | "cooling" }
+export interface IllustrationCallout { text: string; x: number; y: number; width: number; accent?: "heat" | "cooling"; detail?: string; target?: readonly [number, number] }
+export interface ContributorIllustration { roof: boolean; sun: boolean; externalShade: boolean; coolingEquipment: boolean }
 
 /** Geometry is illustrative; supplied annotations must come from reported room facts. */
-export function BedroomCrossSection({ callouts }: { callouts?: readonly IllustrationCallout[] } = {}) {
+export function BedroomCrossSection({ callouts, contributors }: { callouts?: readonly IllustrationCallout[]; contributors?: ContributorIllustration } = {}) {
   const id = useId().replaceAll(":", "");
   const roof = `${id}-roof`;
   const light = `${id}-light`;
@@ -13,7 +14,7 @@ export function BedroomCrossSection({ callouts }: { callouts?: readonly Illustra
   const tree = `${id}-tree`;
   const plant = `${id}-plant`;
 
-  return <svg viewBox="0 0 940 650" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby={`${id}-title ${id}-description`}>
+  return <svg viewBox={contributors ? "0 0 940 580" : "0 0 940 650"} fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby={`${id}-title ${id}-description`}>
     <title id={`${id}-title`}>{callouts ? "Illustrative bedroom with reported room details" : "A bedroom in the afternoon sun"}</title>
     <desc id={`${id}-description`}>{callouts ? "Illustrative architecture, sunlight and airflow. Only the annotations reflect your reported answers; the drawing does not establish facts about your home." : "Architectural cross-section of a pitched-roof bedroom with a bed, air conditioner, window and external shade. Amber lines show illustrative sunlight and blue curves show airflow."}</desc>
     <defs>
@@ -34,6 +35,7 @@ export function BedroomCrossSection({ callouts }: { callouts?: readonly Illustra
       </g>
     </defs>
 
+    <g transform={contributors ? "translate(150 20) scale(.78)" : undefined}>
     {/* A quiet landscape behind the architectural section. */}
     <ellipse cx="482" cy="607" rx="447" ry="10" fill="#d8decc" opacity=".3" />
     <g opacity=".16"><use href={`#${tree}`} transform="translate(95 325) scale(1.55)" /><use href={`#${tree}`} transform="translate(181 341) scale(1.35)" /><use href={`#${tree}`} transform="translate(857 393) scale(1.15)" /><use href={`#${tree}`} transform="translate(924 374) scale(1.3)" /></g>
@@ -41,12 +43,14 @@ export function BedroomCrossSection({ callouts }: { callouts?: readonly Illustra
     <g stroke="#acb69c" strokeWidth="1" opacity=".3"><path d="M93 598L88 583M97 598L100 579M103 598L110 590M162 603L156 587M167 603L168 582M174 603L180 591M779 604L775 584M785 604L791 584M829 602L824 586M835 602L838 581M898 603L894 587M904 603L913 585" /></g>
 
     {/* Afternoon sun uses translucent circles, not a thermal map. */}
+    {(!contributors || contributors.sun) && <g transform={contributors ? "translate(0 -60)" : undefined}>
     <circle cx="865" cy="192" r="88" fill="#ffb13b" opacity=".09" />
     <circle cx="865" cy="192" r="63" fill="#ffb13b" opacity=".14" />
     <circle cx="865" cy="192" r="39" fill="#ffb13b" stroke="#ffe1ad" />
     <g stroke="#eba444" strokeWidth="1" strokeDasharray="3 6" opacity=".85">
       <path d="M844 225L702 353M854 229L717 422M866 232L731 553" />
     </g>
+    </g>}
 
     {/* Roof and timber section edges. */}
     <path d="M217 278H741V609H217Z" fill={`url(#${wood})`} stroke="#242c2b" strokeWidth="1.5" />
@@ -58,18 +62,22 @@ export function BedroomCrossSection({ callouts }: { callouts?: readonly Illustra
     <path d="M222 283V591M226 283V591M735 284V591" stroke="#b39a78" strokeWidth=".65" />
 
     <g clipPath={`url(#${clip})`}>
+      {(!contributors || contributors.sun) && <>
       <path d="M727 305L504 592H727Z" fill={`url(#${light})`} />
       <path d="M727 304L248 591H503Z" fill="#fffef9" opacity=".65" />
       <path d="M500 592L523 579H727V592Z" fill="#eda454" opacity=".3" />
+      </>}
 
       {/* Air conditioning unit and thin blue airflow lines. */}
+      {(!contributors || contributors.coolingEquipment) && <>
       <rect x="250" y="308" width="96" height="39" rx="5" fill="#fafbf9" stroke="#263538" strokeWidth="1.2" />
       <path d="M260 336H336M262 340H334M294 321H301" stroke="#a4b2b4" strokeWidth=".9" />
       <path d="M252 345H343" stroke="#6e7a7b" strokeWidth=".8" />
-      <g stroke="#93c9e5" strokeWidth="1.1" strokeLinecap="round" opacity=".9">
+      {!contributors && <g stroke="#93c9e5" strokeWidth="1.1" strokeLinecap="round" opacity=".9">
         <path d="M258 365C265 394 286 408 313 424M281 359C293 394 342 414 374 439M307 359C320 386 357 398 392 417" />
         <path d="M319 428L331 435" strokeDasharray="5 5" />
-      </g>
+      </g>}
+      </>}
 
       {/* Bed: fine outlines, linen, warm terracotta throw. */}
       <path d="M247 430L253 432V566H247Z" fill="#e5d7bd" stroke="#817f70" strokeWidth="1" />
@@ -103,26 +111,31 @@ export function BedroomCrossSection({ callouts }: { callouts?: readonly Illustra
     <path d="M715 379H729V519H715Z" fill="#edf7f6" stroke="#5b7c82" strokeWidth="1.1" />
     <path d="M720 380V518M714 391H729M714 508H729" stroke="#8bacb1" strokeWidth=".7" />
     <path d="M716 520H730V533H716Z" fill="#e0d8c5" stroke="#738589" strokeWidth=".8" />
+    {(!contributors || contributors.externalShade) && <>
     <path d="M731 309L829 349L825 356L731 317Z" fill="#d8e4e6" stroke="#526e79" strokeWidth="1.3" />
     <path d="M746 322L812 350L796 408L733 378Z" fill="#b6c7c9" opacity=".48" />
     <path d="M746 327L738 367M761 332L752 377M778 338L766 383M794 345L782 392M809 351L796 400" stroke="#94acb0" strokeWidth=".75" opacity=".8" />
     <path d="M738 391L807 418" stroke="#aab6ab" strokeDasharray="4 5" opacity=".6" />
+    </>}
 
     {/* Timber floor details. */}
     <g stroke="#b5a084" strokeWidth=".65" opacity=".7"><path d="M219 598H740M220 604H740M258 592L250 609M355 592L350 609M453 592L451 609M552 592L555 609M650 592L657 609" /></g>
     <path d="M217 609H741" stroke="#27302b" strokeWidth="1.5" />
 
     {/* Quiet roof heat cues. */}
-    <g stroke="#ec9c30" strokeWidth="1.6" strokeLinecap="round">
+    {(!contributors || contributors.roof) && <g stroke="#ec9c30" strokeWidth="1.6" strokeLinecap="round">
       <path d="M541 118C559 96 529 93 546 70M571 135C588 112 560 108 578 86M602 155C618 133 591 125 608 106" />
+    </g>}
     </g>
 
     {/* Descriptive callouts are part of the illustration, not room facts. */}
     {callouts ? <g fontFamily="Arial, Helvetica, sans-serif" fontSize="15" fill="#26343b">
       {callouts.map(callout => <g key={callout.text} transform={`translate(${callout.x} ${callout.y})`}>
-        <rect width={callout.width} height="46" rx="8" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />
+        {callout.target && <path d={`M${callout.width / 2} ${callout.detail ? 72 : 46}L${callout.target[0] - callout.x} ${callout.target[1] - callout.y}`} stroke={callout.accent === "heat" ? "#c78225" : "#597d8a"} strokeWidth="1.2" />}
+        <rect width={callout.width} height={callout.detail ? 72 : 46} rx="8" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />
         <circle cx="17" cy="23" r="5" fill={callout.accent === "heat" ? "#ffb13b" : "#597d8a"} />
         <text x="31" y="29">{callout.text}</text>
+        {callout.detail && <text x="31" y="52" fontSize="13" fill="#59666c">{callout.detail}</text>}
       </g>)}
     </g> : <g fontFamily="Arial, Helvetica, sans-serif" fontSize="17" fill="#26343b">
       <rect x="281" y="140" width="124" height="42" rx="10" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />

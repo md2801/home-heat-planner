@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ScreenPlaceholder } from "@/components/layout/screen-placeholder";
+import { HeatContributorsPage } from "@/features/heat-contributors/heat-contributors-page";
 
 export const metadata: Metadata = { title: "Heat contributors" };
 
 export default function Page() {
-  return <ScreenPlaceholder path="/heat-contributors" />;
+  return <HeatContributorsPage />;
 }
