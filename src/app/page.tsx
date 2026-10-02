@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ScreenPlaceholder } from "@/components/layout/screen-placeholder";
+import { LandingPage } from "@/features/landing/landing-page";
 
-export const metadata: Metadata = { title: "Home Heat Planner" };
+export const metadata: Metadata = { title: { absolute: "Home Heat Planner" } };
 
 export default function Page() {
-  return <ScreenPlaceholder path="/" />;
+  return <LandingPage />;
 }

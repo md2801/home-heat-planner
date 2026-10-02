@@ -1,0 +1,93 @@
+/* These overrides apply only while the landing page is present. Other routes
+   retain the foundation shell, spacing and placeholder presentation. */
+:global(body):has(.page) :global(.app-shell-header) { display: none; }
+:global(.app-shell-main):has(.page) { max-width: none; padding: 0; }
+
+.page { width: min(89.4%, 1600px); margin: 0 auto; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 30px 0; }
+.brand { display: inline-flex; align-items: center; gap: 13px; color: var(--color-ink); font-size: clamp(20px, 1.7vw, 28px); font-weight: 700; letter-spacing: -1.1px; text-decoration: none; white-space: nowrap; }
+.brand svg { width: 30px; height: 30px; flex-shrink: 0; }
+.navigation { display: flex; align-items: center; gap: clamp(25px, 3vw, 48px); font-size: 18px; color: #233440; }
+.navigation a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; text-underline-offset: 6px; }
+.navigation a:hover { text-decoration: underline; }
+.hero { position: relative; min-height: clamp(530px, 38.7vw, 640px); margin-top: 27px; }
+.introduction { position: relative; z-index: 1; width: 54%; padding-top: clamp(80px, 8vw, 130px); }
+.introduction h1 { margin: 0; font-size: clamp(48px, 4.75vw, 80px); line-height: 1.035; font-weight: 700; letter-spacing: -0.065em; color: #101313; }
+.introduction h1 span { color: var(--color-forest); white-space: nowrap; }
+.subtitle { margin: 30px 0 0; color: #293c49; font-size: clamp(19px, 1.5vw, 25px); line-height: 1.5; }
+.actions { display: flex; align-items: center; gap: 28px; margin-top: 38px; }
+.primaryCta { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 72px; padding: 20px 30px; border: 1px solid var(--color-forest-dark); border-radius: var(--radius-control); background: var(--color-forest); color: white; font-size: clamp(18px, 1.4vw, 23px); font-weight: 600; text-decoration: none; transition: background-color 150ms ease; }
+.primaryCta:hover { background: var(--color-forest-dark); }
+.primaryCta span { font-size: 30px; font-weight: 400; line-height: 1; }
+.actions p { margin: 0; color: #485864; font-size: 17px; white-space: nowrap; }
+.illustration { position: absolute; top: -25px; left: 36.5%; width: 64%; margin: 0; }
+.illustration svg { display: block; width: 100%; height: auto; }
+.lowerRow { display: grid; grid-template-columns: 51% 1fr; gap: 4%; align-items: center; margin-top: 7px; }
+.benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--color-line); padding-top: 32px; scroll-margin-top: 28px; }
+.benefit { padding: 0 24px 0 0; }
+.benefit + .benefit { border-left: 1px solid var(--color-line); padding-left: 28px; }
+.benefit svg { display: block; width: 45px; height: 45px; margin-bottom: 12px; }
+.benefit h2 { margin: 0; font-size: clamp(16px, 1.14vw, 19px); font-weight: 600; line-height: 1.4; letter-spacing: -0.45px; }
+.benefit p { margin: 6px 0 0; font-size: 16px; line-height: 1.45; color: #747a7c; max-width: 190px; }
+.timeline { display: flex; align-items: flex-start; gap: 22px; color: #707a80; padding-top: 15px; font-size: 16px; }
+.timelineTitle { margin-top: -8px; }
+.timelineTrack { position: relative; flex: 1; height: 48px; }
+.timelineLine { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--color-line); }
+.timelineTrack span { position: absolute; top: 20px; transform: translateX(-50%); white-space: nowrap; }
+.timelineTrack i { position: absolute; top: -24px; left: 50%; width: 10px; height: 10px; background: var(--color-line); border-radius: 50%; transform: translateX(-50%); }
+.morning { left: 5%; }
+.midday { left: 50%; }
+.afternoon { left: 86%; }
+.timelineTrack .afternoon i { top: -29px; width: 22px; height: 22px; border: 2px solid var(--color-surface); outline: 1px solid #f6d4a9; background: var(--color-heat-light); }
+.timelineTrack .endDot { top: -4px; left: 100%; width: 8px; height: 8px; }
+.help { margin: 64px 0 30px; font-size: 14px; color: var(--color-muted); max-width: 600px; scroll-margin-top: 24px; }
+.help summary { cursor: pointer; min-height: 30px; }
+.help p { line-height: 1.6; }
+
+@media (min-width: 1700px) { .hero { min-height: 720px; } .illustration { width: 65%; left: 40%; } }
+@media (max-width: 1150px) {
+  .page { width: 90%; }
+  .hero { min-height: 490px; }
+  .introduction { padding-top: 75px; width: 56%; }
+  .introduction h1 { font-size: clamp(44px, 4.75vw, 55px); }
+  .actions { gap: 16px; flex-wrap: wrap; margin-top: 28px; }
+  .primaryCta { min-height: 62px; padding: 16px 24px; }
+  .illustration { top: 20px; left: 40%; width: 64%; }
+  .benefit { padding-right: 14px; }
+  .benefit + .benefit { padding-left: 18px; }
+  .benefit p { font-size: 14px; }
+  .navigation { font-size: 16px; }
+}
+@media (max-width: 850px) {
+  .header { flex-wrap: wrap; gap: 14px; padding: 22px 0; }
+  .navigation { gap: 28px; font-size: 15px; }
+  .hero { margin-top: 18px; min-height: 0; }
+  .introduction { width: 100%; padding-top: 18px; max-width: 620px; }
+  .introduction h1 { font-size: clamp(42px, 7.3vw, 64px); }
+  .illustration { position: relative; top: auto; left: auto; width: 100%; margin: 20px 0 0; }
+  .subtitle { margin-top: 24px; }
+  .lowerRow { grid-template-columns: 1fr; gap: 40px; margin-top: 20px; }
+  .benefit h2 { font-size: 18px; }
+  .benefit p { font-size: 16px; }
+  .timeline { width: 92%; margin-inline: auto; }
+  .help { margin-top: 40px; }
+}
+@media (max-width: 480px) {
+  .page { width: calc(100% - 40px); }
+  .brand { font-size: 21px; gap: 9px; letter-spacing: -0.8px; }
+  .brand svg { width: 27px; height: 27px; }
+  .navigation { width: 100%; justify-content: space-between; gap: 14px; }
+  .introduction h1 { font-size: clamp(38px, 10vw, 46px); line-height: 1.08; letter-spacing: -0.055em; }
+  .desktopBreak { display: none; }
+  .subtitle { font-size: 18px; }
+  .actions { align-items: flex-start; flex-direction: column; gap: 14px; }
+  .primaryCta { width: 100%; font-size: 18px; }
+  .actions p { font-size: 15px; }
+  .illustration { width: calc(100% + 20px); margin-left: -10px; }
+  .benefits { grid-template-columns: 1fr; gap: 24px; padding-top: 24px; }
+  .benefit, .benefit + .benefit { border: 0; padding: 0; display: grid; grid-template-columns: 44px 1fr; column-gap: 18px; }
+  .benefit svg { width: 40px; height: 40px; grid-row: span 2; margin: 0; }
+  .benefit p { max-width: none; margin-top: 4px; font-size: 15px; }
+  .timeline { font-size: 13px; gap: 16px; width: 95%; }
+}
+@media (prefers-reduced-motion: reduce) { .primaryCta { transition: none; } }
