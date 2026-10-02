@@ -118,7 +118,7 @@ export function roomBaseline(draft: AssessmentDraft): RoomBaseline {
     }
     if (inputs.period.status === "known") {
       const period = inputs.period.value;
-      periodLabel = period.kind === "date-range" ? `${period.start} to ${period.end}` : `${period.coolingDays} cooling days · ${period.description}`;
+      periodLabel = period.kind === "date-range" ? `${period.start} to ${period.end}` : period.kind === "standardised-year" ? period.description : `${period.coolingDays} cooling days · ${period.description}`;
     }
     const energy = inputs.energy;
     if (energy.kind === "measured") {

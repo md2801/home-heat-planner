@@ -12,6 +12,11 @@ export function planSteps(option: CoolingOption, draft: AssessmentDraft): PlanSt
   const quote = profile.willingToObtainQuotes;
   const quoteStep = { id: "quote", title: quote.status === "known" && !quote.value ? "Review your quote preference" : "Get a scoped quote", detail: quote.status === "known" && !quote.value ? "You declined quotes. Gather information first and reconsider a quote before spending." : "Ask a qualified provider for inclusions, installed cost and any recurring costs. No price is assumed." };
   const recordStep = { id: "record", title: "Keep records of your next step", detail: "If you later proceed, keep the installed cost and completion records for your check-in. Nothing is marked installed here." };
+  if (option.id === "ac-replacement") return [
+    { id: "labels", title: "Check both model labels", detail: "Confirm model pairs, Average-zone cooling energy, same capacity and comparable features. Actual usage may differ from standard label conditions." },
+    { id: "sizing", title: "Confirm room sizing and comfort", detail: "Ask a qualified installer to confirm bedroom suitability, noise and comparable cooling service." },
+    { id: "permission", title: "Confirm installation permission", detail: "Confirm permission and any electrical, external-unit or shared-building constraints." }, quoteStep, recordStep,
+  ];
   if (option.id === "external-shading") return [
     { id: "window", title: "Measure the relevant window", detail: "Record its size and observe direct sun at the hot times you reported. Measure only where safely accessible." },
     { id: "permission", title: profile.externalChangesPermitted.status === "known" && profile.externalChangesPermitted.value ? "Review permission conditions" : "Confirm external-change permission", detail: profile.externalChangesPermitted.status === "known" && profile.externalChangesPermitted.value ? "You reported permission is confirmed. Check any conditions before arranging work." : "Permission is not known. Ask the relevant owner, building manager or authority before external work." },
@@ -45,7 +50,9 @@ function selectionSignature(draft: AssessmentDraft): string { return JSON.string
 function initialPlan(draft: AssessmentDraft, now: string): CoolingPlanDraft | null {
   const option = coolingOptions(draft).selected;
   if (!option) return null;
-  return { schemaVersion: 1, id: `cooling-plan:${option.id}:${draft.selectedOption!.recordedAt}`, selectedActionId: option.id, selectedActionLabel: option.title, selectionSignature: selectionSignature(draft), comparisonSnapshot: reported(option.comparison, draft.selectedOption!.recordedAt, "Selected comparison snapshot; enclosed financial provenance and unknowns are preserved"), checklist: planSteps(option, draft).map(step => ({ id: step.id, description: `${step.title}. ${step.detail}`, completed: false })), checkInDate: unknown("No check-in date chosen"), status: "planned", createdAt: now, updatedAt: now, savedAt: unknown("Plan has not been saved"), checkInChoice: unknown("No check-in selected"), financialStatus: option.status, upfrontCostAud: option.recommendation.upfrontCostAud, evidence: contributorEvidence.filter(source => option.recommendation.sourceIds.includes(source.id)), catalogueVersion: option.recommendation.catalogueVersion, checklistVersion: CHECKLIST_VERSION };
+  const rating = draft.answers.baselineComfortRating;
+  const time = draft.answers.baselineComfortTime;
+  return { schemaVersion: 1, id: `cooling-plan:${option.id}:${draft.selectedOption!.recordedAt}`, selectedActionId: option.id, selectedActionLabel: option.title, selectionSignature: selectionSignature(draft), comparisonSnapshot: reported(option.comparison, draft.selectedOption!.recordedAt, "Selected comparison snapshot; enclosed financial provenance and unknowns are preserved"), checklist: planSteps(option, draft).map(step => ({ id: step.id, description: `${step.title}. ${step.detail}`, completed: false })), checkInDate: unknown("No check-in date chosen"), status: "planned", createdAt: now, updatedAt: now, savedAt: unknown("Plan has not been saved"), checkInChoice: unknown("No check-in selected"), financialStatus: option.status, upfrontCostAud: option.recommendation.upfrontCostAud, evidence: contributorEvidence.filter(source => option.recommendation.sourceIds.includes(source.id)), catalogueVersion: option.recommendation.catalogueVersion, checklistVersion: CHECKLIST_VERSION, baselineComfortRating: rating?.status === "known" && typeof rating.value === "number" ? { ...rating, value: rating.value } : unknown("Baseline comfort not recorded"), baselineComfortTime: time?.status === "known" && typeof time.value === "string" ? { ...time, value: time.value } : unknown("Baseline time not recorded") };
 }
 const record = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 const timestamp = (value: unknown): value is string => typeof value === "string" && Number.isFinite(Date.parse(value));
@@ -60,8 +67,12 @@ export function isPlanForSelection(value: unknown, expected: CoolingPlanDraft): 
   if (!value.checklist.every((step, i) => record(step) && step.id === expected.checklist[i]!.id && step.description === expected.checklist[i]!.description && typeof step.completed === "boolean")) return false;
   if (!validReportedFact(value.savedAt, timestamp, "Plan saved in this browser") || !validReportedFact(value.checkInDate, v => typeof v === "string" && validCalendarDate(v), "Chosen plan check-in date") || !validReportedFact(value.checkInChoice, v => typeof v === "string" && ["7-days", "14-days", "custom"].includes(v), "Chosen plan check-in interval")) return false;
   if (!record(value.checkInChoice) || !record(value.checkInDate) || (value.checkInChoice.status === "unknown" && value.checkInDate.status !== "unknown") || (value.checkInChoice.status === "known" && value.checkInChoice.value !== "custom" && value.checkInDate.status !== "known")) return false;
-  const mutable = new Set(["createdAt", "updatedAt", "savedAt", "checkInChoice", "checkInDate", "checklist"]);
-  return Object.keys(value).every(key => Object.hasOwn(expected, key)) && Object.keys(expected).filter(key => !mutable.has(key)).every(key => JSON.stringify(value[key]) === JSON.stringify(expected[key as keyof CoolingPlanDraft]));
+  if (value.baselineComfortRating !== undefined && !validReportedFact(value.baselineComfortRating, v => typeof v === "number" && Number.isInteger(v) && v >= 1 && v <= 5, "Bedroom assessment: baselineComfortRating")) return false;
+  if (value.baselineComfortTime !== undefined && !validReportedFact(value.baselineComfortTime, v => typeof v === "string" && ["morning", "afternoon", "evening", "overnight"].includes(v), "Bedroom assessment: baselineComfortTime")) return false;
+  const mutable = new Set(["createdAt", "updatedAt", "savedAt", "checkInChoice", "checkInDate", "checklist", "baselineComfortRating", "baselineComfortTime"]);
+  // Re-reporting identical values may change provenance timestamps, but preserves the original saved evidence.
+  const semantic = (v: unknown) => JSON.stringify(v, (key, val) => key === "recordedAt" ? undefined : val);
+  return Object.keys(value).every(key => Object.hasOwn(expected, key)) && Object.keys(expected).filter(key => !mutable.has(key)).every(key => semantic(value[key]) === semantic(expected[key as keyof CoolingPlanDraft]));
 }
 export function coolingPlan(draft: AssessmentDraft, now: string) {
   const optionView = coolingOptions(draft);

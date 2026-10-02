@@ -111,7 +111,7 @@ test("unknown financial values stay unavailable and corrupt financial snapshots 
   assert.equal(isPlanForSelection({ ...plan, upfrontCostAud: { status: "known", value: 500 } }, plan), false);
   assert.equal(isPlanForSelection({ ...plan, comparisonSnapshot: { status: "known", value: "fabricated" } }, plan), false);
   assert.equal(isPlanForSelection({ ...plan, checkInDate: { status: "known", value: "2026-02-30" } }, plan), false);
-  const corrupt = { ...selected(), coolingPlanDraft: { schemaVersion: 99 } };
+  const corrupt = { ...selected(), coolingPlanDraft: { schemaVersion: 99 } } as unknown as Parameters<typeof coolingPlan>[0];
   assert.equal(coolingPlan(corrupt, at).invalidStoredPlan, true);
 });
 test("edits require save again; checkbox progress never claims completed installation", () => {

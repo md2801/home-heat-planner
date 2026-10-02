@@ -1,5 +1,6 @@
 import { createBrowserPersistence, type Persistence } from "../../lib/persistence/browser-storage.ts";
 import { assessmentJourney, emptyAssessment, isAssessmentDraft, resumeAssessment, type AssessmentDraft } from "./state.ts";
+import { materialSignature } from "../../domain/material-signature.ts";
 
 export const ASSESSMENT_STORAGE_KEY = "home-heat-planner:assessment:v1";
 export interface AssessmentSnapshot { ready: boolean; draft: AssessmentDraft; notice: string | null }
@@ -21,6 +22,14 @@ export function createAssessmentRepository(persistence: Persistence<AssessmentDr
     },
     save(draft: AssessmentDraft) {
       if (!isAssessmentDraft(draft)) throw new Error("Invalid assessment draft");
+      const previous = snapshot.draft;
+      const oldPlan = previous.coolingPlanDraft;
+      const materialChange = materialSignature(previous) !== materialSignature(draft) || previous.selectedOption?.recordedAt !== draft.selectedOption?.recordedAt;
+      if (oldPlan?.savedAt.status === "known" && materialChange) {
+        const priorEntry = previous.history?.find(entry => entry.plan.id === oldPlan.id);
+        const checkIns = [...(priorEntry?.checkIns ?? []), ...(previous.followUpCheckIn?.savedAt.status === "known" ? [previous.followUpCheckIn] : [])].filter((c, i, all) => all.findIndex(other => other.updatedAt === c.updatedAt) === i).slice(-50);
+        draft = { ...draft, history: [...(previous.history ?? []).filter(entry => entry.plan.id !== oldPlan.id), { plan: priorEntry?.plan ?? oldPlan, checkIns, archivedAt: new Date().toISOString(), reason: "Comparison inputs or selected action changed. Original estimate retained." }].slice(-50) };
+      }
       const result = persistence.save(draft);
       snapshot = { ready: true, draft, notice: result.ok ? null : "Answers will stay in this tab, but could not be saved. Refreshing may lose them." };
       notify();

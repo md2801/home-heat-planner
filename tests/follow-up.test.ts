@@ -8,7 +8,7 @@ import { createBrowserPersistence } from "../src/lib/persistence/browser-storage
 import { selectCoolingOption } from "../src/features/cooling-options/model.ts";
 import { coolingPlan, saveCoolingPlan } from "../src/features/cooling-plan/model.ts";
 import { createCoolingPlanService } from "../src/features/cooling-plan/repository.ts";
-import { changeStatus, confirmComparableUsage, followUp, isCheckInForPlan, numericInput, observedUsage, saveCheckIn, statusChoices, updateNote, updateNumber, validNumber } from "../src/features/follow-up/model.ts";
+import { changeStatus, confirmComparableUsage, followUp, isCheckInForPlan, numericInput, observedUsage, saveCheckIn, statusChoices, updateNote, updateNumber, validNumber, updateFollowUpDetail, barrierSteps } from "../src/features/follow-up/model.ts";
 import { createFollowUpService } from "../src/features/follow-up/repository.ts";
 const at = "2026-10-03T00:00:00.000Z", later = "2026-10-03T00:01:00.000Z";
 function fixture(values: Record<string, AnswerValue | null> = {}): AssessmentDraft {
@@ -39,13 +39,51 @@ test("only an actual current saved plan enables a check-in; neither selection no
   assert.equal(checkIn.status.status, "unknown");
   assert.throws(() => saveCheckIn(checkIn, later));
 });
-test("all four explicitly chosen statuses persist and restore across a fresh repository", () => {
+test("all five explicitly chosen statuses persist and restore across a fresh repository", () => {
   for (const choice of statusChoices) {
     const { service, persistence, checkIn } = saved();
     service.save(saveCheckIn(changeStatus(checkIn, choice.value, later), later));
     const reloaded = createAssessmentRepository(persistence); reloaded.hydrate();
     assert.deepEqual(createFollowUpService(reloaded).read(later).checkIn?.status, { status: "known", value: choice.value, provenance: { kind: "user-reported", recordedAt: later, sourceIds: [], scope: "Cooling plan check-in: status" } });
   }
+});
+
+test("baseline comfort is a saved snapshot; completed observations and later edits retain check-in history", () => {
+  const { store, service, checkIn, persistence } = saved({ baselineComfortRating: 2, baselineComfortTime: "afternoon" });
+  assert.equal(checkIn.earlierComfort?.status === "known" && checkIn.earlierComfort.value, 2);
+  let completed = changeStatus(checkIn, "completed", later);
+  completed = updateFollowUpDetail(completed, "completionDate", "2026-10-02", later);
+  completed = updateFollowUpDetail(completed, "comfortTime", "afternoon", later);
+  completed = updateNumber(completed, "laterCoolingKwh", 0, later);
+  completed = updateNumber(completed, "laterTariff", 0.3, later);
+  completed = updateFollowUpDetail(completed, "usagePeriod", "Synthetic same meter; cooler weather, different routine", later);
+  assert.throws(() => updateFollowUpDetail(completed, "completionDate", "2099-10-01", later));
+  service.save(saveCheckIn(completed, later));
+  const q = questions.find(q => q.id === "baselineComfortRating")!;
+  store.save(updateAnswer(store.getSnapshot().draft, q, answerFor(q, 4, later)));
+  const baselineComfort = service.read(later).checkIn?.earlierComfort;
+  assert.equal(baselineComfort?.status === "known" && baselineComfort.value, 2);
+  const nextTime = "2026-10-03T00:02:00.000Z";
+  service.save(saveCheckIn(updateNote(completed, "Second synthetic check-in", nextTime), nextTime));
+  const material = questions.find(q => q.id === "budgetAud")!;
+  store.save(updateAnswer(store.getSnapshot().draft, material, answerFor(material, 1, nextTime)));
+  assert.equal(store.getSnapshot().draft.history?.[0]?.checkIns.length, 2);
+  const reloaded = createAssessmentRepository(persistence); reloaded.hydrate();
+  assert.equal(reloaded.getSnapshot().draft.history?.[0]?.checkIns.length, 2);
+  assert.equal(createFollowUpService(reloaded).read(nextTime).checkIn, null);
+});
+
+test("deferred barriers provide next steps without completion data or fabricated outcomes", () => {
+  const { service, persistence, checkIn } = saved();
+  let deferred = changeStatus(checkIn, "deferred", later);
+  deferred = updateFollowUpDetail(deferred, "barrier", "permission", later);
+  assert.match(barrierSteps.permission, /approve/);
+  assert.throws(() => updateFollowUpDetail(deferred, "completionDate", "2026-10-02", later));
+  assert.throws(() => updateNumber(deferred, "laterCoolingKwh", 1, later));
+  service.save(saveCheckIn(deferred, later));
+  const reloaded = createAssessmentRepository(persistence); reloaded.hydrate();
+  assert.deepEqual(createFollowUpService(reloaded).read(later).checkIn?.barrier, deferred.barrier);
+  assert.equal(observedUsage(deferred), null);
 });
 test("completed optional actual spend, hours, comfort and note survive reload without generating savings", () => {
   const { service, persistence, checkIn } = saved();

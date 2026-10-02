@@ -1,0 +1,2061 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Home Heat Planner request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "operation",
+    "assessment"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "operation": {
+      "enum": [
+        "assess",
+        "confirm",
+        "recommend",
+        "compare"
+      ]
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "answers"
+      ],
+      "properties": {
+        "answers": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "heatTiming": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "morning",
+                          "afternoon",
+                          "evening",
+                          "overnight"
+                        ]
+                      }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: heatTiming"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "position": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        "ground-floor",
+                        "upper-floor"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: position"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "aboveRoom": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        "roof",
+                        "another-room",
+                        "another-dwelling"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: aboveRoom"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "windowOrientation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "north",
+                          "north-east",
+                          "east",
+                          "south-east",
+                          "south",
+                          "south-west",
+                          "west",
+                          "north-west"
+                        ]
+                      }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: windowOrientation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "externalShading": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        "all",
+                        "some",
+                        "none"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: externalShading"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "insulation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        true,
+                        false
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: insulation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "cooling": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "fan",
+                          "air-conditioner",
+                          "none"
+                        ]
+                      }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: cooling"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "coolingUsage": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: coolingUsage"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "location": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: location"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "goal": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: goal"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "internalCoverings": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "curtains",
+                          "blinds",
+                          "shutters",
+                          "none"
+                        ]
+                      }
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: internalCoverings"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "windowsOpen": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        "all",
+                        "some",
+                        "none"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: windowsOpen"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "ventilationConstraints": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: ventilationConstraints"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "servesOnlyRoom": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        true,
+                        false
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: servesOnlyRoom"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "energyBasis": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        "measured",
+                        "scenario"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: energyBasis"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "coolingKwh": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: coolingKwh"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "energyScope": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: energyScope"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "periodStart": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "format": "date"
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: periodStart"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "periodEnd": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "format": "date"
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: periodEnd"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "averageElectricalInputKw": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "assumed"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: averageElectricalInputKw"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "hoursPerDay": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 24
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "assumed"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: hoursPerDay"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "coolingDays": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "assumed"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: coolingDays"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "periodDescription": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "assumed"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: periodDescription"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "flatTariffAudPerKwh": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: flatTariffAudPerKwh"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "budgetAud": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: budgetAud"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "externalChangesPermitted": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        true,
+                        false
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: externalChangesPermitted"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "willingToObtainQuotes": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        true,
+                        false
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: willingToObtainQuotes"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "baselineComfortRating": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: baselineComfortRating"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "baselineComfortTime": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        "morning",
+                        "afternoon",
+                        "evening",
+                        "overnight"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: baselineComfortTime"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "review": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "room": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "signature",
+                "recordedAt"
+              ],
+              "properties": {
+                "signature": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "recordedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "measuredScope": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "signature",
+                "recordedAt"
+              ],
+              "properties": {
+                "signature": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "recordedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        },
+        "replacement": {
+          "type": "object",
+          "required": [
+            "fields",
+            "confirmations",
+            "updatedAt"
+          ],
+          "properties": {
+            "fields": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "existingModel": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "proposedModel": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "existingSource": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "proposedSource": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "checkedDate": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "existingCapacity": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "proposedCapacity": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "existingKwh": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "proposedKwh": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "tariff": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "installedCost": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "quoteScope": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "quoteDate": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "existingRecurring": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "proposedRecurring": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "serviceLife": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "serviceLifeSource": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              }
+            },
+            "confirmations": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "climate": {
+                  "type": "boolean"
+                },
+                "labels": {
+                  "type": "boolean"
+                },
+                "sizing": {
+                  "type": "boolean"
+                },
+                "conditions": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    }
+  }
+}

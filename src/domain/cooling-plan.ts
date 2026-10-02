@@ -15,4 +15,6 @@ export interface CoolingPlanDraft extends CoolingPlan {
   evidence: EvidenceSource[];
   catalogueVersion: string;
   checklistVersion: string;
+  baselineComfortRating?: Fact<number>;
+  baselineComfortTime?: Fact<string>;
 }

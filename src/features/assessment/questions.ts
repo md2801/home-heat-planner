@@ -12,6 +12,7 @@ export interface Question {
   multiple?: boolean;
   unit?: string;
   max?: number;
+  min?: number;
   maxLength?: number;
   integer?: boolean;
 }
@@ -47,6 +48,8 @@ export const questions: Question[] = [
   { id: "budgetAud", title: "What could you spend now?", context: "Your next step", kind: "number", unit: "AUD", hint: "Enter a maximum budget, or choose Not sure. A larger improvement can still be investigated later.", why: "Your current spending limit helps frame affordability. It does not establish any improvement’s cost." },
   { id: "externalChangesPermitted", title: "Can you make external building changes?", context: "Your next step", kind: "choice", choices: options(["Yes, permission is confirmed", true], ["No, external changes are restricted", false]), hint: "Owning a home doesn’t automatically mean shared or external building changes are permitted.", why: "Permissions must be confirmed before treating an external or shared-building action as suitable." },
   { id: "willingToObtainQuotes", title: "Would you be willing to get quotes?", context: "Your next step", kind: "choice", choices: yesNo, why: "Quotes and professional checks may be a useful next step when cost or suitability is unknown." },
+  { id: "baselineComfortRating", title: "How comfortable is your bedroom now?", context: "Your room", kind: "number", min: 1, max: 5, integer: true, hint: "Optional baseline: 1 very uncomfortable, 5 very comfortable. Choose Not sure to skip.", why: "Use the same scale and time of day when reviewing comfort after a change." },
+  { id: "baselineComfortTime", title: "When does that comfort rating apply?", context: "Your room", kind: "choice", choices: options(["Morning", "morning"], ["Afternoon", "afternoon"], ["Evening", "evening"], ["Overnight", "overnight"]), why: "Comfort observations at different times of day are not directly comparable." },
 ];
 const reportedValue = (answers: AssessmentAnswers, id: string) => answers[id]?.status === "known" ? answers[id].value : undefined;
 export function activeQuestions(answers: AssessmentAnswers): Question[] {

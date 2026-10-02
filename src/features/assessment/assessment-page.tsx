@@ -9,6 +9,7 @@ import { activeQuestions, CORE_QUESTION_IDS, type Question } from "./questions";
 import { answerFor, assessmentDestination, canContinue, canSeeAssessment, finishAssessment, moveAssessment, updateAnswer, validValue } from "./state";
 import { assessmentRepository } from "./repository";
 import styles from "./assessment.module.css";
+import { IntakeAssistant } from "./intake-assistant";
 
 function AnswerIcon({ kind }: { kind?: string }) {
   return <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
@@ -56,7 +57,7 @@ function QuestionInput({ question }: { question: Question }) {
   return <fieldset className={styles.answers} aria-describedby={question.hint ? "question-hint" : undefined}>
     <legend className="sr-only">{question.title}</legend>
     <label className={styles.fieldLabel} htmlFor={`answer-${question.id}`}>{question.unit ?? (question.kind === "date" ? "Date" : "Your answer")}</label>
-    <input id={`answer-${question.id}`} className={styles.textInput} type={question.kind === "text" ? "text" : question.kind} value={raw} min={question.kind === "number" ? 0 : undefined} max={question.max} step={question.kind === "number" ? question.integer ? "1" : "any" : undefined} maxLength={question.maxLength} aria-describedby={question.hint ? "question-hint input-error" : "input-error"} aria-invalid={invalid || dateOrderInvalid} onInput={event => {
+    <input id={`answer-${question.id}`} className={styles.textInput} type={question.kind === "text" ? "text" : question.kind} value={raw} min={question.kind === "number" ? question.min ?? 0 : undefined} max={question.max} step={question.kind === "number" ? question.integer ? "1" : "any" : undefined} maxLength={question.maxLength} aria-describedby={question.hint ? "question-hint input-error" : "input-error"} aria-invalid={invalid || dateOrderInvalid} onInput={event => {
       const text = event.currentTarget.value;
       setRaw(text);
       const value = question.kind === "number" ? Number(text) : text.trim();
@@ -92,6 +93,7 @@ export function AssessmentPage() {
       <section className={styles.questionPanel} aria-labelledby="assessment-question">
         <div className={styles.progress}><span>{optional ? `Optional details · ${question.context}` : `${index + 1} of ${CORE_QUESTION_IDS.length} · ${question.context}`}</span><div className={styles.progressTrack} role="progressbar" aria-label="Core assessment progress" aria-valuemin={0} aria-valuemax={CORE_QUESTION_IDS.length} aria-valuenow={coreProgress}><i style={{ width: `${(coreProgress / CORE_QUESTION_IDS.length) * 100}%` }} /></div></div>
         <h1 id="assessment-question" ref={heading} tabIndex={-1}>{question.title}</h1>
+        {ready && <IntakeAssistant draft={draft} />}
         {question.hint && <p id="question-hint" className={`${styles.hint} ${question.id === "heatTiming" ? styles.heatHint : ""}`}>{question.hint}</p>}
         {ready ? <form onSubmit={event => {
           event.preventDefault();

@@ -9,6 +9,7 @@ function numberFrom(fact: Fact<number>): number | null {
 }
 
 function validPeriod(period: Period): boolean {
+  if (period.kind === "standardised-year") return period.basis === "annual" && !!period.description.trim();
   if (period.kind === "cooling-schedule") return validNumber(period.coolingDays) && period.description.trim().length > 0;
   const start = Date.parse(period.start);
   const end = Date.parse(period.end);
@@ -90,7 +91,7 @@ export function calculateSimplePayback(upfrontCostAud: Fact<number>, annualNetSa
   const upfront = numberFrom(upfrontCostAud);
   if (upfront === null) return unavailable("Upfront installed cost is unknown or invalid.");
   if (upfront === 0) return unavailable("There is no upfront cost to recover.");
-  if (annualNetSavings.status !== "supported-estimate" || annualNetSavings.period.status !== "known" || annualNetSavings.period.value.kind !== "cooling-schedule" || annualNetSavings.period.value.basis !== "annual" || !validPeriod(annualNetSavings.period.value)) {
+  if (annualNetSavings.status !== "supported-estimate" || annualNetSavings.period.status !== "known" || annualNetSavings.period.value.kind === "date-range" || annualNetSavings.period.value.basis !== "annual" || !validPeriod(annualNetSavings.period.value)) {
     return unavailable("Supported annual net savings are required; a shorter period is not annualised.");
   }
   const amount = annualNetSavings.amountAud;

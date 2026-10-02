@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
 import { JourneyHeader } from "@/components/layout/journey-header";
 import { BedroomCrossSection, type IllustrationCallout } from "@/components/illustrations/bedroom-cross-section";
-import { assessmentRepository } from "@/features/assessment/repository";
+import { plannerClient as assessmentRepository } from "@/services/planner";
 import { assessContributors, type ContributorId } from "./model";
 import { contributorEvidence } from "./evidence";
 import styles from "./heat-contributors.module.css";

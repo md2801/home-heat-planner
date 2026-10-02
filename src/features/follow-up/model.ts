@@ -1,4 +1,5 @@
-import type { FollowUpCheckIn, FollowUpStatus } from "../../domain/follow-up.ts";
+import type { Barrier, FollowUpCheckIn, FollowUpStatus } from "../../domain/follow-up.ts";
+import { validCalendarDate } from "../cooling-plan/model.ts";
 import type { CoolingPlanDraft } from "../../domain/cooling-plan.ts";
 import type { Fact } from "../../domain/models.ts";
 import { unknown } from "../../domain/unknown.ts";
@@ -10,8 +11,9 @@ export const statusChoices = [
   { value: "started", label: "Started", icon: "◐" },
   { value: "completed", label: "Completed", icon: "✓" },
   { value: "stuck", label: "I’m stuck", icon: "⚑" },
+  { value: "deferred", label: "Deferred", icon: "↷" },
 ] as const;
-export type NumericField = "actualCostAud" | "currentHoursPerDay" | "comfortRating";
+export type NumericField = "actualCostAud" | "currentHoursPerDay" | "comfortRating" | "laterCoolingKwh" | "laterTariff";
 export function reported<T>(value: T, now: string, field: string): Fact<T> {
   return { status: "known", value, provenance: { kind: "user-reported", recordedAt: now, sourceIds: [], scope: `Cooling plan check-in: ${field}` } };
 }
@@ -22,7 +24,7 @@ export function numericInput(field: NumericField, raw: string) {
   if (!raw.trim()) return { value: null, error: null };
   const value = Number(raw);
   const valid = /^[+]?(\d+(\.\d*)?|\.\d+)$/.test(raw.trim()) && validNumber(field, value);
-  return valid ? { value, error: null } : { value: null, error: field === "actualCostAud" ? "Enter a non-negative amount, or leave blank." : field === "currentHoursPerDay" ? "Enter hours from 0 to 24, or leave blank." : "Choose a rating from 1 to 5." };
+  return valid ? { value, error: null } : { value: null, error: field === "comfortRating" ? "Choose a rating from 1 to 5." : field === "currentHoursPerDay" ? "Enter hours from 0 to 24, or leave blank." : "Enter a non-negative amount, or leave blank." };
 }
 function signature(plan: CoolingPlanDraft): string {
   return JSON.stringify([plan.id, plan.selectionSignature, plan.comparisonSnapshot, plan.upfrontCostAud]);
@@ -30,7 +32,9 @@ function signature(plan: CoolingPlanDraft): string {
 function initial(plan: CoolingPlanDraft, draft: AssessmentDraft, now: string): FollowUpCheckIn {
   const hours = draft.answers.hoursPerDay;
   const earlier = hours?.status === "known" && validNumber("currentHoursPerDay", hours.value) ? { ...hours, value: hours.value } : unknown("Earlier numeric cooling hours were not supplied");
-  return { schemaVersion: 1, id: `check-in:${plan.id}`, planId: plan.id, actionId: plan.selectedActionId, actionLabel: plan.selectedActionLabel, planSignature: signature(plan), status: unknown("No progress status selected"), actualCostAud: unknown(), currentHoursPerDay: unknown(), comfortRating: unknown(), note: unknown(), earlierHoursPerDay: earlier, comparableUsageConfirmed: unknown("Comparable actual usage not confirmed"), createdAt: now, updatedAt: now, savedAt: unknown("Check-in not saved"), interpretation: "observational" };
+  const comfort = plan.baselineComfortRating;
+  const time = plan.baselineComfortTime;
+  return { schemaVersion: 1, id: `check-in:${plan.id}`, planId: plan.id, actionId: plan.selectedActionId, actionLabel: plan.selectedActionLabel, planSignature: signature(plan), status: unknown("No progress status selected"), actualCostAud: unknown(), currentHoursPerDay: unknown(), comfortRating: unknown(), note: unknown(), earlierHoursPerDay: earlier, earlierComfort: comfort?.status === "known" ? { ...comfort, value: Number(comfort.value) } : unknown("Baseline comfort not recorded"), earlierComfortTime: time?.status === "known" ? { ...time, value: String(time.value) } : unknown("Baseline time not recorded"), completionDate: unknown(), barrier: unknown(), comfortTime: unknown(), laterCoolingKwh: unknown(), laterTariff: unknown(), usagePeriod: unknown(), comparableUsageConfirmed: unknown("Comparable actual usage not confirmed"), createdAt: now, updatedAt: now, savedAt: unknown("Check-in not saved"), interpretation: "observational" };
 }
 const record = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const timestamp = (v: unknown): v is string => typeof v === "string" && Number.isFinite(Date.parse(v));
@@ -41,13 +45,17 @@ function validFact(value: unknown, field: string, guard: (v: unknown) => boolean
 }
 export function isCheckInForPlan(value: unknown, expected: FollowUpCheckIn): value is FollowUpCheckIn {
   if (!record(value) || !timestamp(value.createdAt) || !timestamp(value.updatedAt) || value.updatedAt < value.createdAt) return false;
-  const mutable = new Set(["status", "actualCostAud", "currentHoursPerDay", "comfortRating", "note", "comparableUsageConfirmed", "createdAt", "updatedAt", "savedAt"]);
+  const mutable = new Set(["status", "actualCostAud", "currentHoursPerDay", "comfortRating", "note", "comparableUsageConfirmed", "createdAt", "updatedAt", "savedAt", "barrier", "completionDate", "comfortTime", "laterCoolingKwh", "laterTariff", "usagePeriod"]);
   if (Object.keys(value).some(key => !Object.hasOwn(expected, key)) || Object.keys(expected).filter(key => !mutable.has(key)).some(key => JSON.stringify(value[key]) !== JSON.stringify(expected[key as keyof FollowUpCheckIn]))) return false;
   if (!validFact(value.status, "status", v => statusChoices.some(s => s.value === v)) || !validFact(value.savedAt, "savedAt", timestamp) || !validFact(value.note, "note", v => typeof v === "string" && !!v.trim() && v.length <= 500) || !validFact(value.comparableUsageConfirmed, "comparableUsageConfirmed", v => typeof v === "boolean")) return false;
   if (!( ["actualCostAud", "currentHoursPerDay", "comfortRating"] as const).every(field => validFact(value[field], field, v => validNumber(field, v)))) return false;
+  for (const field of ["barrier", "completionDate", "comfortTime", "laterCoolingKwh", "laterTariff", "usagePeriod"] as const) {
+    if (value[field] === undefined) continue;
+    if (!validFact(value[field], field, v => field === "barrier" ? typeof v === "string" && Object.hasOwn(barrierSteps, v) : field === "completionDate" ? typeof v === "string" && validCalendarDate(v) && v <= localDate(String(value.updatedAt)) : field === "comfortTime" ? typeof v === "string" && ["morning", "afternoon", "evening", "overnight"].includes(v) : field === "usagePeriod" ? typeof v === "string" && v.length <= 500 && !!v.trim() : typeof v === "number" && Number.isFinite(v) && v >= 0)) return false;
+  }
   const status = value.status as Fact<FollowUpStatus>;
   if (status.status !== "known" || status.value !== "completed") {
-    if (["actualCostAud", "currentHoursPerDay", "comfortRating", "comparableUsageConfirmed"].some(field => (value[field] as Fact<unknown>).status !== "unknown")) return false;
+    if (["actualCostAud", "currentHoursPerDay", "comfortRating", "comparableUsageConfirmed", "completionDate", "comfortTime", "laterCoolingKwh", "laterTariff", "usagePeriod"].some(field => value[field] && (value[field] as Fact<unknown>).status !== "unknown")) return false;
     if ((status.status === "unknown" || status.value === "not-started") && (value.note as Fact<string>).status !== "unknown") return false;
   }
   if ((value.comparableUsageConfirmed as Fact<boolean>).status === "known" && expected.earlierHoursPerDay.status !== "known") return false;
@@ -67,7 +75,7 @@ function edited(checkIn: FollowUpCheckIn, now: string): FollowUpCheckIn { return
 export function changeStatus(checkIn: FollowUpCheckIn, status: FollowUpStatus, now: string): FollowUpCheckIn {
   if (!statusChoices.some(s => s.value === status)) throw new Error("Invalid progress status");
   if (checkIn.status.status === "known" && checkIn.status.value === status) return checkIn;
-  return { ...edited(checkIn, now), status: reported(status, now, "status"), actualCostAud: unknown(), currentHoursPerDay: unknown(), comfortRating: unknown(), comparableUsageConfirmed: unknown("Comparable actual usage not confirmed"), note: unknown() };
+  return { ...edited(checkIn, now), status: reported(status, now, "status"), actualCostAud: unknown(), currentHoursPerDay: unknown(), comfortRating: unknown(), comparableUsageConfirmed: unknown("Comparable actual usage not confirmed"), note: unknown(), completionDate: unknown(), barrier: unknown(), comfortTime: unknown(), laterCoolingKwh: unknown(), laterTariff: unknown(), usagePeriod: unknown() };
 }
 export function updateNumber(checkIn: FollowUpCheckIn, field: NumericField, value: number | null, now: string): FollowUpCheckIn {
   if (checkIn.status.status !== "known" || checkIn.status.value !== "completed" || (value !== null && !validNumber(field, value))) throw new Error("Invalid observation");
@@ -78,6 +86,13 @@ export function updateNumber(checkIn: FollowUpCheckIn, field: NumericField, valu
 export function updateNote(checkIn: FollowUpCheckIn, note: string, now: string): FollowUpCheckIn {
   if (note.length > 500 || checkIn.status.status !== "known" || checkIn.status.value === "not-started") throw new Error("Invalid note");
   return { ...edited(checkIn, now), note: note.trim() ? reported(note.trim(), now, "note") : unknown() };
+}
+export const barrierSteps: Record<Barrier, string> = { cost: "Revisit your budget and quote inclusions. Start by gathering information or a smaller scoped quote before spending.", permission: "Ask the owner or building manager which changes are allowed, what documents they need, and who can approve the work.", installation: "Ask a qualified installer about suitability, sizing, inclusions and the checks in your plan.", time: "Choose one small step, such as locating the label or requesting one quote, then set a new check-in date.", uncertainty: "Return to the evidence and unknowns. Confirm one missing fact before choosing work.", "did-not-help": "Record weather, occupancy, equipment and usage changes. Review sizing and the original assumptions with a qualified professional before more spending." };
+export function updateFollowUpDetail(checkIn: FollowUpCheckIn, field: "barrier" | "completionDate" | "comfortTime" | "usagePeriod", value: string, now: string): FollowUpCheckIn {
+  if (checkIn.status.status !== "known") throw new Error("Choose a status first");
+  if (field === "barrier" ? !["stuck", "deferred"].includes(checkIn.status.value) : checkIn.status.value !== "completed") throw new Error("Choose a matching progress status");
+  if (value.length > 500 || (field === "barrier" && value && !Object.hasOwn(barrierSteps, value)) || (field === "completionDate" && value && (!validCalendarDate(value) || value > localDate(now))) || (field === "comfortTime" && value && !["morning", "afternoon", "evening", "overnight"].includes(value))) throw new Error("Invalid observation");
+  return { ...edited(checkIn, now), [field]: value ? reported(value, now, field) : unknown("Not recorded") };
 }
 export function confirmComparableUsage(checkIn: FollowUpCheckIn, confirmed: boolean, now: string): FollowUpCheckIn {
   if (checkIn.status.status !== "known" || checkIn.status.value !== "completed" || checkIn.earlierHoursPerDay.status !== "known") throw new Error("Earlier hours unavailable");

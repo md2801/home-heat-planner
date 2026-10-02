@@ -2,6 +2,10 @@ import type { AnswerValue, AssessmentAnswers, BaselineInputs, Fact, JourneyState
 import { unknown } from "../../domain/unknown.ts";
 import { createEmptyJourney } from "../journey/state.ts";
 import { activeQuestions, CORE_QUESTION_IDS, questions, type Question } from "./questions.ts";
+import { isReplacementInputs, type ReplacementInputs } from "../cooling-options/replacement.ts";
+import type { CoolingPlanDraft } from "../../domain/cooling-plan.ts";
+import type { FollowUpCheckIn } from "../../domain/follow-up.ts";
+import { isHistory, safeJson, type PlanHistoryEntry } from "../../domain/history.ts";
 
 export interface ReviewConfirmation { signature: string; recordedAt: string }
 export interface AssessmentReview {
@@ -14,7 +18,11 @@ export interface AssessmentDraft {
   currentQuestionId: string;
   completed: boolean;
   review?: AssessmentReview;
-  selectedOption?: { actionId: "external-shading" | "ceiling-insulation" | "opening-review"; assessmentSignature: string; recordedAt: string };
+  replacement?: ReplacementInputs;
+  coolingPlanDraft?: CoolingPlanDraft;
+  followUpCheckIn?: FollowUpCheckIn;
+  history?: PlanHistoryEntry[];
+  selectedOption?: { actionId: "external-shading" | "ceiling-insulation" | "opening-review" | "ac-replacement"; assessmentSignature: string; recordedAt: string };
 }
 export function emptyAssessment(): AssessmentDraft {
   return { schemaVersion: 1, answers: {}, currentQuestionId: CORE_QUESTION_IDS[0], completed: false };
@@ -28,7 +36,7 @@ export function validValue(question: Question, value: unknown): value is AnswerV
     if (!question.multiple) return allowed.some(option => option === value);
     return Array.isArray(value) && value.length > 0 && new Set(value).size === value.length && value.every(item => allowed.includes(item)) && !(value.includes("none") && value.length > 1);
   }
-  if (question.kind === "number") return typeof value === "number" && Number.isFinite(value) && value >= 0 && (question.max === undefined || value <= question.max) && (!question.integer || Number.isInteger(value));
+  if (question.kind === "number") return typeof value === "number" && Number.isFinite(value) && value >= (question.min ?? 0) && (question.max === undefined || value <= question.max) && (!question.integer || Number.isInteger(value));
   if (typeof value !== "string" || !value.trim() || value.length > (question.maxLength ?? 500)) return false;
   if (question.kind === "date") return /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
   return true;
@@ -99,9 +107,13 @@ function validReview(value: unknown): value is AssessmentReview {
 export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
   if (!record(value) || value.schemaVersion !== 1 || !record(value.answers) || typeof value.currentQuestionId !== "string" || typeof value.completed !== "boolean") return false;
   if (value.review !== undefined && !validReview(value.review)) return false;
+  if (value.replacement !== undefined && !isReplacementInputs(value.replacement)) return false;
+  if (value.history !== undefined && !isHistory(value.history)) return false;
+  if (value.coolingPlanDraft !== undefined && !safeJson(value.coolingPlanDraft)) return false;
+  if (value.followUpCheckIn !== undefined && !safeJson(value.followUpCheckIn)) return false;
   if (value.selectedOption !== undefined) {
     const selection = value.selectedOption;
-    if (!record(selection) || typeof selection.actionId !== "string" || !["external-shading", "ceiling-insulation", "opening-review"].includes(selection.actionId) || typeof selection.assessmentSignature !== "string" || !selection.assessmentSignature || typeof selection.recordedAt !== "string" || !Number.isFinite(Date.parse(selection.recordedAt))) return false;
+    if (!record(selection) || typeof selection.actionId !== "string" || !["external-shading", "ceiling-insulation", "opening-review", "ac-replacement"].includes(selection.actionId) || typeof selection.assessmentSignature !== "string" || !selection.assessmentSignature || typeof selection.recordedAt !== "string" || !Number.isFinite(Date.parse(selection.recordedAt))) return false;
   }
   const answers: AssessmentAnswers = {};
   for (const [id, answer] of Object.entries(value.answers)) {
@@ -122,6 +134,9 @@ function numeric(answers: AssessmentAnswers, id: string): Fact<number> {
 export function assessmentJourney(draft: AssessmentDraft): JourneyState {
   const journey = createEmptyJourney();
   journey.assessmentAnswers = draft.answers;
+  const comfort = draft.answers.baselineComfortRating;
+  const time = draft.answers.baselineComfortTime;
+  if (comfort?.status === "known" && typeof comfort.value === "number" && comfort.value >= 1 && comfort.value <= 5) journey.baselineComfort = { ...comfort, value: { rating: { ...comfort, value: comfort.value as 1 | 2 | 3 | 4 | 5 }, timeOfDay: time?.status === "known" ? { ...time, value: time.value as import("../../domain/models.ts").HeatTiming } : unknown("Baseline time not recorded"), coolingUse: draft.answers.coolingUsage?.status === "known" ? { ...draft.answers.coolingUsage, value: String(draft.answers.coolingUsage.value) } : unknown("Cooling routine not recorded") } };
   journey.unknownFields = questions.filter(q => !draft.answers[q.id] || draft.answers[q.id]?.status === "unknown").map(q => q.id);
   const basis = draft.answers.energyBasis;
   if (basis?.status !== "known") return journey;

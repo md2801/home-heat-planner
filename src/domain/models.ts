@@ -23,6 +23,7 @@ export interface Assumption { id: string; description: string; provenance: Prove
 export type EstimateStatus = "supported-estimate" | "what-if" | "insufficient-evidence";
 export type NumericRange = { min: number; max: number };
 export type Period =
+  | { kind: "standardised-year"; basis: "annual"; description: string }
   | { kind: "date-range"; start: string; end: string }
   | { kind: "cooling-schedule"; coolingDays: number; basis: "stated-period" | "annual"; description: string };
 export type HeatTiming = "morning" | "afternoon" | "evening" | "overnight";

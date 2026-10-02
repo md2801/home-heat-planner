@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { BedroomCrossSection, type IllustrationCallout } from "@/components/illustrations/bedroom-cross-section";
-import { assessmentRepository } from "@/features/assessment/repository";
-import { confirmMeasuredScope, confirmRoomReview, factText, formatMoney, revokeMeasuredScope, roomBaseline, titleCase } from "./model";
+import { plannerClient as assessmentRepository } from "@/services/planner";
+import { confirmMeasuredScope, factText, formatMoney, revokeMeasuredScope, roomBaseline, titleCase } from "./model";
+import { assessmentInput } from "@/contracts/journey";
 import styles from "./room-baseline.module.css";
 
 function DetailIcon({ kind }: { kind: "room" | "roof" | "sun" | "window" | "shade" | "insulation" | "cooling" | "budget" }) {
@@ -22,6 +23,8 @@ function DetailIcon({ kind }: { kind: "room" | "roof" | "sun" | "window" | "shad
 }
 export function RoomBaselinePage() {
   const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
+  const [serviceMessage, setServiceMessage] = useState("");
   const { draft, ready, notice } = useSyncExternalStore(assessmentRepository.subscribe, assessmentRepository.getSnapshot, assessmentRepository.getServerSnapshot);
   useEffect(() => { assessmentRepository.hydrate(); }, []);
   const baseline = roomBaseline(draft);
@@ -94,7 +97,8 @@ export function RoomBaselinePage() {
         </section>
       </div>
       {notice && <p className={styles.notice} role="status">{notice}</p>}
-      <footer className={styles.footer}><div className={styles.footerIntro}><Link href="/assessment" className={styles.back}>← Edit room</Link><p>Continue to confirm these reported answers. Unknowns stay unknown.</p></div><button className={styles.primary} onClick={() => { assessmentRepository.save(confirmRoomReview(draft, new Date().toISOString())); router.push("/heat-contributors"); }}>See what’s heating your room <span aria-hidden="true">→</span></button></footer>
+      {serviceMessage && <p role="status">{serviceMessage}</p>}
+      <footer className={styles.footer}><div className={styles.footerIntro}><Link href="/assessment" className={styles.back}>← Edit room</Link><p>Continue to confirm these reported answers. Unknowns stay unknown.</p></div><button className={styles.primary} disabled={confirming} onClick={async () => { setConfirming(true); setServiceMessage(""); try { const result = await assessmentRepository.execute({ schemaVersion: 1, operation: "confirm", assessment: assessmentInput(draft) }); if (!result.ok) { setServiceMessage(result.error.message); return; } assessmentRepository.save({ ...draft, review: result.data.review }); router.push("/heat-contributors"); } catch { setServiceMessage("Could not confirm the review. Your answers are retained; try again."); } finally { setConfirming(false); } }}>{confirming ? "Confirming…" : "See what’s heating your room"} <span aria-hidden="true">→</span></button></footer>
     </> : <p className={styles.loading} role="status">Loading your room answers…</p>}
   </div>;
 }
