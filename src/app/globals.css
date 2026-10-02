@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Shared palette sampled visually from the approved references. */
+@theme {
+  --color-cream: #faf7f1;
+  --color-surface: #fffdfa;
+  --color-forest: #24584a;
+  --color-forest-dark: #184438;
+  --color-eucalyptus: #eaf0e9;
+  --color-heat: #b96708;
+  --color-heat-light: #ffb13b;
+  --color-cooling: #597d8a;
+  --color-cooling-light: #edf2f3;
+  --color-ink: #18201e;
+  --color-muted: #59666c;
+  --color-line: #ded8cd;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --radius-control: 0.5rem;
+  --radius-panel: 0.75rem;
+  --shadow-subtle: 0 2px 8px rgb(24 32 30 / 4%);
+}
+
+:root { color-scheme: light; }
+body { margin: 0; background: var(--color-cream); color: var(--color-ink); font-family: var(--font-sans); }
+* { box-sizing: border-box; }
+::selection { background: var(--color-eucalyptus); }
+:focus-visible { outline: 3px solid var(--color-cooling); outline-offset: 4px; }
