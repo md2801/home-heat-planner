@@ -22,13 +22,13 @@ export function HeatContributorsPage() {
   const solar = assessment.contributors.find(c => c.id === "window-solar");
   const roof = assessment.contributors.find(c => c.id === "roof-ceiling");
   const ventilation = assessment.contributors.find(c => c.id === "ventilation-limit");
-  if (roof) callouts.push({ text: "Roof / ceiling", detail: roof.reasons[1]!.value === "Not sure" ? "Insulation · Not sure" : "Insulation reported absent", x: 330, y: 10, width: 245, target: [524, 104], accent: roof.status === "likely-contributor" ? "heat" : "cooling" });
+  if (roof) callouts.push({ text: "Roof / ceiling", detail: roof.reasons[1]!.value === "Not sure" ? "Insulation · Not sure" : "Insulation reported absent", x: 365, y: 12, width: 245, target: [479, 109], accent: roof.status === "likely-contributor" ? "heat" : "cooling" });
   if (solar) {
-    callouts.push({ text: "Window exposure", detail: solar.status === "likely-contributor" ? "Plausible sun contribution" : "Sun exposure · Worth checking", x: 5, y: 184, width: 270, accent: solar.status === "likely-contributor" ? "heat" : "cooling" });
+    callouts.push({ text: "Window exposure", detail: solar.status === "likely-contributor" ? "Plausible sun contribution" : "Sun exposure · Worth checking", x: 5, y: 255, width: 270, accent: solar.status === "likely-contributor" ? "heat" : "cooling" });
     const shade = solar.reasons.find(r => r.fieldId === "externalShading");
     if (shade?.fact.status === "known") callouts.push({ text: shade.value, detail: "Reported by you", x: 5, y: 377, width: 245, accent: "heat" });
   }
-  if (ventilation) callouts.push({ text: "Opening constraints", detail: ventilation.reasons[0]!.value, x: 650, y: 350, width: 275, accent: "cooling" });
+  if (ventilation) callouts.push({ text: "Opening constraints", detail: ventilation.reasons[0]!.value, x: 675, y: 350, width: 260, target: [727, 449], accent: "cooling" });
   return <div className={styles.page}>
     <JourneyHeader />
     {ready ? <>
@@ -37,7 +37,7 @@ export function HeatContributorsPage() {
           <div className={styles.progress}><span>Analysis · Your room</span><div aria-hidden="true"><i /><i /><i /><i /></div></div>
           <h1 id="contributors-title">What’s heating your room?</h1>
           <p className={styles.intro}>{assessment.contributors.length ? "Based on your answers, here’s what’s worth investigating." : "We need a little more information to identify plausible contributors."}</p>
-          <figure className={styles.illustration}><BedroomCrossSection callouts={callouts} contributors={assessment.illustration} /><figcaption>Illustrative room · annotations reflect your answers, not a thermal simulation</figcaption></figure>
+          <figure className={styles.illustration}><BedroomCrossSection fullRoom callouts={callouts} contributors={assessment.illustration} /><figcaption>Illustrative room · annotations reflect your answers, not a thermal simulation</figcaption></figure>
         </section>
         <aside className={styles.opportunities} aria-labelledby="opportunities-title">
           <h2 id="opportunities-title">Your opportunities</h2>

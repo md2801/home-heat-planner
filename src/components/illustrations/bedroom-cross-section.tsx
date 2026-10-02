@@ -1,10 +1,10 @@
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 export interface IllustrationCallout { text: string; x: number; y: number; width: number; accent?: "heat" | "cooling"; detail?: string; target?: readonly [number, number] }
 export interface ContributorIllustration { roof: boolean; sun: boolean; externalShade: boolean; coolingEquipment: boolean }
 
 /** Geometry is illustrative; supplied annotations must come from reported room facts. */
-export function BedroomCrossSection({ callouts, contributors }: { callouts?: readonly IllustrationCallout[]; contributors?: ContributorIllustration } = {}) {
+export function BedroomCrossSection({ callouts, contributors, fullRoom = false, children }: { callouts?: readonly IllustrationCallout[]; contributors?: ContributorIllustration; fullRoom?: boolean; children?: ReactNode } = {}) {
   const id = useId().replaceAll(":", "");
   const roof = `${id}-roof`;
   const light = `${id}-light`;
@@ -14,7 +14,7 @@ export function BedroomCrossSection({ callouts, contributors }: { callouts?: rea
   const tree = `${id}-tree`;
   const plant = `${id}-plant`;
 
-  return <svg viewBox={contributors ? "0 0 940 580" : "0 0 940 650"} fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby={`${id}-title ${id}-description`}>
+  return <svg viewBox={contributors && !fullRoom ? "0 0 940 580" : "0 0 940 650"} fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby={`${id}-title ${id}-description`}>
     <title id={`${id}-title`}>{callouts ? "Illustrative bedroom with reported room details" : "A bedroom in the afternoon sun"}</title>
     <desc id={`${id}-description`}>{callouts ? "Illustrative architecture, sunlight and airflow. Only the annotations reflect your reported answers; the drawing does not establish facts about your home." : "Architectural cross-section of a pitched-roof bedroom with a bed, air conditioner, window and external shade. Amber lines show illustrative sunlight and blue curves show airflow."}</desc>
     <defs>
@@ -35,7 +35,7 @@ export function BedroomCrossSection({ callouts, contributors }: { callouts?: rea
       </g>
     </defs>
 
-    <g transform={contributors ? "translate(150 20) scale(.78)" : undefined}>
+    <g transform={contributors && !fullRoom ? "translate(150 20) scale(.78)" : undefined}>
     {/* A quiet landscape behind the architectural section. */}
     <ellipse cx="482" cy="607" rx="447" ry="10" fill="#d8decc" opacity=".3" />
     <g opacity=".16"><use href={`#${tree}`} transform="translate(95 325) scale(1.55)" /><use href={`#${tree}`} transform="translate(181 341) scale(1.35)" /><use href={`#${tree}`} transform="translate(857 393) scale(1.15)" /><use href={`#${tree}`} transform="translate(924 374) scale(1.3)" /></g>
@@ -127,6 +127,8 @@ export function BedroomCrossSection({ callouts, contributors }: { callouts?: rea
       <path d="M541 118C559 96 529 93 546 70M571 135C588 112 560 108 578 86M602 155C618 133 591 125 608 106" />
     </g>}
     </g>
+
+    {children}
 
     {/* Descriptive callouts are part of the illustration, not room facts. */}
     {callouts ? <g fontFamily="Arial, Helvetica, sans-serif" fontSize="15" fill="#26343b">
