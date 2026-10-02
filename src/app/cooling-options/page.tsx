@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ScreenPlaceholder } from "@/components/layout/screen-placeholder";
+import { CoolingOptionsPage } from "@/features/cooling-options/cooling-options-page";
 
 export const metadata: Metadata = { title: "Your cooling options" };
 
 export default function Page() {
-  return <ScreenPlaceholder path="/cooling-options" />;
+  return <CoolingOptionsPage />;
 }

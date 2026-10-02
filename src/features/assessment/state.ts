@@ -14,6 +14,7 @@ export interface AssessmentDraft {
   currentQuestionId: string;
   completed: boolean;
   review?: AssessmentReview;
+  selectedOption?: { actionId: "external-shading" | "ceiling-insulation" | "opening-review"; assessmentSignature: string; recordedAt: string };
 }
 export function emptyAssessment(): AssessmentDraft {
   return { schemaVersion: 1, answers: {}, currentQuestionId: CORE_QUESTION_IDS[0], completed: false };
@@ -98,6 +99,10 @@ function validReview(value: unknown): value is AssessmentReview {
 export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
   if (!record(value) || value.schemaVersion !== 1 || !record(value.answers) || typeof value.currentQuestionId !== "string" || typeof value.completed !== "boolean") return false;
   if (value.review !== undefined && !validReview(value.review)) return false;
+  if (value.selectedOption !== undefined) {
+    const selection = value.selectedOption;
+    if (!record(selection) || typeof selection.actionId !== "string" || !["external-shading", "ceiling-insulation", "opening-review"].includes(selection.actionId) || typeof selection.assessmentSignature !== "string" || !selection.assessmentSignature || typeof selection.recordedAt !== "string" || !Number.isFinite(Date.parse(selection.recordedAt))) return false;
+  }
   const answers: AssessmentAnswers = {};
   for (const [id, answer] of Object.entries(value.answers)) {
     const q = questions.find(q => q.id === id);
