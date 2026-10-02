@@ -3,11 +3,17 @@ import { unknown } from "../../domain/unknown.ts";
 import { createEmptyJourney } from "../journey/state.ts";
 import { activeQuestions, CORE_QUESTION_IDS, questions, type Question } from "./questions.ts";
 
+export interface ReviewConfirmation { signature: string; recordedAt: string }
+export interface AssessmentReview {
+  room?: ReviewConfirmation;
+  measuredScope?: ReviewConfirmation;
+}
 export interface AssessmentDraft {
   schemaVersion: 1;
   answers: AssessmentAnswers;
   currentQuestionId: string;
   completed: boolean;
+  review?: AssessmentReview;
 }
 export function emptyAssessment(): AssessmentDraft {
   return { schemaVersion: 1, answers: {}, currentQuestionId: CORE_QUESTION_IDS[0], completed: false };
@@ -85,8 +91,13 @@ export function moveAssessment(draft: AssessmentDraft, direction: "back" | "cont
   if (index === active.length - 1) return coreAssessmentComplete(draft.answers) ? { ...draft, completed: true } : draft;
   return { ...draft, currentQuestionId: active[index + 1]!.id, completed: false };
 }
+function validReview(value: unknown): value is AssessmentReview {
+  if (!record(value) || Object.keys(value).some(key => key !== "room" && key !== "measuredScope")) return false;
+  return Object.values(value).every(item => record(item) && typeof item.signature === "string" && item.signature.length > 0 && typeof item.recordedAt === "string" && Number.isFinite(Date.parse(item.recordedAt)));
+}
 export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
   if (!record(value) || value.schemaVersion !== 1 || !record(value.answers) || typeof value.currentQuestionId !== "string" || typeof value.completed !== "boolean") return false;
+  if (value.review !== undefined && !validReview(value.review)) return false;
   const answers: AssessmentAnswers = {};
   for (const [id, answer] of Object.entries(value.answers)) {
     const q = questions.find(q => q.id === id);

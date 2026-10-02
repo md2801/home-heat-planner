@@ -16,7 +16,7 @@ function validPeriod(period: Period): boolean {
 }
 
 /** Flat usage charges only. No supply charges, annualisation or intervention effect. */
-export function calculateCoolingCost(inputs: BaselineInputs): FinancialResult {
+export function calculateCoolingCost(inputs: BaselineInputs, scope: "bedroom" | "supplied-scenario" = "bedroom"): FinancialResult {
   const provenance: Provenance[] = [];
   const missing: string[] = [];
   const read = (fact: Fact<number>, label: string): number | null => {
@@ -27,9 +27,10 @@ export function calculateCoolingCost(inputs: BaselineInputs): FinancialResult {
   };
   const tariff = read(inputs.flatTariffAudPerKwh, "A valid flat usage tariff is required.");
   if (inputs.period.status === "unknown" || !validPeriod(inputs.period.value)) missing.push("A valid comparison period is required.");
-  if (inputs.bedroomAttribution.status === "unknown" || !inputs.bedroomAttribution.value.description.trim()) {
+  if (scope === "supplied-scenario" && inputs.energy.kind !== "electrical-input-scenario") missing.push("Measured consumption requires bedroom attribution; scenario scope cannot be used.");
+  if (scope === "bedroom" && (inputs.bedroomAttribution.status === "unknown" || !inputs.bedroomAttribution.value.description.trim())) {
     missing.push("Bedroom-specific consumption or explicit attribution is required.");
-  } else {
+  } else if (scope === "bedroom" && inputs.bedroomAttribution.status === "known") {
     provenance.push(inputs.bedroomAttribution.provenance);
     if (inputs.bedroomAttribution.provenance.kind === "sourced" && !inputs.bedroomAttribution.value.sourceIds.length) {
       missing.push("Sourced bedroom attribution requires evidence references.");
@@ -65,17 +66,17 @@ export function calculateCoolingCost(inputs: BaselineInputs): FinancialResult {
     status,
     amountAud: status === "insufficient-evidence" || amount === null ? unknown(missing.join(" ")) : {
       status: "known", value: amount, provenance: {
-        kind: status === "what-if" ? "assumed" : "sourced",
+        kind: status === "what-if" ? "assumed" : provenance.some(p => p.sourceIds.length > 0) ? "sourced" : "user-reported",
         recordedAt: provenance.map((p) => p.recordedAt).sort().at(-1) ?? "",
         sourceIds: [...new Set(provenance.flatMap((p) => p.sourceIds))],
-        scope: "Calculated bedroom cooling electricity usage cost",
+        scope: scope === "bedroom" ? "Calculated bedroom cooling electricity usage cost" : "Calculated cost of the user-supplied cooling scenario",
       },
     },
     currency: "AUD", period: inputs.period, methodVersion: FINANCIAL_METHOD_VERSION,
     inputProvenance: provenance,
     assumptions: provenance.filter((p) => p.kind === "assumed").map((p, i) => ({ id: `input-assumption-${i}`, description: p.scope, provenance: p })),
     sourceIds: [...new Set(provenance.flatMap((p) => p.sourceIds))],
-    limitations: [...new Set(missing), "Excludes fixed supply charges, time-of-use tariffs and solar opportunity costs.", "Does not estimate any improvement's effect or annualise a shorter period."],
+    limitations: [...new Set(missing), ...(scope === "supplied-scenario" ? ["Cost of the supplied equipment scenario; bedroom-specific consumption has not been established."] : []), "Excludes fixed supply charges, time-of-use tariffs and solar opportunity costs.", "Does not estimate any improvement's effect or annualise a shorter period."],
   };
 }
 

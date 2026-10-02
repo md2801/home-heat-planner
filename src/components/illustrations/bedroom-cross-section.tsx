@@ -1,7 +1,9 @@
 import { useId } from "react";
 
-/** An illustrative room, independent of assessment inputs or performance estimates. */
-export function BedroomCrossSection() {
+export interface IllustrationCallout { text: string; x: number; y: number; width: number; accent?: "heat" | "cooling" }
+
+/** Geometry is illustrative; supplied annotations must come from reported room facts. */
+export function BedroomCrossSection({ callouts }: { callouts?: readonly IllustrationCallout[] } = {}) {
   const id = useId().replaceAll(":", "");
   const roof = `${id}-roof`;
   const light = `${id}-light`;
@@ -12,8 +14,8 @@ export function BedroomCrossSection() {
   const plant = `${id}-plant`;
 
   return <svg viewBox="0 0 940 650" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby={`${id}-title ${id}-description`}>
-    <title id={`${id}-title`}>A bedroom in the afternoon sun</title>
-    <desc id={`${id}-description`}>Architectural cross-section of a pitched-roof bedroom with a bed, air conditioner, window and external shade. Amber lines show illustrative sunlight and blue curves show airflow.</desc>
+    <title id={`${id}-title`}>{callouts ? "Illustrative bedroom with reported room details" : "A bedroom in the afternoon sun"}</title>
+    <desc id={`${id}-description`}>{callouts ? "Illustrative architecture, sunlight and airflow. Only the annotations reflect your reported answers; the drawing does not establish facts about your home." : "Architectural cross-section of a pitched-roof bedroom with a bed, air conditioner, window and external shade. Amber lines show illustrative sunlight and blue curves show airflow."}</desc>
     <defs>
       <linearGradient id={roof} x1="470" y1="110" x2="470" y2="290" gradientUnits="userSpaceOnUse"><stop stopColor="#ecdbc2" /><stop offset="1" stopColor="#dfc9aa" /></linearGradient>
       <linearGradient id={room} x1="300" y1="290" x2="670" y2="590" gradientUnits="userSpaceOnUse"><stop stopColor="#f7f4ec" /><stop offset="1" stopColor="#fffdf8" /></linearGradient>
@@ -116,13 +118,19 @@ export function BedroomCrossSection() {
     </g>
 
     {/* Descriptive callouts are part of the illustration, not room facts. */}
-    <g fontFamily="Arial, Helvetica, sans-serif" fontSize="17" fill="#26343b">
+    {callouts ? <g fontFamily="Arial, Helvetica, sans-serif" fontSize="15" fill="#26343b">
+      {callouts.map(callout => <g key={callout.text} transform={`translate(${callout.x} ${callout.y})`}>
+        <rect width={callout.width} height="46" rx="8" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />
+        <circle cx="17" cy="23" r="5" fill={callout.accent === "heat" ? "#ffb13b" : "#597d8a"} />
+        <text x="31" y="29">{callout.text}</text>
+      </g>)}
+    </g> : <g fontFamily="Arial, Helvetica, sans-serif" fontSize="17" fill="#26343b">
       <rect x="281" y="140" width="124" height="42" rx="10" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />
       <circle cx="300" cy="161" r="5" fill="#ffb13b" /><text x="315" y="167">Roof heat</text>
       <rect x="617" y="44" width="174" height="42" rx="10" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />
       <circle cx="636" cy="65" r="5" fill="#ffb13b" /><text x="651" y="71">Afternoon sun</text>
       <rect x="809" y="407" width="125" height="42" rx="10" fill="#fffefd" stroke="#e8e4dc" strokeWidth=".8" />
       <circle cx="828" cy="428" r="5" fill="#597d8a" /><text x="843" y="434">Shade here</text>
-    </g>
+    </g>}
   </svg>;
 }

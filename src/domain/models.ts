@@ -36,6 +36,14 @@ export interface WindowProfile {
   opens: Fact<boolean>;
 }
 
+/** Room-wide reports do not establish the number or pairing of individual windows. */
+export interface WindowSummary {
+  orientations: Fact<Direction[]>;
+  externalShading: Fact<"all" | "some" | "none">;
+  internalCoverings: Fact<string[]>;
+  opens: Fact<"all" | "some" | "none">;
+}
+
 export interface RoomProfile {
   id: string;
   location: Fact<string>;
@@ -46,10 +54,11 @@ export interface RoomProfile {
   position: Fact<"ground-floor" | "upper-floor">;
   aboveRoom: Fact<"roof" | "another-dwelling" | "another-room">;
   windows: Fact<WindowProfile[]>;
+  windowSummary?: WindowSummary;
   insulation: Fact<boolean>;
   ventilationConstraints: Fact<string[]>;
   cooling: Fact<{ equipment: ("fan" | "air-conditioner")[]; modelIdentifier: Fact<string>; servesOnlyRoom: Fact<boolean> }>;
-  budgetAud: Fact<NumericRange>;
+  budgetAud: Fact<number | NumericRange>;
   externalChangesPermitted: Fact<boolean>;
   willingToObtainQuotes: Fact<boolean>;
   confirmedAt: Fact<string>;

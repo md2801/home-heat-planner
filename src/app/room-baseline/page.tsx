@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ScreenPlaceholder } from "@/components/layout/screen-placeholder";
+import { RoomBaselinePage } from "@/features/room-baseline/room-baseline-page";
 
 export const metadata: Metadata = { title: "Your room and cooling baseline" };
 
 export default function Page() {
-  return <ScreenPlaceholder path="/room-baseline" />;
+  return <RoomBaselinePage />;
 }
