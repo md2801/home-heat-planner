@@ -1,9 +1,10 @@
-.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 0; }
-.brand { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(20px, 1.55vw, 26px); font-weight: 700; letter-spacing: -.9px; white-space: nowrap; text-decoration: none; }
-.brand svg { width: 30px; height: 30px; flex-shrink: 0; }
-.navigation { display: flex; align-items: center; gap: 48px; color: #233440; font-size: 17px; }
-.navigation a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: none; }
-.navigation a:hover { text-decoration: underline; text-underline-offset: 5px; }
-@media (max-width: 1150px) { .navigation { gap: 28px; font-size: 16px; } }
-@media (max-width: 850px) { .header { flex-wrap: wrap; gap: 14px; padding: 22px 0; } .navigation { font-size: 15px; gap: 28px; } }
-@media (max-width: 480px) { .brand { font-size: 21px; gap: 9px; letter-spacing: -.8px; } .brand svg { width: 27px; height: 27px; } .navigation { width: 100%; justify-content: space-between; gap: 14px; } }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--color-line); }
+.brand { display: inline-flex; align-items: center; gap: 11px; min-height: 44px; color: var(--color-ink); font-size: clamp(20px, 1.55vw, 24px); font-weight: 700; letter-spacing: -.65px; white-space: nowrap; text-decoration: none; }
+.brand svg { width: 34px; height: 34px; flex-shrink: 0; }
+.navigation { display: flex; align-items: center; gap: 8px; color: var(--color-muted); font-size: 15px; }
+.navigation a { min-height: 44px; display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 8px; text-decoration: none; white-space: nowrap; }
+.navigation a:hover { background: var(--color-eucalyptus); color: var(--color-forest-dark); }
+.navigation a[aria-current="page"] { background: var(--color-eucalyptus); color: var(--color-forest-dark); font-weight: 600; }
+.header a:focus-visible { outline: 3px solid var(--color-cooling); outline-offset: 3px; }
+@media (max-width: 850px) { .header { flex-wrap: wrap; gap: 12px; padding: 18px 0; } .navigation { gap: 4px; } .navigation a { padding: 10px 12px; } }
+@media (max-width: 480px) { .brand { font-size: 21px; gap: 9px; } .brand svg { width: 30px; height: 30px; } .navigation { width: 100%; justify-content: space-between; gap: 0; font-size: 12px; } .navigation a { padding: 10px 7px; } }
