@@ -1,6 +1,6 @@
 :global(body):has(.page) :global(.app-shell-header) { display: none; }
 :global(.app-shell-main):has(.page) { max-width: none; padding: 0; }
-.page { width: min(91.4%, 1600px); margin: 0 auto; }
+.page { width: calc(100% - 64px); margin: 0 auto; }
 .layout { display: grid; grid-template-columns: minmax(0, 61.5%) minmax(0, 38.5%); margin-top: 36px; }
 .room { min-width: 0; padding-right: 36px; }
 .progress { display: flex; gap: 26px; align-items: center; font-size: 17px; color: var(--color-muted); }
@@ -81,3 +81,28 @@
 .financials dt { font-size: 14px; } .checklist label { padding: 18px 12px; gap: 22px; } .checklist li:not(:last-child)::after { left: 30px; } .checkInChoices label { font-size: 16px; } }
 @media (max-width: 480px) { .page { width: calc(100% - 40px); } .layout { margin-top: 28px; } .progress { font-size: 14px; gap: 18px; } .progress i { width: 28px; } .room h1 { font-size: 40px; } .action { font-size: 24px; } .intro { font-size: 16px; } .illustration figcaption { font-size: 10px; padding: 0; } .financials { gap: 0; border-inline: 0; border-radius: 0; } .financials > div { border: 0; border-radius: 0; padding: 12px 9px; } .financials > div + div { border-left: 1px solid var(--color-line); } .financials > div + div { border-left: 1px solid var(--color-line); }
 .financials dt { flex-direction: column; align-items: flex-start; font-size: 12px; gap: 8px; } .financials dd { font-size: 16px; letter-spacing: -.3px; } .financials small { font-size: 11px; } .nextSteps h2 { font-size: 28px; } .checkInChoices { gap: 8px; } .checkInChoices label { font-size: 13px; padding: 10px 8px; } .saveActions .primary, .saveActions .secondary { width: 100%; } .footer { flex-wrap: wrap; gap: 4px; } .footer span { font-size: 11px; } }
+
+/* The room is the primary stage; practical actions sit below it. */
+.layout { grid-template-columns: minmax(0, 1fr); margin-top: 24px; }
+.room { padding-right: 0; }
+.room h1 { font-size: clamp(36px, 3.2vw, 52px); margin: 18px 0 8px; }
+.action { font-size: clamp(21px, 1.8vw, 28px); margin-bottom: 8px; }
+.intro { font-size: 16px; }
+.illustration { width: 100%; margin: 18px 0 16px; --room-canvas-height: clamp(520px, 65vh, 780px); --room-canvas-mobile-height: 420px; }
+.roomStage { display: grid; grid-template-columns: minmax(0, 1fr) clamp(280px, 23vw, 360px); align-items: start; gap: 38px; margin-top: 18px; }
+.roomStage .illustration { margin-top: 0; }
+.planOverview { border-left: 1px solid var(--color-line); padding-left: 26px; margin-top: 48px; min-width: 0; }
+.overviewEyebrow { font-size: 10px; line-height: 1.5; letter-spacing: .12em; color: var(--color-muted); margin: 0 0 8px; }
+.planOverview h2 { font-size: 25px; line-height: 1.2; letter-spacing: -.7px; color: var(--color-ink); margin: 0; }
+.planOverview .financials { grid-template-columns: 1fr; border-top: 0; margin: 18px 0 22px; }
+.planOverview .financials > div { padding: 16px 0; }
+.planOverview .financials > div + div { border-left: 0; border-top: 1px solid var(--color-line); }
+.planOverview .financials dd { font-size: 24px; margin-top: 8px; }
+.planOverview .financials small { font-size: 12px; }
+.nextStepPreview h3 { font-size: 17px; line-height: 1.4; color: var(--color-ink); margin: 0 0 8px; }
+.nextStepPreview > p:not(.overviewEyebrow) { font-size: 13px; line-height: 1.6; color: var(--color-muted); margin: 0 0 12px; }
+.nextStepPreview a { display: inline-flex; align-items: center; gap: 12px; color: var(--color-forest); font-size: 13px; line-height: 1.5; text-underline-offset: 4px; min-height: 32px; }
+.nextSteps { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 64px; border-left: 0; padding: 28px 0 0; border-top: 1px solid var(--color-line); margin-top: 30px; }
+.checkIn { margin-top: 0; padding-top: 0; border-top: 0; }
+@media(max-width:850px) { .roomStage { grid-template-columns: 1fr; gap: 16px; } .planOverview { margin-top: 0; padding-left: 0; border-left: 0; } .nextSteps { grid-template-columns: 1fr; gap: 24px; } .checkIn { border-top: 1px solid var(--color-line); padding-top: 16px; } }
+@media(max-width:480px) { .illustration { --room-canvas-mobile-height: 380px; } .room h1 { font-size: 36px; } }

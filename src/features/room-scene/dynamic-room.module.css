@@ -2,7 +2,7 @@
 .heading { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; padding:8px 2px; }
 .room button { border:1px solid #cbd2c1; background:#faf9f1; color:#355541; padding:7px 11px; border-radius:8px; font-size:12px; cursor:pointer; }
 .room button:focus-visible,.details summary:focus-visible { outline:3px solid #b57b29; outline-offset:3px; }
-.canvas { display:block; width:100%; height:420px; touch-action:none; cursor:grab; background:transparent; }
+.canvas { display:block; width:100%; height:var(--room-canvas-height, 420px); touch-action:none; cursor:grab; background:transparent; }
 .canvas:active { cursor:grabbing; }
 .viewport { position:relative; }
 .labelLayer { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
@@ -18,4 +18,4 @@
 .details { font-size:12px; line-height:1.6; color:#64725f; margin:12px 0; text-align:left; }
 .details summary { cursor:pointer; }
 .details ul { padding-left:20px; }
-@media(max-width:600px) { .canvas {height:340px;} }
+@media(max-width:600px) { .canvas {height:var(--room-canvas-mobile-height, 340px);} }

@@ -79,10 +79,11 @@ export function AssessmentPage() {
   const coreCount = active.filter(q => CORE_QUESTION_IDS.some(id => id === q.id)).length;
   const coreProgress = Math.min(index + 1, coreCount);
   const heading = useRef<HTMLHeadingElement>(null);
-  const [confirmClear, setConfirmClear] = useState(false);
+  const resetDialog = useRef<HTMLDialogElement>(null);
   const [clearCount, setClearCount] = useState(0);
+  const [resetNotice, setResetNotice] = useState("");
   useEffect(() => { assessmentRepository.hydrate(); }, []);
-  useEffect(() => { if (ready) heading.current?.focus(); }, [question.id, ready]);
+  useEffect(() => { if (ready) heading.current?.focus(); }, [question.id, ready, clearCount]);
   return <div className={styles.page}>
     <header className={styles.header}>
       <Link href="/" className={styles.brand}><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="4" fill="var(--color-heat-light)" stroke="var(--color-forest)" strokeWidth="2" /><path d="M8 25C9 9 19 15 25 7C26 20 19 25 12 23M7 26L21 13M12 21L13 15M16 18L22 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Home Heat Planner</span></Link>
@@ -90,9 +91,12 @@ export function AssessmentPage() {
     </header>
     <div className={styles.layout}>
       <section className={styles.questionPanel} aria-labelledby="assessment-question">
-        <div className={styles.progress}><span>{optional ? `Optional details · ${question.context}` : `${index + 1} of ${coreCount} · ${question.context}`}</span><div className={styles.progressTrack} role="progressbar" aria-label="Core assessment progress" aria-valuemin={0} aria-valuemax={coreCount} aria-valuenow={coreProgress}><i style={{ width: `${(coreProgress / coreCount) * 100}%` }} /></div></div>
+        <div className={styles.questionToolbar}>
+          <div className={styles.progress}><span>{optional ? `Optional details · ${question.context}` : `${index + 1} of ${coreCount} · ${question.context}`}</span><div className={styles.progressTrack} role="progressbar" aria-label="Core assessment progress" aria-valuemin={0} aria-valuemax={coreCount} aria-valuenow={coreProgress}><i style={{ width: `${(coreProgress / coreCount) * 100}%` }} /></div></div>
+          <button type="button" className={styles.resetButton} disabled={!ready} onClick={() => resetDialog.current?.showModal()}>Reset questionnaire</button>
+        </div>
         <h1 id="assessment-question" ref={heading} tabIndex={-1}>{question.title}</h1>
-        {ready && <IntakeAssistant draft={draft} />}
+        {ready && <IntakeAssistant key={clearCount} draft={draft} />}
         {question.hint && <p id="question-hint" className={`${styles.hint} ${question.id === "heatTiming" ? styles.heatHint : ""}`}>{question.hint}</p>}
         {ready ? <form onSubmit={event => {
           event.preventDefault();
@@ -103,7 +107,14 @@ export function AssessmentPage() {
           if (destination) router.push(destination);
         }}>
           <QuestionInput key={`${question.id}-${clearCount}`} question={question} />
-          <details key={`why-${question.id}`} className={styles.why}><summary>Why this matters <span aria-hidden="true">⌄</span></summary><p>{question.why}</p></details>
+          <details key={`why-${question.id}`} className={styles.why}>
+            <summary>
+              <svg className={styles.whyIcon} viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11V16M12 8H12.01" /></svg>
+              <span>Why this matters</span>
+              <svg className={styles.whyChevron} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9L12 15L18 9" /></svg>
+            </summary>
+            <p>{question.why}</p>
+          </details>
           {optional && <p className={styles.optionalNote}>You’ve given us enough to continue. More answers can refine your assessment.</p>}
           <div className={styles.actions}><button type="submit" className={styles.continue} disabled={!canContinue(question, draft.answers)}>Continue <span aria-hidden="true">→</span></button><button type="button" className={styles.back} onClick={() => {
             if (index === 0) router.push("/");
@@ -116,10 +127,24 @@ export function AssessmentPage() {
           }}>See my assessment</button>}</div>
         </form> : <p role="status" className={styles.hint}>Loading your answers…</p>}
         {notice && <p role="status" className={styles.notice}>{notice}</p>}
-        <div className={styles.saved}><span>You can leave details unknown.</span>{ready && (confirmClear ? <span>Clear saved answers? <button onClick={() => { assessmentRepository.clear(); setClearCount(count => count + 1); setConfirmClear(false); }}>Clear</button><button onClick={() => setConfirmClear(false)}>Cancel</button></span> : <button onClick={() => setConfirmClear(true)}>Clear assessment</button>)}</div>
+        <div className={styles.saved}><span>You can leave details unknown.</span></div>
+        <p className={styles.resetStatus} role="status">{resetNotice}</p>
+        <dialog ref={resetDialog} className={styles.resetDialog} aria-labelledby="reset-questionnaire-title" aria-describedby="reset-questionnaire-description">
+          <h2 id="reset-questionnaire-title">Reset the questionnaire?</h2>
+          <p id="reset-questionnaire-description">This clears your answers, room diagram, saved plans and check-ins in this browser. You’ll start again at the first question.</p>
+          <div className={styles.resetDialogActions}>
+            <button type="button" className={styles.resetCancel} onClick={() => resetDialog.current?.close()}>Keep my answers</button>
+            <button type="button" className={styles.resetConfirm} onClick={() => {
+              resetDialog.current?.close();
+              assessmentRepository.clear();
+              setClearCount(count => count + 1);
+              setResetNotice("Questionnaire reset. Start again with the first question.");
+            }}>Reset questionnaire</button>
+          </div>
+        </dialog>
       </section>
       <aside className={styles.roomVisual} aria-label="Your room preview">
-        <AssessmentRoomPreview draft={draft} questionId={question.id} compact />
+        <AssessmentRoomPreview key={clearCount} draft={draft} questionId={question.id} compact />
       </aside>
     </div>
   </div>;

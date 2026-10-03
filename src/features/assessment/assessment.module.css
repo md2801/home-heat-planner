@@ -12,6 +12,22 @@
 .progress { display: flex; align-items: center; gap: 30px; min-height: 24px; color: var(--color-muted); font-size: 19px; white-space: nowrap; }
 .progressTrack { width: 240px; height: 7px; background: #e3dbcf; border-radius: 8px; overflow: hidden; }
 .progressTrack i { display: block; height: 100%; background: var(--color-forest); border-radius: inherit; }
+.questionToolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.questionToolbar .progress { flex: 1 1 250px; min-width: 0; gap: 16px; }
+.questionToolbar .progressTrack { flex: 1; min-width: 32px; max-width: 240px; }
+.resetButton { flex-shrink: 0; border: 1px solid var(--color-line); border-radius: var(--radius-control); background: transparent; color: var(--color-forest); padding: 8px 12px; min-height: 36px; font-size: 13px; cursor: pointer; }
+.resetButton:hover:enabled { background: var(--color-eucalyptus); border-color: var(--color-forest); }
+.resetButton:disabled { opacity: .5; cursor: default; }
+.resetDialog { width: min(460px, calc(100% - 40px)); margin: auto; padding: 28px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-cream); color: var(--color-ink); }
+.resetDialog::backdrop { background: rgb(24 32 30 / 35%); }
+.resetDialog h2 { font-size: 25px; line-height: 1.2; letter-spacing: -.6px; margin: 0 0 14px; }
+.resetDialog p { font-size: 14px; line-height: 1.6; color: var(--color-muted); margin: 0; }
+.resetDialogActions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.resetDialogActions button { min-height: 42px; padding: 10px 14px; border: 1px solid var(--color-forest); border-radius: var(--radius-control); font-size: 13px; cursor: pointer; }
+.resetCancel { color: var(--color-forest); background: transparent; }
+.resetConfirm { color: white; background: var(--color-forest); }
+.resetStatus { color: var(--color-forest); font-size: 13px; line-height: 1.5; margin: 12px 0 0; }
+.resetStatus:empty { display: none; }
 .questionPanel h1 { font-size: clamp(38px, 3.8vw, 62px); line-height: 1.16; font-weight: 700; letter-spacing: -.045em; margin: 40px 0 26px; color: #101313; }
 .questionPanel h1:focus { outline: none; }
 .hint { color: var(--color-muted); line-height: 1.55; font-size: 16px; margin: -8px 0 22px; }
@@ -36,11 +52,18 @@
 .textInput { min-width: 0; width: 100%; min-height: 68px; border: 1px solid var(--color-line); border-radius: 9px; padding: 16px 20px; background: var(--color-surface); color: var(--color-ink); font-size: 21px; }
 .inputError { margin: 0; color: #944116; font-size: 15px; line-height: 1.45; }
 .inputError:empty { display: none; }
-.why { margin-top: 26px; color: #394d59; font-size: 18px; }
-.why summary { display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; min-height: 40px; width: fit-content; }
+.why { margin-top: 24px; border-block: 1px solid var(--color-line); color: var(--color-forest); }
+.why summary { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; min-height: 54px; padding: 12px 10px; border-radius: 4px; font-size: 16px; font-weight: 600; line-height: 1.4; }
 .why summary::-webkit-details-marker { display: none; }
-.why[open] summary span { transform: rotate(180deg); }
-.why p { font-size: 16px; line-height: 1.6; margin: 8px 0 0; max-width: 500px; }
+.why summary::marker { content: ""; }
+.why summary:hover { background: var(--color-eucalyptus); }
+.why summary:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 3px; }
+.whyIcon, .whyChevron { width: 20px; height: 20px; flex-shrink: 0; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.whyIcon { opacity: .8; }
+.whyChevron { margin-left: auto; transition: transform 160ms ease; }
+.why[open] .whyChevron { transform: rotate(180deg); }
+.why p { color: #394d59; background: var(--color-eucalyptus); border-left: 2px solid var(--color-forest); padding: 12px 16px; font-size: 15px; line-height: 1.65; margin: 0 10px 16px; }
+@media (prefers-reduced-motion: reduce) { .whyChevron { transition: none; } }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 38px; margin-top: 30px; }
 .continue { display: inline-flex; align-items: center; justify-content: center; gap: 22px; min-width: 198px; min-height: 72px; padding: 16px 30px; border: 1px solid var(--color-forest-dark); border-radius: var(--radius-control); background: var(--color-forest); color: white; font-size: 21px; font-weight: 600; cursor: pointer; }
 .continue span { font-size: 30px; font-weight: 400; }
