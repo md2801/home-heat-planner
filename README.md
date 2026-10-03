@@ -83,7 +83,9 @@ You can refine your answers or continue to the cooling options.
 
 Improvement cards lead with your reported room context, a practical next action, checks to make and source links. Depending on eligibility, you may see window shading, ceiling insulation, window-opening or comparable AC replacement investigations. The app can show fewer options when the evidence or permissions do not support them.
 
-Choose **Find guidance for my room** for an optional internet search of Australian government guidance from Your Home, energy.gov.au and Energy Rating. A loading skeleton appears while the search runs. Returned guidance includes source links and a search timestamp; the existing reviewed guidance remains available if the search fails.
+Choose **Personalise my recommendations** for an optional internet search of Australian government guidance. The model selects relevant practical techniques and investigations and writes concise cards with room context, possible benefits, next actions and checks. Simple techniques appear first; the main generated grid shows the returned subset rather than a fixed list. Rooms without equipment or upgrade investigations can still receive practical guidance. A loading skeleton appears while the search runs, and reviewed starting points remain available if it fails.
+
+Equipment constraints are enforced in both prompts and server/browser validation: if AC is not explicitly reported, recommendations cannot mention it or suggest AC replacement. Fan advice requires a reported fan. Sources are searched through Your Home and energy.gov.au, with Energy Rating included when AC is reported. Financial calculations remain deterministic and separate from generated guidance.
 
 Use **Set a budget** or **Change budget** to refine your spending limit. A budget alone does not establish an installation price or savings. Choosing an investigation selects a next step; it does not commit you to purchasing or installing anything.
 
@@ -141,7 +143,7 @@ Open **Simple techniques** in the navigation or **Browse simple techniques** on 
 
 Search the library or filter by focus and effort. Each entry explains its energy-saving mechanism and expands into practical steps, suitability checks and links to Australian government guidance. Entries were reviewed on **3 October 2026**; the date records our review, not the source's publication date.
 
-The catalogue is checked into `src/features/knowledge-base/catalogue.ts` and renders without a provider request. Optional live recommendation research also receives a relevant subset of these entries, including their practical steps, checks and source links. The model can select up to three matching guides per investigation, displayed as **Simple techniques to try**. The app validates the guide IDs against the room context and renders links to the library. These reviewed resources are labelled separately from freshly searched sources and do not generate personalised financial savings, emissions or temperature predictions. Review the linked sources when updating entries.
+The catalogue is checked into `src/features/knowledge-base/catalogue.ts` and renders without a provider request. Live recommendation research receives relevant entries with their steps, checks and source links. It can generate up to four practical technique cards independently of upgrade investigations, plus up to three matching guide links per investigation. The app validates IDs against the room and equipment reports and owns the library links. Reviewed resources remain distinct from freshly searched sources and do not establish personal savings, emissions or temperature predictions. Review linked sources when updating entries.
 
 ## What the 3D room represents
 

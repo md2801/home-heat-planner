@@ -7,6 +7,7 @@ import { questions } from "../src/features/assessment/questions.ts";
 import { coolingOptions } from "../src/features/cooling-options/model.ts";
 import { researchOutput, searchCoolingGuidance } from "../src/server/cooling-research.ts";
 import { recommendationResources } from "../src/features/knowledge-base/recommendation-resources.ts";
+import { equipmentCopyAllowed } from "../src/features/cooling-options/recommendation-policy.ts";
 const at = "2026-10-03T00:00:00Z", url = "https://www.yourhome.gov.au/passive-design/shading";
 function fixture(): AssessmentDraft {
   let draft = emptyAssessment();
@@ -17,9 +18,9 @@ function fixture(): AssessmentDraft {
   return draft;
 }
 const suggestion = { component: "improvement-card", optionId: "external-shading", headline: "Keep afternoon sun outside", whyForRoom: "You reported west-facing windows without external shade.", potentialBenefit: "External shade may reduce sunlight entering your room.", nextAction: { label: "Confirm permission for exterior work", detail: "Ask the responsible owner or strata manager about suitable external shading." }, checks: ["Check window access with an installer", "Keep light and ventilation in mind"], sourceUrls: [url], techniqueIds: ["close-curtains", "external-shade"] };
-const envelope = (suggestions: unknown[] = [suggestion]) => ({ status: "completed", output: [
+const envelope = (suggestions: unknown[] = [suggestion], techniques: unknown[] = []) => ({ status: "completed", output: [
   { type: "web_search_call", status: "completed", action: { type: "search", sources: [{ type: "url", url }] } },
-  { type: "message", content: [{ type: "output_text", text: JSON.stringify({ schemaVersion: RESEARCH_UI_VERSION, suggestions }), annotations: [{ type: "url_citation", url, title: "Shading · Your Home" }] }] },
+  { type: "message", content: [{ type: "output_text", text: JSON.stringify({ schemaVersion: RESEARCH_UI_VERSION, suggestions, techniques }), annotations: [{ type: "url_citation", url, title: "Shading · Your Home" }] }] },
 ] });
 
 test("research sends typed categories and eligibility without addresses, free text or financial inputs", () => {
@@ -128,9 +129,10 @@ test("explicit provider search is bounded, cached, and refreshed when room categ
       const searched = envelope(); searched.output[1]!.content![0]!.text = "Retrieved shading guidance: investigate external shade and confirm permission with a professional.";
       return Response.json(searched);
     }
-    assert.equal(body.model, "gpt-4.1-mini");
+    assert.equal(body.model, "gpt-5.5");
+    assert.deepEqual(body.reasoning, { effort: "low" });
     assert.equal(body.text.format.strict, true);
-    assert.deepEqual(body.text.format, researchResponseFormat(input.options.map(option => option.id), recommendationResources(input).byOption));
+    assert.deepEqual(body.text.format, researchResponseFormat(input.options.map(option => option.id), recommendationResources(input).byOption, { coolingEquipment: input.room.coolingEquipment, techniqueIds: recommendationResources(input).techniqueIds }, [url]));
     assert.equal(payload.retrievedSources[0].url, url);
     return Response.json({ status: "completed", output: [envelope().output[1]] });
   };
@@ -172,4 +174,86 @@ test("missing credentials, hosting guard and no eligible options prevent provide
   delete process.env.VERCEL; delete process.env.OPEN_AI_KEY;
   assert.equal((await searchCoolingGuidance(input, "guard", provider)).ok, false);
   assert.equal(called, false);
+});
+
+function equipmentRoom(equipment: string[] | null): AssessmentDraft {
+  let draft = emptyAssessment();
+  for (const [id, value] of Object.entries({ heatTiming: ["afternoon"], windowCount: 1, window1Orientation: "west", externalShading: "all", internalCoverings: ["curtains"], aboveRoom: "another-room", insulation: true, windowsOpen: "all", ...(equipment === null ? {} : { cooling: equipment.length ? equipment : ["none"] }) })) {
+    const question = questions.find(q => q.id === id)!;
+    draft = updateAnswer(draft, question, answerFor(question, value, at));
+  }
+  return draft;
+}
+const techniqueCard = { component: "technique-card", techniqueId: "close-curtains", headline: "Keep afternoon sunlight outside", whyForRoom: "You reported curtains and afternoon heat.", potentialBenefit: "Closing curtains before direct sun may limit extra indoor heat.", nextAction: { label: "Close curtains before direct sun arrives", detail: "Observe when sunlight reaches your window and close the curtains beforehand." }, checks: ["Reopen when daylight and comfort allow"], sourceUrls: [url] };
+
+test("no-equipment and fan-only rooms have practical techniques even without upgrade investigations", () => {
+  for (const equipment of [[], ["fan"], null]) {
+    const input = coolingResearchContext(equipmentRoom(equipment)), library = recommendationResources(input);
+    assert.equal(input.options.some(option => option.id === "ac-replacement"), false);
+    assert.ok(library.techniqueIds.includes("close-curtains"));
+    assert.ok(library.techniqueIds.includes("cooler-air"));
+    assert.equal(library.techniqueIds.includes("fans"), equipment?.includes("fan") === true);
+    assert.equal(library.techniqueIds.some(id => ["comfortable-setting", "clean-filters", "cool-used-rooms"].includes(id)), false);
+    assert.equal(equipmentCopyAllowed(JSON.stringify(library.entries), input.room.coolingEquipment), true);
+    const result = researchOutput(envelope([], [techniqueCard]), input.options, undefined, library.byOption, { coolingEquipment: input.room.coolingEquipment, techniqueIds: library.techniqueIds });
+    assert.equal(result.ok, true);
+    if (result.ok) { assert.equal(result.suggestions.length, 0); assert.equal(result.techniques[0]?.techniqueId, "close-curtains"); }
+  }
+});
+
+test("equipment gates reject AC references anywhere in generated copy and source labels", () => {
+  const input = coolingResearchContext(equipmentRoom([])), library = recommendationResources(input);
+  const constraints = { coolingEquipment: input.room.coolingEquipment, techniqueIds: library.techniqueIds };
+  for (const copy of ["Use AC less", "Use air conditioning less", "Turn off your air-conditioner", "Use an aircon timer", "Check your split-system", "Choose reverse-cycle cooling", "Try a heat pump", "Use your ceiling fan", "Use A/C less", "Check your air‑conditioner"]) assert.equal(equipmentCopyAllowed(copy, []), false, copy);
+  assert.equal(equipmentCopyAllowed("Keep heat out with shade", null), true);
+  for (const card of [
+    { ...techniqueCard, headline: "Use AC less" },
+    { ...techniqueCard, whyForRoom: "Your air conditioner runs in the afternoon." },
+    { ...techniqueCard, potentialBenefit: "Shade may reduce your AC use." },
+    { ...techniqueCard, nextAction: { ...techniqueCard.nextAction, label: "Switch off your AC" } },
+    { ...techniqueCard, nextAction: { ...techniqueCard.nextAction, detail: "Try the AC timer." } },
+    { ...techniqueCard, checks: ["Check AC filters"] },
+    { ...techniqueCard, techniqueId: "clean-filters" },
+    { ...techniqueCard, component: "arbitrary-widget" },
+  ]) assert.equal(researchOutput(envelope([], [card]), input.options, undefined, library.byOption, constraints).ok, false);
+  const titled = envelope([], [techniqueCard]); titled.output[1]!.content![0]!.annotations[0]!.title = "Air conditioner advice";
+  assert.equal(researchOutput(titled, input.options, undefined, library.byOption, constraints).ok, false);
+  assert.equal(researchOutput(envelope([], [techniqueCard, techniqueCard]), input.options, undefined, library.byOption, constraints).ok, false);
+  assert.equal(researchOutput(envelope([], [{ ...techniqueCard, sourceUrls: ["https://yourhome.gov.au/invented"] }]), input.options, undefined, library.byOption, constraints).ok, false);
+});
+
+test("reported equipment and window restrictions constrain dynamic technique candidates", () => {
+  const input = coolingResearchContext(equipmentRoom(["air-conditioner", "fan"]));
+  const library = recommendationResources(input);
+  for (const id of ["comfortable-setting", "clean-filters", "cool-used-rooms", "fans"]) assert.ok(library.techniqueIds.includes(id));
+  assert.equal(equipmentCopyAllowed("Check your AC filters and use your fan", input.room.coolingEquipment), true);
+  const shut = recommendationResources({ ...input, room: { ...input.room, windowCount: 0, windowsOpen: "none", internalCoverings: ["none"], externalChangesPermitted: false } });
+  for (const id of ["close-curtains", "cooler-air", "external-shade", "shade-plants"]) assert.equal(shut.techniqueIds.includes(id), false);
+  const unknown = recommendationResources({ ...input, room: { ...input.room, internalCoverings: null, windowsOpen: null, coolingEquipment: null } });
+  for (const id of ["close-curtains", "cooler-air", "fans", "clean-filters"]) assert.equal(unknown.techniqueIds.includes(id), false);
+  const question = questions.find(item => item.id === "ventilationConstraints")!;
+  const noLimits = updateAnswer(equipmentRoom([]), question, answerFor(question, "No known limits", at));
+  assert.equal(coolingResearchContext(noLimits).room.openingConstraintsReported, false);
+});
+
+test("live request can generate technique-only recommendations and carries equipment constraints in both stages", async () => {
+  process.env.OPEN_AI_KEY = "synthetic-test-only"; delete process.env.VERCEL;
+  const input = coolingResearchContext(equipmentRoom([])), library = recommendationResources(input);
+  assert.equal(input.options.length, 0);
+  let calls = 0;
+  const provider: typeof fetch = async (_url, init) => {
+    calls++;
+    const body = JSON.parse(String(init?.body));
+    assert.match(body.input.find((item: { role: string }) => item.role === "developer").content, /NOT reported AC/);
+    const payload = JSON.parse(body.input.find((item: { role: string }) => item.role === "user").content);
+    assert.deepEqual(payload.knowledgeBase, library);
+    if (body.tools) {
+      assert.deepEqual(body.tools[0].filters.allowed_domains, ["yourhome.gov.au", "energy.gov.au"]);
+      return Response.json(envelope([], [techniqueCard]));
+    }
+    assert.deepEqual(body.text.format, researchResponseFormat([], library.byOption, { coolingEquipment: [], techniqueIds: library.techniqueIds }, [url]));
+    return Response.json({ status: "completed", output: [envelope([], [techniqueCard]).output[1]] });
+  };
+  const result = await searchCoolingGuidance(input, "technique-only", provider);
+  assert.equal(result.ok, true); assert.equal(calls, 2);
 });

@@ -57,7 +57,7 @@ export const techniques: readonly Technique[] = [
   {
     id: "cooler-air", title: "Let cooler outdoor air through", category: "cooling", effort: "habit",
     summary: "Use an evening breeze when outside air is cooler than inside.",
-    benefit: "Suitable natural ventilation releases heat without compressor cooling.",
+    benefit: "Suitable natural ventilation can release stored heat when outdoor air is cooler.",
     steps: ["Compare indoor and outdoor conditions before opening windows.", "Open safe openings on different sides to create an air path."],
     checks: ["Keep openings secure; avoid smoke, poor air quality and unsuitable humidity.", "Stop if incoming air makes the room hotter."],
     sourceIds: ["passive"],
@@ -72,8 +72,8 @@ export const techniques: readonly Technique[] = [
   },
   {
     id: "fans", title: "Use a fan where you are sitting or sleeping", category: "cooling", effort: "habit",
-    summary: "Try gentle air movement before asking the AC for a colder room.",
-    benefit: "Fans can support comfort with less electricity than air conditioning.",
+    summary: "Try gentle air movement in the part of the room you are using.",
+    benefit: "An existing fan can support comfort without cooling the whole room's air.",
     steps: ["Direct an existing fan towards the occupied area.", "Switch off when nobody needs its airflow."],
     checks: ["A personal fan cools people, rather than lowering room air temperature.", "Use effective cooling when a fan is insufficient for comfort or heat safety."],
     sourceIds: ["passive", "equipment"],
@@ -145,7 +145,7 @@ export const techniques: readonly Technique[] = [
   {
     id: "reduce-indoor-heat", title: "Move heat-producing chores out of peak heat", category: "everyday", effort: "habit",
     summary: "Rethink oven, dishwasher and laundry timing on hot days.",
-    benefit: "Less extra indoor heat can reduce the work required from air conditioning.",
+    benefit: "Avoiding extra indoor heat can help keep occupied rooms more comfortable.",
     steps: ["Run heat-producing appliances during cooler parts of the day when practical.", "Choose a meal that needs less oven time."],
     checks: ["Check time-of-use rates separately: cooler timing does not guarantee a cheaper tariff."],
     sourceIds: ["summer"],

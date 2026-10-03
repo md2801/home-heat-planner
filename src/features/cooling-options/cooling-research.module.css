@@ -12,6 +12,7 @@
 .message { font-size: 13px; line-height: 1.6; color: var(--color-forest); margin: 14px 0 0; }
 .message:empty { display: none; }
 .results { margin-top: 24px; }
+.groupTitle { margin: 28px 0 14px; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
 .resultBar { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--color-muted); font-size: 12px; margin-bottom: 14px; }
 .resultBar > span:first-child { color: var(--color-forest); font-size: 14px; font-weight: 600; }
 .panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }

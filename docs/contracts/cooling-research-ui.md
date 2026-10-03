@@ -1,16 +1,16 @@
-# Cooling research UI contract v3
+# Cooling research UI contract v4
 
-The explanation model fills a closed `improvement-card` component. The app renders its layout, icons, option names, sources and controls. It accepts no generated HTML, CSS, scripts, component names outside the vocabulary, navigation URLs or event handlers.
+The model selects relevant actions and writes concise room-specific content for two closed components: `improvement-card` for eligible investigations and `technique-card` for practical library actions. The app renders layout, icons, names, sources and controls. It accepts no generated HTML, CSS, scripts, arbitrary navigation URLs or event handlers. Candidate IDs are a bounded vocabulary, not a mandatory list to display.
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "suggestions": [{
     "component": "improvement-card",
     "optionId": "external-shading",
     "headline": "Keep afternoon sun outside",
     "whyForRoom": "You reported west-facing windows without external shade.",
-    "potentialBenefit": "External shade may reduce sunlight entering your room.",
+    "potentialBenefit": "Could reduce sunlight entering your room.",
     "nextAction": {
       "label": "Confirm permission for exterior work",
       "detail": "Ask the responsible owner or strata manager about suitable external shading."
@@ -18,6 +18,19 @@ The explanation model fills a closed `improvement-card` component. The app rende
     "checks": ["Check window access with an installer", "Keep light and ventilation in mind"],
     "sourceUrls": ["https://www.yourhome.gov.au/passive-design/shading"],
     "techniqueIds": ["close-curtains", "external-shade"]
+  }],
+  "techniques": [{
+    "component": "technique-card",
+    "techniqueId": "cooler-air",
+    "headline": "Let cooler air release stored heat",
+    "whyForRoom": "You reported windows that can open.",
+    "potentialBenefit": "Could help release stored heat with suitable outdoor air.",
+    "nextAction": {
+      "label": "Check outdoor conditions before opening windows",
+      "detail": "Open safe windows only when outdoor air is cooler and air quality is suitable."
+    },
+    "checks": ["Retain your security and noise constraints"],
+    "sourceUrls": ["https://www.yourhome.gov.au/passive-design/passive-cooling"]
   }]
 }
 ```
@@ -35,12 +48,14 @@ This is an illustrative contract example, not live evidence or a recommendation 
 | sourceUrls | One to three unique, retrieved government URLs | Validated HTTPS URLs |
 | techniqueIds | Zero to three unique guides from the relevant app-reviewed library entries | Known IDs, validated for the option and room context |
 
-The prompt specifies the role of each content slot and both length limits. JSON Schema enforces the component vocabulary, field shape, character limits and array bounds; runtime validation additionally enforces word limits, rejects multiline copy and numeric claims, and verifies source provenance. Missing facts stay unknown. The contract adds no financial inputs, performance predictions, installation ranking or permission assumptions.
+The prompt specifies the role of each content slot and both length limits. JSON Schema enforces the component vocabulary, field shape, character limits, cautious benefit wording and array bounds. Citation URL enums contain only retrieved pages. Runtime validation additionally enforces word limits, rejects multiline copy and numeric claims, and verifies source provenance. These restrictions use the [supported Structured Outputs schema properties](https://developers.openai.com/api/docs/guides/structured-outputs). Missing facts stay unknown. The contract adds no financial inputs, performance predictions, installation ranking or permission assumptions.
 
-The response adds `ok:true` and `retrievedAt`. Both server and browser validate version 3. Cache keys include the UI version and the selected catalogue content and review date. Improvement cards are the primary options view and appear immediately from the app's reviewed guidance. A successful optional search enriches matching cards; omitted options retain their reviewed guidance. While searching, matching skeleton cards replace the grid. Cards show an icon, takeaway, reported room context, next action, checks and linked sources; searched cards also show the sourced possible benefit. `Choose this investigation` invokes the existing validated selection flow. The app owns all controls. AC financial inputs and supported figures live in a separate, initially collapsed `Compare costs and savings` section. Missing figures produce a next-step prompt rather than empty financial columns.
+The response adds `ok:true` and `retrievedAt`. Both server and browser validate version 4, permitting up to four investigations and four techniques, with at least one card overall. Cache keys include the UI version, room categories, catalogue content and review date. Before search, reviewed starting points remain usable. **Personalise my recommendations** generates a selected subset with new headlines, room context, qualitative benefits, actions and checks. Only returned investigations occupy the main generated grid; if none are returned, reviewed upgrade investigations remain available in a secondary disclosure. Simple technique cards appear first and link to their full library guide. They do not introduce new saved-plan action IDs. `Choose this investigation` retains the existing validated plan flow. Matching skeletons replace the grid while searching. Failures retain existing guidance. Financial methods and their gates are unchanged.
 
-Before either provider request, `recommendationResources` selects a bounded set of library entries by eligible investigation and typed room reports. Each entry includes its reviewed summary, steps, checks and original government sources. A fan guide is included only when a fan is reported; the cooler-outdoor-air guide is excluded when windows cannot open; external-work guides are excluded when permission is reported absent. This supplements the existing minimal provider context without sending addresses, free text or financial inputs.
+Equipment is a hard constraint in both prompts and server/browser runtime validation. If AC is not explicitly reported (including unknown equipment), no AC, replacement, compressor, split-system or heat-pump references are accepted in card copy or source labels. Fan recommendations similarly require a reported fan. There is no AC comparison disclosure or spending-coach request for a room without reported AC. Reviewed ventilation copy is also equipment-aware. This is not an instruction to buy missing equipment.
+
+Before either provider request, `recommendationResources` selects a bounded set of library entries by eligible investigation and typed room reports. `techniqueIds` provides standalone candidates, so rooms without equipment or upgrade investigations can still receive guidance. Curtains require reported coverings, ventilation requires reported opening capability, fans require reported fans, and equipment-specific habits require reported AC. Exterior shade and insulation techniques require their relevant investigation. Each entry includes its reviewed summary, steps, checks and original government sources. Window count and covering categories are included in the minimal provider context; addresses, free text and financial inputs are excluded.
 
 The formatting model may select `techniqueIds` only from the supplied per-option set. JSON Schema restricts the ID vocabulary; runtime validation checks duplicates, bounds, option association and room-based exclusions. The renderer resolves titles and `/knowledge-base#id` links from the catalogue, labels them **Simple techniques to try**, and shows the library review date. The model cannot supply arbitrary resource URLs or labels. `sourceUrls` retain their separate completed-search requirement: a library URL is not presented as freshly retrieved unless the search actually returned it. Library guides do not enable unsourced research to pass validation, establish numerical savings, add eligible options or change the user's selected plan.
 
-The contract/schema/limits live in `src/contracts/cooling-research.ts`. Content comes from the separate bounded search/explanation calls in `src/server/cooling-research.ts`. The React renderer and CSS are in `src/features/cooling-options/cooling-research.*`.
+The contract/schema/limits live in `src/contracts/cooling-research.ts`. Content comes from separate bounded search and formatting calls in `src/server/cooling-research.ts`, using GPT-5.5 with low reasoning. Search has a tool-call cap; formatting has no tools, an output cap and a shared deadline. The formatter schema requires benefit copy to start with May or Could. See [model capabilities](https://developers.openai.com/api/docs/models/gpt-5.5). The React renderer and CSS are in `src/features/cooling-options/cooling-research.*`.

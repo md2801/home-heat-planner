@@ -11,8 +11,9 @@ export function coolingResearchContext(draft: AssessmentDraft) {
     room: {
       heatTiming: known(profile.heatTiming), position: known(profile.position), aboveRoom: known(profile.aboveRoom), insulation: known(profile.insulation),
       windowDirections: known(profile.windowSummary?.orientations), externalShade: known(profile.windowSummary?.externalShading), windowsOpen: known(profile.windowSummary?.opens),
+      windowCount: known(draft.answers.windowCount), internalCoverings: known(profile.windowSummary?.internalCoverings),
       coolingEquipment: profile.cooling.status === "known" ? profile.cooling.value.equipment : null,
-      openingConstraintsReported: profile.ventilationConstraints.status === "known", externalChangesPermitted: known(profile.externalChangesPermitted),
+      openingConstraintsReported: view.options.some(option => option.id === "opening-review" && option.contributor.reasons.some(reason => reason.fieldId === "ventilationConstraints")), externalChangesPermitted: known(profile.externalChangesPermitted),
     },
     options: view.options.map(({ id, title }) => ({ id, title })),
   };
