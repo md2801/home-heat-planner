@@ -1,0 +1,12 @@
+.preview { padding: 18px 0 20px 38px; color: #284b3e; }
+.eyebrow { font-size: 11px; letter-spacing: .14em; color: #69776b; margin: 0 0 9px; }
+.preview h2 { font-size: 25px; letter-spacing: -.03em; margin: 0 0 10px; }
+.focus { min-height: 38px; margin: 0; font-size: 14px; color: #687569; line-height: 1.5; }
+.preview figure { margin: 0; width: 100%; }
+.preview svg { display: block; width: 100%; height: auto; }
+.preview figcaption { font-size: 12px; text-align: center; line-height: 1.5; color: #687569; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; margin: 24px 16px 0; font-size: 13px; }
+.facts div { padding: 10px 0; border-top: 1px solid #dddccf; }
+.facts dt { font-size: 11px; color: #717b70; margin-bottom: 4px; }
+.facts dd { margin: 0; line-height: 1.5; }
+@media (max-width:850px) { .preview { padding: 20px 0; } }

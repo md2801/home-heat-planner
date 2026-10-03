@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { BedroomCrossSection, type IllustrationCallout } from "@/components/illustrations/bedroom-cross-section";
+import { equipmentDetailText } from "../room-scene/equipment-details";
+import { AssessmentRoomPreview } from "../room-scene/assessment-room-preview";
 import { plannerClient as assessmentRepository } from "@/services/planner";
 import { confirmMeasuredScope, factText, formatMoney, revokeMeasuredScope, roomBaseline, titleCase } from "./model";
 import { assessmentInput } from "@/contracts/journey";
 import styles from "./room-baseline.module.css";
+import { RoomSceneBuilder } from "../room-scene/room-scene-builder";
 
 function DetailIcon({ kind }: { kind: "room" | "roof" | "sun" | "window" | "shade" | "insulation" | "cooling" | "budget" }) {
   return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true" stroke={kind === "sun" ? "var(--color-heat-light)" : kind === "cooling" ? "var(--color-cooling)" : "var(--color-forest)"} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -33,7 +35,7 @@ export function RoomBaselinePage() {
   const heat = factText(profile.heatTiming, values => values.map(titleCase).join(", "));
   const position = factText(profile.position, value => value === "ground-floor" ? "Ground floor" : "Upper floor");
   const above = factText(profile.aboveRoom, value => ({ roof: "Roof above", "another-room": "Another room above", "another-dwelling": "Another dwelling above" })[value]);
-  const orientation = factText(windows.orientations, values => values.map(titleCase).join(", "));
+  const orientation = profile.windows.status === "known" ? profile.windows.value.length ? profile.windows.value.map((window, index) => `Window ${index + 1}: ${factText(window.orientation, titleCase)}`).join(" · ") : "No windows" : factText(windows.orientations, values => values.map(titleCase).join(", "));
   const shade = factText(windows.externalShading, value => ({ all: "All relevant windows shaded", some: "Some external shade", none: "No external shade" })[value]);
   const insulation = factText(profile.insulation, value => value ? "Reported present" : "Reported absent");
   const cooling = factText(profile.cooling, value => value.equipment.length ? value.equipment.map(item => item === "fan" ? "Fan" : "Air conditioner").join(" + ") : "No cooling equipment");
@@ -46,16 +48,9 @@ export function RoomBaselinePage() {
     { icon: "window", label: "Window directions", value: orientation },
     { icon: "shade", label: "External shade", value: shade },
     { icon: "insulation", label: "Insulation", value: insulation },
-    { icon: "cooling", label: "Cooling", value: cooling, secondary: `Use · ${usageText}` },
+    { icon: "cooling", label: "Cooling", value: cooling, secondary: [profile.cooling.status === "known" && profile.cooling.value.equipment.includes("fan") ? `Fan · ${equipmentDetailText(draft.answers, "fan")}` : "", profile.cooling.status === "known" && profile.cooling.value.equipment.includes("air-conditioner") ? `AC · ${equipmentDetailText(draft.answers, "air-conditioner")}` : "", `Use · ${usageText}`].filter(Boolean).join("; ") },
     { icon: "budget", label: "Budget now", value: factText(profile.budgetAud, value => typeof value === "number" ? `Up to ${formatMoney(value)}` : `${formatMoney(value.min)}–${formatMoney(value.max)}`) },
   ] as const;
-  const callouts: IllustrationCallout[] = [];
-  if (profile.position.status === "known") callouts.push({ text: position, x: 95, y: 180, width: 155 });
-  if (profile.aboveRoom.status === "known") callouts.push({ text: above, x: 560, y: 48, width: above.length > 15 ? 223 : 145, accent: "heat" });
-  if (profile.heatTiming.status === "known") callouts.push({ text: profile.heatTiming.value.length === 1 ? `Hottest · ${heat}` : "Hottest times · Reported", x: 710, y: 275, width: 225, accent: "heat" });
-  if (windows.orientations.status === "known") callouts.push({ text: windows.orientations.value.length === 1 ? `${orientation}-facing` : "Directions · Reported", x: 730, y: 410, width: 202 });
-  if (windows.externalShading.status === "known") callouts.push({ text: windows.externalShading.value === "all" ? "External shade · Present" : shade, x: 710, y: 505, width: 225 });
-  if (profile.insulation.status === "unknown") callouts.push({ text: "Insulation · Not sure", x: 275, y: 112, width: 185 });
   const result = baseline.result;
   const amount = result?.amountAud;
   const available = amount?.status === "known" && typeof amount.value === "number";
@@ -70,10 +65,12 @@ export function RoomBaselinePage() {
           <div className={styles.progress}><span>Your room · Review</span><div aria-hidden="true"><i /><i /><i /><i /></div></div>
           <h1 id="room-title">Your room</h1>
           <p className={styles.intro}>Here’s what we have so far. You can edit anything.</p>
-          <figure className={styles.illustration}><BedroomCrossSection callouts={callouts} /><figcaption>Illustrative architecture · annotations reflect your answers, not a simulation</figcaption></figure>
+          <RoomSceneBuilder initialDescription={profile.complaint.status === "known" ? profile.complaint.value : ""} fallback={<AssessmentRoomPreview draft={draft} />} />
         </section>
         <section className={styles.details} aria-labelledby="details-title">
           <div className={styles.detailsHeading}><h2 id="details-title">Room details</h2><Link href="/assessment">Edit answers</Link></div>
+          {profile.complaint.status === "known" && <p>Your description · {profile.complaint.value}</p>}
+          {profile.cooling.status === "known" && profile.cooling.value.modelIdentifier.status === "known" && <p>Reported AC model · {profile.cooling.value.modelIdentifier.value}</p>}
           <dl className={styles.detailRows}>{rows.map(row => <div key={row.label} className={styles.detailRow}>
             <dt><DetailIcon kind={row.icon} /><span>{row.label}</span></dt><dd className={row.value === "Not sure" ? styles.unknown : ""}>{row.value}{"secondary" in row && <small>{row.secondary}</small>}</dd>
           </div>)}</dl>

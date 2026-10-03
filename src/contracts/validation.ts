@@ -7,7 +7,7 @@ export function isPlannerCommand(value: unknown): value is PlannerCommand {
   if (!value || typeof value !== "object" || !safeJson(value)) return false;
   const v = value as PlannerCommand;
   if (v.schemaVersion !== 1 || !["assess", "confirm", "recommend", "compare"].includes(v.operation) || !v.assessment || typeof v.assessment !== "object") return false;
-  if (Object.keys(value).some(key => !["schemaVersion", "operation", "assessment"].includes(key)) || Object.keys(v.assessment).some(key => !["answers", "review", "replacement"].includes(key))) return false;
+  if (Object.keys(value).some(key => !["schemaVersion", "operation", "assessment"].includes(key)) || Object.keys(v.assessment).some(key => !["answers", "review", "replacement", "sceneDetails"].includes(key))) return false;
   try { return isAssessmentDraft(calculationDraft(v.assessment)); } catch { return false; }
 }
 export function isPlannerResult(value: unknown): value is PlannerResult {

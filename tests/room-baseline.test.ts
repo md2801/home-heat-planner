@@ -28,6 +28,15 @@ function amount(draft: AssessmentDraft): number {
   if (!result || result.amountAud.status !== "known" || typeof result.amountAud.value !== "number") throw new Error("No cost available");
   return result.amountAud.value;
 }
+test("typed complaint and supplied model remain user reports without extracting hidden room facts", () => {
+  const draft = fixture({ complaint: "Synthetic bedroom becomes uncomfortable after lunch", cooling: ["air-conditioner"] });
+  draft.replacement = { fields: { existingModel: "Synthetic indoor/outdoor model pair" }, confirmations: {}, updatedAt: at };
+  const profile = roomBaseline(draft).profile;
+  assert.equal(profile.complaint.status === "known" && profile.complaint.value, "Synthetic bedroom becomes uncomfortable after lunch");
+  assert.equal(profile.cooling.status === "known" && profile.cooling.value.modelIdentifier.status === "known" && profile.cooling.value.modelIdentifier.value, "Synthetic indoor/outdoor model pair");
+  assert.equal(profile.heatTiming.status, "unknown");
+  assert.equal(profile.insulation.status, "unknown");
+});
 test("actual supplied scenario inputs calculate 54 AUD without inventing bedroom attribution or a month", () => {
   const draft = scenario();
   assert.equal(amount(draft), 54);

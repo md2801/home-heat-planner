@@ -1,4 +1,6 @@
-import type { AnswerValue, AssessmentAnswers, BaselineInputs, Direction, Fact, FinancialResult, HeatTiming, JourneyState, RoomProfile } from "../../domain/models.ts";
+import { assessmentScene } from "../room-scene/assessment-scene.ts";
+import type { AnswerValue, AssessmentAnswers, BaselineInputs, Direction, Fact, FinancialResult, HeatTiming, JourneyState, RoomProfile, WindowProfile } from "../../domain/models.ts";
+import { WINDOW_DIRECTION_IDS } from "../assessment/questions.ts";
 import { unknown } from "../../domain/unknown.ts";
 import { calculateCoolingCost } from "../../lib/calculations/financial.ts";
 import { assessmentJourney, type AssessmentDraft } from "../assessment/state.ts";
@@ -24,7 +26,8 @@ const extent = ["all", "some", "none"] as const;
 const scopeFields = ["energyBasis", "cooling", "coolingKwh", "energyScope", "servesOnlyRoom", "periodStart", "periodEnd"];
 export function reviewSignature(draft: AssessmentDraft, kind: "room" | "measuredScope"): string {
   const ids = kind === "room" ? Object.keys(draft.answers) : scopeFields;
-  return JSON.stringify(ids.toSorted().map(id => [id, draft.answers[id] ?? null]));
+  const answers = ids.toSorted().map(id => [id, draft.answers[id] ?? null]);
+  return JSON.stringify(kind === "room" && draft.sceneDetails ? [answers, assessmentScene(draft.answers, draft.sceneDetails)] : answers);
 }
 export function canConfirmMeasuredScope(draft: AssessmentDraft): boolean {
   const a = draft.answers;
@@ -50,21 +53,42 @@ export function proposedRoomProfile(draft: AssessmentDraft, recordedAt: string):
   const provenance = { kind: "user-reported" as const, recordedAt, sourceIds: [], scope: "User reviewed the single-bedroom assessment" };
   const equipment = fact(a, "cooling", isStrings);
   const constraints = fact(a, "ventilationConstraints", isString);
+  const count = a.windowCount;
+  const individual = WINDOW_DIRECTION_IDS.some(id => a[id]);
+  const scene = assessmentScene(a, draft.sceneDetails);
+  // Resolve confirmed details against current answers before exposing backend facts.
+  // Each field retains the provenance of its corresponding user confirmation.
+  const sceneFact = <T,>(value: T, answer: Fact<AnswerValue> | undefined): Fact<T> => answer?.status === "known" ? { ...answer, value } : unknown("Individual detail not recorded");
+  const opening = a.windowsOpen;
+  const windowProfiles: Fact<WindowProfile[]> = count?.status === "known" && scene.windows !== null ? {
+    ...count, value: scene.windows.map((w, index) => ({
+      id: `window-${index + 1}`,
+      orientation: w.direction === "unknown" ? unknown("Individual direction not recorded") : sceneFact(w.direction, a[WINDOW_DIRECTION_IDS[index]!] ?? a.windowOrientation),
+      externalShading: w.shade === "unknown" ? unknown("Individual shading not recorded") : sceneFact(w.shade !== "none", a.externalShading?.status === "known" ? a.externalShading : count),
+      internalCoverings: w.covering === "unknown" ? unknown("Individual covering not recorded") : sceneFact(w.covering, a.internalCoverings?.status === "known" ? a.internalCoverings : count),
+      opens: opening?.status === "known" && (opening.value === "all" || opening.value === "none") ? { ...opening, value: opening.value === "all" } : unknown("Individual opening capability not recorded"),
+    })),
+  } : unknown("Individual window count not recorded");
+  let orientations = choices<Direction>(a, "windowOrientation", directions);
+  if (individual && windowProfiles.status === "known") {
+    const known = windowProfiles.value.map(w => w.orientation);
+    orientations = known.every(f => f.status === "known") && known[0]?.status === "known" ? { ...known[0], value: [...new Set(known.map(f => f.value))] } : unknown("One or more window directions are not known");
+  }
   return {
     id: "assessment-bedroom", roomType: recordedAt ? { status: "known", value: "bedroom", provenance } : unknown("Bedroom assessment scope awaiting review"),
-    location: fact(a, "location", isString), complaint: unknown("No separate complaint collected"),
+    location: fact(a, "location", isString), complaint: fact(a, "complaint", isString),
     heatTiming: choices<HeatTiming>(a, "heatTiming", times), goal: fact(a, "goal", isString),
     position: choice(a, "position", ["ground-floor", "upper-floor"]), aboveRoom: choice(a, "aboveRoom", ["roof", "another-room", "another-dwelling"]),
-    windows: unknown("Individual windows and their pairings have not been recorded"),
+    windows: windowProfiles,
     windowSummary: {
-      orientations: choices<Direction>(a, "windowOrientation", directions), externalShading: choice(a, "externalShading", extent),
+      orientations, externalShading: choice(a, "externalShading", extent),
       internalCoverings: fact(a, "internalCoverings", isStrings), opens: choice(a, "windowsOpen", extent),
     },
     insulation: fact(a, "insulation", isBoolean),
     ventilationConstraints: constraints.status === "known" ? { ...constraints, value: [constraints.value] } : constraints,
     cooling: equipment.status === "known" ? { ...equipment, value: {
       equipment: equipment.value.filter((item): item is "fan" | "air-conditioner" => item === "fan" || item === "air-conditioner"),
-      modelIdentifier: unknown("Equipment model not supplied"), servesOnlyRoom: fact(a, "servesOnlyRoom", isBoolean),
+      modelIdentifier: draft.replacement?.fields.existingModel?.trim() ? { status: "known", value: draft.replacement.fields.existingModel.trim(), provenance: { kind: "user-reported", recordedAt: draft.replacement.updatedAt, sourceIds: [], scope: "Existing model identifier transcribed by the user" } } : unknown("Equipment model not supplied"), servesOnlyRoom: fact(a, "servesOnlyRoom", isBoolean),
     } } : equipment,
     budgetAud: fact(a, "budgetAud", isNumber), externalChangesPermitted: fact(a, "externalChangesPermitted", isBoolean), willingToObtainQuotes: fact(a, "willingToObtainQuotes", isBoolean),
     confirmedAt: draft.review?.room?.signature === reviewSignature(draft, "room") ? { status: "known", value: draft.review.room.recordedAt, provenance: { ...provenance, recordedAt: draft.review.room.recordedAt } } : unknown("Room review not confirmed"),

@@ -147,19 +147,19 @@ test("measured projection retains the entered date range and user-reported prove
 });
 function completeCore(equipment: AnswerValue | null = ["fan"]): AssessmentDraft {
   let draft = emptyAssessment();
-  for (const id of CORE_QUESTION_IDS) {
-    assert.equal(draft.currentQuestionId, id);
+  while (!canSeeAssessment(draft)) {
+    const id = draft.currentQuestionId;
     draft = answer(draft, id, id === "cooling" ? equipment : null);
     draft = moveAssessment(draft, "continue");
   }
   return draft;
 }
-test("the seven core interactions lead the retained full question set; early exit is hidden on core screens", () => {
-  assert.deepEqual(questions.slice(0, 7).map(q => q.id), ["heatTiming", "position", "aboveRoom", "windowOrientation", "externalShading", "insulation", "cooling"]);
-  assert.equal(questions.length, 29);
-  assert.equal(new Set(questions.map(q => q.id)).size, 29);
+test("active core interactions lead the retained full question set; early exit is hidden on core screens", () => {
+  assert.deepEqual(activeQuestions({}).slice(0, 8).map(q => q.id), ["heatTiming", "position", "aboveRoom", "windowCount", "windowOrientation", "externalShading", "insulation", "cooling"]);
+  assert.equal(questions.length, 39);
+  assert.equal(new Set(questions.map(q => q.id)).size, 39);
   let draft = emptyAssessment();
-  for (const id of CORE_QUESTION_IDS) {
+  for (const { id } of activeQuestions(draft.answers).filter(q => CORE_QUESTION_IDS.some(id => id === q.id))) {
     assert.equal(canSeeAssessment(draft), false);
     assert.equal(finishAssessment(draft), draft);
     assert.equal(assessmentDestination(draft), null);
@@ -242,7 +242,9 @@ test("early completion persists without filling missing answers and Back/Continu
   const forward = moveAssessment(back, "continue");
   assert.equal(forward.currentQuestionId, "location");
   assert.deepEqual(forward.answers, saved.answers);
-  const coreBack = moveAssessment(back, "back");
+  const typeBack = moveAssessment(back, "back");
+  assert.equal(typeBack.currentQuestionId, "acType");
+  const coreBack = moveAssessment(typeBack, "back");
   assert.equal(coreBack.currentQuestionId, "cooling");
   assert.equal(canSeeAssessment(coreBack), false);
   const noEquipment = answer(coreBack, "cooling", ["none"]);

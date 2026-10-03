@@ -1,11 +1,12 @@
 import type { AnswerValue, AssessmentAnswers, BaselineInputs, Fact, JourneyState, Period } from "../../domain/models.ts";
 import { unknown } from "../../domain/unknown.ts";
 import { createEmptyJourney } from "../journey/state.ts";
-import { activeQuestions, CORE_QUESTION_IDS, questions, type Question } from "./questions.ts";
+import { activeQuestions, CORE_QUESTION_IDS, WINDOW_DIRECTION_IDS, EQUIPMENT_QUESTION_IDS, retainedAnswerIds, questions, type Question } from "./questions.ts";
 import { isReplacementInputs, type ReplacementInputs } from "../cooling-options/replacement.ts";
 import type { CoolingPlanDraft } from "../../domain/cooling-plan.ts";
 import type { FollowUpCheckIn } from "../../domain/follow-up.ts";
 import { isHistory, safeJson, type PlanHistoryEntry } from "../../domain/history.ts";
+import { isAssessmentSceneDetails, type AssessmentSceneDetails } from "../room-scene/assessment-scene.ts";
 
 export interface ReviewConfirmation { signature: string; recordedAt: string }
 export interface AssessmentReview {
@@ -17,6 +18,7 @@ export interface AssessmentDraft {
   answers: AssessmentAnswers;
   currentQuestionId: string;
   completed: boolean;
+  sceneDetails?: AssessmentSceneDetails;
   review?: AssessmentReview;
   replacement?: ReplacementInputs;
   coolingPlanDraft?: CoolingPlanDraft;
@@ -65,10 +67,10 @@ export function canContinue(question: Question, answers: AssessmentAnswers): boo
 }
 /** Explicit Not sure counts as a completed interaction, never as a known room fact. */
 export function coreAssessmentComplete(answers: AssessmentAnswers): boolean {
-  return CORE_QUESTION_IDS.every(id => canContinue(questions.find(q => q.id === id)!, answers));
+  return activeQuestions(answers).filter(q => CORE_QUESTION_IDS.some(id => id === q.id)).every(q => canContinue(q, answers));
 }
 export function canSeeAssessment(draft: AssessmentDraft): boolean {
-  return coreAssessmentComplete(draft.answers) && activeQuestions(draft.answers).findIndex(q => q.id === draft.currentQuestionId) >= CORE_QUESTION_IDS.length;
+  return coreAssessmentComplete(draft.answers) && !CORE_QUESTION_IDS.some(id => id === draft.currentQuestionId);
 }
 export function finishAssessment(draft: AssessmentDraft): AssessmentDraft {
   return canSeeAssessment(draft) ? { ...draft, completed: true } : draft;
@@ -78,18 +80,20 @@ export function assessmentDestination(draft: AssessmentDraft): "/room-baseline" 
 }
 /** Older drafts retain their answers when the question order changes. */
 export function resumeAssessment(draft: AssessmentDraft): AssessmentDraft {
-  if (coreAssessmentComplete(draft.answers) || CORE_QUESTION_IDS.some(id => id === draft.currentQuestionId)) return draft;
-  const firstMissing = CORE_QUESTION_IDS.find(id => !canContinue(questions.find(q => q.id === id)!, draft.answers));
-  return firstMissing ? { ...draft, currentQuestionId: firstMissing, completed: false } : draft;
+  const active = activeQuestions(draft.answers);
+  if (active.some(q => q.id === draft.currentQuestionId) && (coreAssessmentComplete(draft.answers) || CORE_QUESTION_IDS.some(id => id === draft.currentQuestionId))) return draft;
+  const firstMissing = activeQuestions(draft.answers).find(q => CORE_QUESTION_IDS.some(id => id === q.id) && !canContinue(q, draft.answers))?.id;
+  return firstMissing ? { ...draft, currentQuestionId: firstMissing, completed: false } : { ...draft, currentQuestionId: "externalShading" };
 }
 export function updateAnswer(draft: AssessmentDraft, question: Question, answer: Fact<AnswerValue>): AssessmentDraft {
   if (!validAnswer(question, answer)) throw new Error("Invalid assessment answer");
   const answers = { ...draft.answers, [question.id]: answer };
   const active = new Set(activeQuestions(answers).map(q => q.id));
-  for (const id of Object.keys(answers)) if (!active.has(id)) delete answers[id];
+  const retained = retainedAnswerIds(answers);
+  for (const id of Object.keys(answers)) if (!retained.has(id)) delete answers[id];
   // Changing a start date must not leave an apparently valid, stale end date.
   if ((question.id === "periodStart" || question.id === "periodEnd") && !canContinue(questions.find(q => q.id === "periodEnd")!, answers)) delete answers.periodEnd;
-  return { ...draft, answers, completed: false };
+  return { ...draft, answers, currentQuestionId: active.has(draft.currentQuestionId) ? draft.currentQuestionId : EQUIPMENT_QUESTION_IDS.some(id => id === draft.currentQuestionId) ? "cooling" : "windowCount", completed: false };
 }
 export function moveAssessment(draft: AssessmentDraft, direction: "back" | "continue"): AssessmentDraft {
   const active = activeQuestions(draft.answers);
@@ -107,6 +111,7 @@ function validReview(value: unknown): value is AssessmentReview {
 export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
   if (!record(value) || value.schemaVersion !== 1 || !record(value.answers) || typeof value.currentQuestionId !== "string" || typeof value.completed !== "boolean") return false;
   if (value.review !== undefined && !validReview(value.review)) return false;
+  if (value.sceneDetails !== undefined && !isAssessmentSceneDetails(value.sceneDetails)) return false;
   if (value.replacement !== undefined && !isReplacementInputs(value.replacement)) return false;
   if (value.history !== undefined && !isHistory(value.history)) return false;
   if (value.coolingPlanDraft !== undefined && !safeJson(value.coolingPlanDraft)) return false;
@@ -122,9 +127,13 @@ export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
     answers[id] = answer;
   }
   const active = activeQuestions(answers);
-  if (!active.some(q => q.id === value.currentQuestionId) || Object.keys(answers).some(id => !active.some(q => q.id === id))) return false;
+  const retained = retainedAnswerIds(answers);
+  if (!retained.has(value.currentQuestionId) || Object.keys(answers).some(id => !retained.has(id))) return false;
   if (answers.periodEnd && !canContinue(questions.find(q => q.id === "periodEnd")!, answers)) return false;
-  return !value.completed || (coreAssessmentComplete(answers) && (active.findIndex(q => q.id === value.currentQuestionId) >= CORE_QUESTION_IDS.length || active.every(q => canContinue(q, answers))));
+  // Hydration resumes newly added questions without discarding completed legacy records.
+  const addedQuestions = ["windowCount", ...WINDOW_DIRECTION_IDS, ...EQUIPMENT_QUESTION_IDS];
+  const legacyComplete = active.filter(q => CORE_QUESTION_IDS.some(id => id === q.id)).every(q => (addedQuestions.includes(q.id) && !Object.hasOwn(answers, q.id)) || canContinue(q, answers));
+  return !value.completed || ((coreAssessmentComplete(answers) || legacyComplete) && (!CORE_QUESTION_IDS.some(id => id === value.currentQuestionId) || active.every(q => canContinue(q, answers))));
 }
 function numeric(answers: AssessmentAnswers, id: string): Fact<number> {
   const answer = answers[id];

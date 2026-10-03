@@ -35,7 +35,7 @@ export function CoolingPlanPage() {
     <div className={styles.layout}>
       <section className={styles.room} aria-labelledby="plan-title"><div className={styles.progress}><span>Your plan · Next step</span><div aria-hidden="true"><i /><i /><i /><i /></div></div>
         <h1 id="plan-title">My cooling plan</h1><h2 className={styles.action}>{plan.selectedActionLabel}</h2><p className={styles.intro}>Here’s your chosen investigation and the next steps.</p>
-        <PlanIllustration option={option} profile={view.baseline.profile} />
+        <PlanIllustration option={option} draft={draft} />
         <dl className={styles.financials}><div><dt><FinancialIcon kind="cost" />Upfront cost</dt><dd>{factText(plan.upfrontCostAud, value => typeof value === "number" ? formatMoney(value) : `${formatMoney(value.min)}–${formatMoney(value.max)}`) === "Not sure" ? "Quote needed" : factText(plan.upfrontCostAud, value => typeof value === "number" ? formatMoney(value) : `${formatMoney(value.min)}–${formatMoney(value.max)}`)}<small>{option.recommendation.costScope.status === "known" ? option.recommendation.costScope.value : "Scope & price not established"}</small></dd></div>
           <div><dt><FinancialIcon kind="savings" />Potential savings</dt><dd>{financial?.savings}<small>{option.id === "ac-replacement" ? "Standard annual label conditions" : "No action-specific savings method"}</small></dd></div>
           <div><dt><FinancialIcon kind="payback" />Simple payback</dt><dd>{financial?.payback}<small>{financial?.reason}</small></dd></div></dl>

@@ -38,4 +38,20 @@ Historical snapshots retain estimates/sources/check-ins. Material changes archiv
 
 ## Optional intake
 
-`POST /api/intake`, byte limit 5,000: `{complaint,allowedQuestionIds}`. Complaint 1–500 chars; known unique IDs, at most 30. Success `{ok:true,suggestion:{category,questionId}}`; category timing/shade/roof/cooling/unclear. Unexpected keys/disallowed questions rejected. Failure `{ok:false,message}` offers manual continuation. Same-origin browser requests checked. No extracted fact/numeric estimate/diagnosis enters room state. README documents demo guards and default-off production assistance. Voice/CV/Jev endpoints are not implemented.
+`POST /api/intake`, byte limit 5,000: `{complaint,allowedQuestionIds}`. Complaint 1–500 chars; known unique IDs, bounded by the current question set. Success `{ok:true,suggestion:{category,questionId}}`; category timing/shade/roof/cooling/unclear. Unexpected keys/disallowed questions rejected. Failure `{ok:false,message}` offers manual continuation. Same-origin browser requests checked. No extracted fact/numeric estimate/diagnosis enters room state. README documents demo guards and default-off production assistance. Voice/CV/Jev endpoints are not implemented.
+
+## Financial brief
+
+POST /api/financial-brief accepts {command: PlannerCommand, focus: "understand" | "budget" | "next-step"}, with a 128,000-byte body limit and same-origin guard. Server recomputes calculator-owned explanation cards from validated assessment inputs. Only those summaries, limitations and checks (not raw complaints, location or quote identities) are sent to OpenAI gpt-6-luna using structured Responses output and store:false. The response is {ok:true,ids:string[]} or {ok:false,message?:string}. IDs must be unique, drawn from current cards and number one to three. The model chooses reading order, never wording, numerical values or installation ranking. The browser resolves IDs to locally computed cards; context changes reset the brief and cancel stale requests. No brief is persisted.
+
+A local summary remains available without the provider. Calls are explicit, cached for five minutes (100 entries), limited to three/client/minute and 30/process, with 1,200 output tokens and an 18-second timeout. These are local demo limits, not distributed spend measurement; the existing hosted usage-control guard applies. A quote does not supply a missing intervention-effect method.
+
+API reference: https://developers.openai.com/api/docs/guides/structured-outputs
+
+## Individual window directions
+
+Known counts of one to four activate window1Orientation through window4Orientation immediately after windowCount. Each is a single compass direction or explicit unknown; unused window answers are pruned when count changes. Zero windows skips window questions. Unknown counts and more-than-four retain the aggregate windowOrientation question. Legacy aggregate answers remain readable, but do not assign mixed directions to individual windows. Confirming a room scene also updates these individual answers. New individual answers take precedence over legacy summaries and scene directions.
+
+## Cooling equipment details
+
+After cooling, fanType is active for fans and portableFanPosition for portable/both fans. acType is active for AC; acWall is active for wall-mounted/window-mounted units. Each permits an explicit unknown. Branch changes prune incompatible details. All four travel as validated user-reported assessment answers, with their own provenance scopes. Positions are schematic labels/placements; no power, performance or savings are inferred. Existing completed drafts resume missing active questions without losing answers. The bounded room-scene DTO still describes equipment categories; precise placement stays in assessment answers and is applied by deterministic rendering.

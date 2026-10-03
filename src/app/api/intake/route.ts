@@ -2,10 +2,10 @@ import { createHash } from "node:crypto";
 import { isIntakeRequest } from "../../../contracts/intake";
 import { suggestQuestion } from "../../../server/intake";
 import { boundedBody } from "../../../server/request-body";
+import { sameOriginRequest } from "../../../server/request-origin";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return Response.json({ ok: false, message: "Use assistance from this app." }, { status: 403 });
+  if (!sameOriginRequest(request)) return Response.json({ ok: false, message: "Use assistance from this app." }, { status: 403, headers: { "Cache-Control": "no-store" } });
   try {
     const text = await boundedBody(request, 5000);
     const input: unknown = JSON.parse(text);

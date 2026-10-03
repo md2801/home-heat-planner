@@ -18,16 +18,25 @@ export interface Question {
 }
 const options = (...labels: [string, AnswerValue][]): Choice[] => labels.map(([label, value]) => ({ label, value }));
 const yesNo = options(["Yes", true], ["No", false]);
-export const CORE_QUESTION_IDS = ["heatTiming", "position", "aboveRoom", "windowOrientation", "externalShading", "insulation", "cooling"] as const;
+export const WINDOW_DIRECTION_IDS = ["window1Orientation", "window2Orientation", "window3Orientation", "window4Orientation"] as const;
+export const EQUIPMENT_QUESTION_IDS = ["fanType", "portableFanPosition", "acType", "acWall"] as const;
+const directionChoices = options(["North", "north"], ["North-east", "north-east"], ["East", "east"], ["South-east", "south-east"], ["South", "south"], ["South-west", "south-west"], ["West", "west"], ["North-west", "north-west"]);
+export const CORE_QUESTION_IDS = ["heatTiming", "position", "aboveRoom", "windowCount", ...WINDOW_DIRECTION_IDS, "windowOrientation", "externalShading", "insulation", "cooling", ...EQUIPMENT_QUESTION_IDS] as const;
 
 export const questions: Question[] = [
   { id: "heatTiming", title: "When does it get hottest?", context: "Your room", kind: "choice", multiple: true, hint: "Choose one or more times.", choices: (["morning", "afternoon", "evening", "overnight"] as const).map(value => ({ label: value[0]!.toUpperCase() + value.slice(1), value, icon: value })), why: "The time you feel uncomfortable helps frame the room assessment. It doesn’t tell us the window direction or prove what causes the heat." },
   { id: "position", title: "Which floor is your bedroom on?", context: "Your room", kind: "choice", choices: options(["Ground floor", "ground-floor"], ["Upper floor", "upper-floor"]), why: "Room position is useful context. An upper-floor room isn’t necessarily directly below the roof." },
   { id: "aboveRoom", title: "What’s directly above your bedroom?", context: "Your room", kind: "choice", choices: options(["The roof", "roof"], ["Another room in my home", "another-room"], ["Another dwelling", "another-dwelling"]), why: "Roof exposure and shared building elements affect what needs to be checked before an improvement." },
-  { id: "windowOrientation", title: "Which way do your windows face?", context: "Your room", kind: "choice", multiple: true, hint: "Select the directions you know. Choose Not sure if you don’t know any. Individual window details can be confirmed at review.", choices: options(["North", "north"], ["North-east", "north-east"], ["East", "east"], ["South-east", "south-east"], ["South", "south"], ["South-west", "south-west"], ["West", "west"], ["North-west", "north-west"]), why: "Compass directions must come from you. Sunlight in the illustration doesn’t establish your windows’ orientation." },
+  { id: "windowCount", title: "How many windows are in your bedroom?", context: "Your room", kind: "choice", choices: options(["No windows", 0], ["One", 1], ["Two", 2], ["Three", 3], ["Four", 4], ["More than four", "more-than-four"]), hint: "Count window units, not individual panes. The preview can draw up to four.", why: "Your answer sets the number of windows shown. Directions alone do not establish a count." },
+  ...WINDOW_DIRECTION_IDS.map((id, index): Question => ({ id, title: `Which wall is window ${index + 1} on?`, context: "Your room", kind: "choice", choices: directionChoices, hint: "Choose the compass direction the window faces. Number your windows in any order and keep that order as you answer. Choose Not sure if you don’t know.", why: "Recording each window separately keeps its direction attached to the right window. The drawing doesn’t establish compass directions or exact positions." })),
+  { id: "windowOrientation", title: "Which way do your windows face?", context: "Your room", kind: "choice", multiple: true, hint: "Select every direction, if known. With an unknown count or more than four windows, individual windows remain unassigned in the preview.", choices: directionChoices, why: "Compass directions must come from you. Sunlight in the illustration doesn’t establish your windows’ orientation." },
   { id: "externalShading", title: "Are your windows shaded outside?", context: "Your room", kind: "choice", choices: options(["All relevant windows have external shade", "all"], ["Some have external shade", "some"], ["None have external shade", "none"]), hint: "Think of awnings, eaves, trees or other outside shade. Indoor curtains are a separate question.", why: "External shade and internal coverings are different room details. Partial shading needs a closer window-by-window review." },
   { id: "insulation", title: "Is there ceiling or roof insulation?", context: "Your room", kind: "choice", choices: yesNo, hint: "Choose Not sure if you haven’t confirmed it.", why: "Insulation is hidden construction information. Room position or appearance can’t confirm whether it exists." },
-  { id: "cooling", title: "How do you cool this bedroom?", context: "Your cooling", kind: "choice", multiple: true, choices: options(["Fan", "fan"], ["Air conditioner", "air-conditioner"], ["No cooling equipment", "none"]), why: "We need your actual equipment, rather than the air conditioner shown in the illustrative room." },
+  { id: "cooling", title: "How do you cool this bedroom?", context: "Your cooling", kind: "choice", multiple: true, choices: options(["Fan", "fan"], ["Air conditioner", "air-conditioner"], ["No cooling equipment", "none"]), why: "The preview shows only equipment you report. A generic symbol does not establish the model, type or performance." },
+  { id: "fanType", title: "What kind of fan do you use?", context: "Your cooling", kind: "choice", choices: options(["Ceiling fan", "ceiling"], ["Portable fan", "portable"], ["Both ceiling and portable fans", "both"]), why: "The type comes from your answer. It does not establish the fan’s power, airflow or cooling benefit." },
+  { id: "portableFanPosition", title: "Where do you usually put your portable fan?", context: "Your cooling", kind: "choice", choices: options(["Beside the bed", "beside-bed"], ["At the foot of the bed", "foot-of-bed"], ["Near a window", "near-window"], ["Near the door", "near-door"], ["Elsewhere in the room", "elsewhere"]), hint: "Choose its usual position. The room preview shows a schematic placement, not exact distances.", why: "Recording where you use the fan describes your room without assuming airflow or a temperature reduction." },
+  { id: "acType", title: "What type of air conditioner serves this bedroom?", context: "Your cooling", kind: "choice", choices: options(["Wall-mounted split-system unit", "wall-mounted"], ["Window or wall unit", "window-mounted"], ["Portable unit", "portable"], ["Ducted system with ceiling vents", "ducted"], ["Another type", "other"]), why: "Unit type helps describe the room. It does not establish model, capacity, electrical consumption or efficiency." },
+  { id: "acWall", title: "Which wall is your AC unit on?", context: "Your cooling", kind: "choice", choices: directionChoices, hint: "Choose the compass direction of the wall where the indoor unit is mounted. The preview labels the wall; its layout remains schematic.", why: "The wall direction must come from you. We won’t infer it from sunlight or from the window directions." },
   { id: "coolingUsage", title: "How do you use your cooling?", context: "Your cooling", kind: "text", maxLength: 500, hint: "Describe when you use the fan or air conditioner, and whether you use them together.", why: "Your routine gives context. We won’t turn a description into assumed operating hours or equipment power." },
   { id: "location", title: "Where is your bedroom?", context: "Your room", kind: "text", maxLength: 100, hint: "Enter your Greater Sydney suburb or postcode. No street address needed. You’ll confirm the location at review.", why: "Location gives context for later guidance. We won’t guess a suburb from an ambiguous name or postcode." },
   { id: "goal", title: "What would you like to improve?", context: "Your room", kind: "text", maxLength: 500, hint: "For example, describe your cooling bill concern, when comfort matters, or whether you’re considering replacing equipment.", why: "Your spending decision and comfort priorities help guide which options to investigate." },
@@ -50,6 +59,7 @@ export const questions: Question[] = [
   { id: "willingToObtainQuotes", title: "Would you be willing to get quotes?", context: "Your next step", kind: "choice", choices: yesNo, why: "Quotes and professional checks may be a useful next step when cost or suitability is unknown." },
   { id: "baselineComfortRating", title: "How comfortable is your bedroom now?", context: "Your room", kind: "number", min: 1, max: 5, integer: true, hint: "Optional baseline: 1 very uncomfortable, 5 very comfortable. Choose Not sure to skip.", why: "Use the same scale and time of day when reviewing comfort after a change." },
   { id: "baselineComfortTime", title: "When does that comfort rating apply?", context: "Your room", kind: "choice", choices: options(["Morning", "morning"], ["Afternoon", "afternoon"], ["Evening", "evening"], ["Overnight", "overnight"]), why: "Comfort observations at different times of day are not directly comparable." },
+  { id: "complaint", title: "What feels uncomfortable in your bedroom?", context: "Your room", kind: "text", maxLength: 500, hint: "Optional: describe the problem in your own words. Leave out addresses and personal details.", why: "Your description is retained for review. It does not establish a cause, temperature or equipment consumption." },
 ];
 const reportedValue = (answers: AssessmentAnswers, id: string) => answers[id]?.status === "known" ? answers[id].value : undefined;
 export function activeQuestions(answers: AssessmentAnswers): Question[] {
@@ -58,7 +68,17 @@ export function activeQuestions(answers: AssessmentAnswers): Question[] {
   const basis = reportedValue(answers, "energyBasis");
   const measured = ["coolingKwh", "energyScope", "periodStart", "periodEnd"];
   const scenario = ["averageElectricalInputKw", "hoursPerDay", "coolingDays", "periodDescription"];
+  const count = reportedValue(answers, "windowCount");
+  const individual = typeof count === "number" && count >= 1 && count <= WINDOW_DIRECTION_IDS.length;
   return questions.filter(q => {
+    if (q.id === "fanType") return Array.isArray(equipment) && equipment.includes("fan");
+    if (q.id === "portableFanPosition") return Array.isArray(equipment) && equipment.includes("fan") && ["portable", "both"].includes(String(reportedValue(answers, "fanType")));
+    if (q.id === "acType") return Array.isArray(equipment) && equipment.includes("air-conditioner");
+    if (q.id === "acWall") return Array.isArray(equipment) && equipment.includes("air-conditioner") && ["wall-mounted", "window-mounted"].includes(String(reportedValue(answers, "acType")));
+    const windowIndex = WINDOW_DIRECTION_IDS.findIndex(id => id === q.id);
+    if (windowIndex !== -1) return individual && windowIndex < count;
+    if (q.id === "windowOrientation" && individual) return false;
+    if (["windowOrientation", "externalShading", "internalCoverings", "windowsOpen", "ventilationConstraints"].includes(q.id) && reportedValue(answers, "windowCount") === 0) return false;
     if (q.id === "ventilationConstraints") return reportedValue(answers, "windowsOpen") !== "none";
     if (["servesOnlyRoom", "coolingUsage", "energyBasis"].includes(q.id)) return hasEquipment;
     if (measured.includes(q.id)) return hasEquipment && basis === "measured";
@@ -66,4 +86,10 @@ export function activeQuestions(answers: AssessmentAnswers): Question[] {
     if (q.id === "flatTariffAudPerKwh") return hasEquipment && (basis === "measured" || basis === "scenario");
     return true;
   });
+}
+/** Keep old room-wide reports readable while the new individual questions are answered. */
+export function retainedAnswerIds(answers: AssessmentAnswers): Set<string> {
+  const ids = new Set(activeQuestions(answers).map(q => q.id));
+  if (reportedValue(answers, "windowCount") !== 0) ids.add("windowOrientation");
+  return ids;
 }

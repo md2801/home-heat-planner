@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { BedroomCrossSection } from "@/components/illustrations/bedroom-cross-section";
+import { AssessmentRoomPreview } from "../room-scene/assessment-room-preview";
 import type { AnswerValue } from "@/domain/models";
-import { activeQuestions, CORE_QUESTION_IDS, type Question } from "./questions";
+import { activeQuestions, CORE_QUESTION_IDS, WINDOW_DIRECTION_IDS, type Question } from "./questions";
 import { answerFor, assessmentDestination, canContinue, canSeeAssessment, finishAssessment, moveAssessment, updateAnswer, validValue } from "./state";
 import { assessmentRepository } from "./repository";
 import styles from "./assessment.module.css";
@@ -33,7 +33,7 @@ function QuestionInput({ question }: { question: Question }) {
     <input type={question.multiple ? "checkbox" : "radio"} name={question.id} checked={unsure} onChange={() => { setRaw(""); setAnswer(null); }} />
     <AnswerIcon kind="unknown" /><span>Not sure</span><Mark selected={unsure} />
   </label>;
-  if (question.kind === "choice") return <fieldset className={styles.answers} aria-describedby={question.hint ? "question-hint" : undefined}>
+  if (question.kind === "choice") return <fieldset className={`${styles.answers} ${question.id === "acWall" || WINDOW_DIRECTION_IDS.some(id => id === question.id) ? styles.directionAnswers : ""}`} aria-describedby={question.hint ? "question-hint" : undefined}>
     <legend className="sr-only">{question.title}</legend>
     {question.choices?.map(choice => {
       const selected = Array.isArray(selectedValues) ? selectedValues.includes(String(choice.value)) : selectedValues === choice.value;
@@ -76,14 +76,13 @@ export function AssessmentPage() {
   const index = active.findIndex(q => q.id === draft.currentQuestionId);
   const question = active[index] ?? active[0]!;
   const optional = canSeeAssessment(draft);
-  const coreProgress = Math.min(index + 1, CORE_QUESTION_IDS.length);
+  const coreCount = active.filter(q => CORE_QUESTION_IDS.some(id => id === q.id)).length;
+  const coreProgress = Math.min(index + 1, coreCount);
   const heading = useRef<HTMLHeadingElement>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearCount, setClearCount] = useState(0);
   useEffect(() => { assessmentRepository.hydrate(); }, []);
   useEffect(() => { if (ready) heading.current?.focus(); }, [question.id, ready]);
-  const heatTiming = draft.answers.heatTiming;
-  const heat = heatTiming?.status === "known" && Array.isArray(heatTiming.value) ? heatTiming.value : [];
   return <div className={styles.page}>
     <header className={styles.header}>
       <Link href="/" className={styles.brand}><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="4" fill="var(--color-heat-light)" stroke="var(--color-forest)" strokeWidth="2" /><path d="M8 25C9 9 19 15 25 7C26 20 19 25 12 23M7 26L21 13M12 21L13 15M16 18L22 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Home Heat Planner</span></Link>
@@ -91,7 +90,7 @@ export function AssessmentPage() {
     </header>
     <div className={styles.layout}>
       <section className={styles.questionPanel} aria-labelledby="assessment-question">
-        <div className={styles.progress}><span>{optional ? `Optional details · ${question.context}` : `${index + 1} of ${CORE_QUESTION_IDS.length} · ${question.context}`}</span><div className={styles.progressTrack} role="progressbar" aria-label="Core assessment progress" aria-valuemin={0} aria-valuemax={CORE_QUESTION_IDS.length} aria-valuenow={coreProgress}><i style={{ width: `${(coreProgress / CORE_QUESTION_IDS.length) * 100}%` }} /></div></div>
+        <div className={styles.progress}><span>{optional ? `Optional details · ${question.context}` : `${index + 1} of ${coreCount} · ${question.context}`}</span><div className={styles.progressTrack} role="progressbar" aria-label="Core assessment progress" aria-valuemin={0} aria-valuemax={coreCount} aria-valuenow={coreProgress}><i style={{ width: `${(coreProgress / coreCount) * 100}%` }} /></div></div>
         <h1 id="assessment-question" ref={heading} tabIndex={-1}>{question.title}</h1>
         {ready && <IntakeAssistant draft={draft} />}
         {question.hint && <p id="question-hint" className={`${styles.hint} ${question.id === "heatTiming" ? styles.heatHint : ""}`}>{question.hint}</p>}
@@ -119,9 +118,8 @@ export function AssessmentPage() {
         {notice && <p role="status" className={styles.notice}>{notice}</p>}
         <div className={styles.saved}><span>You can leave details unknown.</span>{ready && (confirmClear ? <span>Clear saved answers? <button onClick={() => { assessmentRepository.clear(); setClearCount(count => count + 1); setConfirmClear(false); }}>Clear</button><button onClick={() => setConfirmClear(false)}>Cancel</button></span> : <button onClick={() => setConfirmClear(true)}>Clear assessment</button>)}</div>
       </section>
-      <aside className={styles.roomVisual} aria-label="Illustrative bedroom">
-        <figure><BedroomCrossSection /><figcaption>Illustrative room · not a simulation of your home</figcaption></figure>
-        <div className={styles.timeline} aria-label="Illustrative sun timeline"><span>Sun</span><div className={styles.timelineTrack}><div className={styles.timelineLine} />{["morning", "midday", "afternoon"].map((time, i) => <span key={time} className={heat.includes(time) ? styles.activeTime : ""} style={{ left: `${[5, 50, 87][i]}%` }}><i aria-hidden="true" />{time[0]!.toUpperCase() + time.slice(1)}</span>)}<i className={styles.endDot} aria-hidden="true" /></div></div>
+      <aside className={styles.roomVisual} aria-label="Your room preview">
+        <AssessmentRoomPreview draft={draft} questionId={question.id} />
       </aside>
     </div>
   </div>;

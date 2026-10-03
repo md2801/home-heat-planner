@@ -4,7 +4,7 @@ export interface IntakeSuggestion { category: "timing" | "shade" | "roof" | "coo
 export function isIntakeRequest(value: unknown): value is IntakeRequest {
   if (!value || typeof value !== "object") return false;
   const v = value as IntakeRequest;
-  return typeof v.complaint === "string" && !!v.complaint.trim() && v.complaint.length <= 500 && Array.isArray(v.allowedQuestionIds) && v.allowedQuestionIds.length > 0 && v.allowedQuestionIds.length <= 30 && new Set(v.allowedQuestionIds).size === v.allowedQuestionIds.length && v.allowedQuestionIds.every(id => questions.some(q => q.id === id));
+  return typeof v.complaint === "string" && !!v.complaint.trim() && v.complaint.length <= 500 && Array.isArray(v.allowedQuestionIds) && v.allowedQuestionIds.length > 0 && v.allowedQuestionIds.length <= questions.length && new Set(v.allowedQuestionIds).size === v.allowedQuestionIds.length && v.allowedQuestionIds.every(id => questions.some(q => q.id === id));
 }
 export function isIntakeSuggestion(value: unknown, allowed: string[]): value is IntakeSuggestion {
   if (!value || typeof value !== "object") return false;

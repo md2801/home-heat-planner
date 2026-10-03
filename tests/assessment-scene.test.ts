@@ -1,0 +1,66 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { assessmentScene } from "../src/features/room-scene/assessment-scene.ts";
+import { confirmScene } from "../src/features/room-scene/confirm-scene.ts";
+import { answerFor, emptyAssessment, updateAnswer, isAssessmentDraft, resumeAssessment, coreAssessmentComplete, type AssessmentDraft } from "../src/features/assessment/state.ts";
+import { activeQuestions, CORE_QUESTION_IDS, questions } from "../src/features/assessment/questions.ts";
+import { emptyScene } from "../src/contracts/room-scene.ts";
+import type { AnswerValue } from "../src/domain/models.ts";
+const at = "2026-10-03T06:00:00Z";
+function answer(d: AssessmentDraft, id: string, v: AnswerValue | null) { const q = questions.find(q => q.id === id)!; return updateAnswer(d, q, answerFor(q, v, at)); }
+test("live scene grows from answers without guessing roof, equipment types or window pairings", () => {
+  let d = answer(emptyAssessment(), "position", "upper-floor");
+  assert.deepEqual(assessmentScene(d.answers), emptyScene());
+  d = answer(d, "aboveRoom", "another-dwelling");
+  d = answer(d, "windowCount", 2);
+  d = answer(d, "windowOrientation", ["west", "east"]);
+  d = answer(d, "externalShading", "some");
+  d = answer(d, "cooling", ["fan", "air-conditioner"]);
+  let s = assessmentScene(d.answers);
+  assert.equal(s.above, "another-dwelling"); assert.equal(s.windows?.length, 2);
+  assert.ok(s.windows?.every(w => w.direction === "unknown" && w.shade === "unknown"));
+  assert.deepEqual(s.equipment, ["ac-unspecified", "fan-unspecified"]);
+  d = answer(d, "windowOrientation", ["west"]); d = answer(d, "externalShading", "all");
+  s = assessmentScene(d.answers);
+  assert.ok(s.windows?.every(w => w.direction === "west" && w.shade === "present-unspecified"));
+  d = answer(d, "windowCount", null);
+  assert.equal(assessmentScene(d.answers).windows, null);
+});
+test("no windows removes stale window answers and unnecessary core questions; >4 stays explicit", () => {
+  let d = answer(emptyAssessment(), "windowOrientation", ["west"]);
+  d = answer(d, "windowCount", 0);
+  assert.equal(d.answers.windowOrientation, undefined);
+  assert.ok(!activeQuestions(d.answers).some(q => q.id === "externalShading"));
+  for (const q of activeQuestions(d.answers).filter(q => CORE_QUESTION_IDS.some(id => id === q.id))) if (!d.answers[q.id]) d = answer(d, q.id, null);
+  assert.equal(coreAssessmentComplete(d.answers), true);
+  assert.deepEqual(assessmentScene(d.answers).windows, []);
+  d = answer(d, "windowCount", "more-than-four");
+  assert.equal(assessmentScene(d.answers).windows, null);
+});
+test("confirmed scene updates shared answers and preserves individual details through unrelated edits and reload", () => {
+  const scene = { ...emptyScene(), bed: "present" as const, above: "roof" as const, equipment: ["ceiling-fan" as const], windows: [{ direction: "west" as const, covering: "curtains" as const, shade: "none" as const }, { direction: "east" as const, covering: "blinds" as const, shade: "awning" as const }] };
+  let d = confirmScene(emptyAssessment(), scene, at);
+  assert.equal(isAssessmentDraft(d), true);
+  assert.equal(d.answers.windowCount?.status === "known" && d.answers.windowCount.value, 2);
+  assert.equal(d.answers.externalShading?.status === "known" && d.answers.externalShading.value, "some");
+  assert.deepEqual(assessmentScene(d.answers, d.sceneDetails), scene);
+  d = answer(d, "budgetAud", 200);
+  const restored: AssessmentDraft = JSON.parse(JSON.stringify(d));
+  assert.equal(isAssessmentDraft(restored), true);
+  assert.deepEqual(assessmentScene(restored.answers, restored.sceneDetails), scene);
+  d = answer(d, "externalShading", "none");
+  const updated = assessmentScene(d.answers, d.sceneDetails);
+  assert.ok(updated.windows?.every(w => w.shade === "none"));
+  assert.equal(updated.windows?.[1]?.direction, "east"); assert.equal(updated.bed, "present");
+  d = answer(d, "cooling", ["none"]);
+  assert.deepEqual(assessmentScene(d.answers, d.sceneDetails).equipment, []);
+  assert.deepEqual(assessmentScene(emptyAssessment().answers), emptyScene());
+});
+test("legacy completed assessments reopen at window count without losing old answers", () => {
+  let d = emptyAssessment();
+  for (const id of CORE_QUESTION_IDS.filter(id => id !== "windowCount")) d = answer(d, id, null);
+  d = { ...d, currentQuestionId: "location", completed: true };
+  assert.equal(isAssessmentDraft(d), true);
+  const restored = resumeAssessment(d);
+  assert.equal(restored.currentQuestionId, "windowCount"); assert.equal(restored.completed, false); assert.deepEqual(restored.answers, d.answers);
+});

@@ -1904,6 +1904,694 @@
                   }
                 }
               ]
+            },
+            "complaint": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: complaint"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "windowCount": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "enum": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        "more-than-four"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: windowCount"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "window1Orientation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "north",
+                        "north-east",
+                        "east",
+                        "south-east",
+                        "south",
+                        "south-west",
+                        "west",
+                        "north-west"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: window1Orientation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "window2Orientation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "north",
+                        "north-east",
+                        "east",
+                        "south-east",
+                        "south",
+                        "south-west",
+                        "west",
+                        "north-west"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: window2Orientation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "window3Orientation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "north",
+                        "north-east",
+                        "east",
+                        "south-east",
+                        "south",
+                        "south-west",
+                        "west",
+                        "north-west"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: window3Orientation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "window4Orientation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "north",
+                        "north-east",
+                        "east",
+                        "south-east",
+                        "south",
+                        "south-west",
+                        "west",
+                        "north-west"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: window4Orientation"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "fanType": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "ceiling",
+                        "portable",
+                        "both"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: fanType"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "portableFanPosition": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "beside-bed",
+                        "foot-of-bed",
+                        "near-window",
+                        "near-door",
+                        "elsewhere"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: portableFanPosition"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "acType": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "wall-mounted",
+                        "window-mounted",
+                        "portable",
+                        "ducted",
+                        "other"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: acType"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "acWall": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "reason"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "unknown"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "value",
+                    "provenance"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "known"
+                    },
+                    "value": {
+                      "type": "string",
+                      "enum": [
+                        "north",
+                        "north-east",
+                        "east",
+                        "south-east",
+                        "south",
+                        "south-west",
+                        "west",
+                        "north-west"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "recordedAt",
+                        "sourceIds",
+                        "scope"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "user-reported"
+                        },
+                        "recordedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sourceIds": {
+                          "type": "array",
+                          "maxItems": 0
+                        },
+                        "scope": {
+                          "const": "Bedroom assessment: acWall"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         },
@@ -2052,6 +2740,166 @@
             "updatedAt": {
               "type": "string",
               "format": "date-time"
+            }
+          }
+        },
+        "sceneDetails": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scene",
+            "basis"
+          ],
+          "properties": {
+            "scene": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "version",
+                "above",
+                "bed",
+                "windows",
+                "equipment"
+              ],
+              "properties": {
+                "version": {
+                  "type": "integer",
+                  "enum": [
+                    1
+                  ]
+                },
+                "above": {
+                  "type": "string",
+                  "enum": [
+                    "unknown",
+                    "roof",
+                    "another-room",
+                    "another-dwelling"
+                  ]
+                },
+                "bed": {
+                  "type": "string",
+                  "enum": [
+                    "unknown",
+                    "present",
+                    "absent"
+                  ]
+                },
+                "windows": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "maxItems": 4,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "direction",
+                          "covering",
+                          "shade"
+                        ],
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "unknown",
+                              "north",
+                              "north-east",
+                              "east",
+                              "south-east",
+                              "south",
+                              "south-west",
+                              "west",
+                              "north-west"
+                            ]
+                          },
+                          "covering": {
+                            "type": "string",
+                            "enum": [
+                              "unknown",
+                              "none",
+                              "curtains",
+                              "blinds",
+                              "shutters"
+                            ]
+                          },
+                          "shade": {
+                            "type": "string",
+                            "enum": [
+                              "unknown",
+                              "none",
+                              "awning",
+                              "present-unspecified"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "equipment": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "maxItems": 3,
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "split-ac",
+                          "ceiling-fan",
+                          "portable-fan",
+                          "ac-unspecified",
+                          "fan-unspecified"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "basis": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "aboveRoom",
+                "windowCount",
+                "windowOrientation",
+                "externalShading",
+                "internalCoverings",
+                "cooling"
+              ],
+              "properties": {
+                "aboveRoom": {
+                  "type": "string",
+                  "maxLength": 999
+                },
+                "windowCount": {
+                  "type": "string",
+                  "maxLength": 999
+                },
+                "windowOrientation": {
+                  "type": "string",
+                  "maxLength": 999
+                },
+                "externalShading": {
+                  "type": "string",
+                  "maxLength": 999
+                },
+                "internalCoverings": {
+                  "type": "string",
+                  "maxLength": 999
+                },
+                "cooling": {
+                  "type": "string",
+                  "maxLength": 999
+                }
+              }
             }
           }
         }

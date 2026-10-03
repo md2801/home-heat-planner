@@ -63,3 +63,16 @@
 @media (max-width: 1100px) { .columns { font-size: 15px; } .row > div { padding-right: 16px; } .value strong { font-size: 19px; } .heading p { font-size: 19px; } .choose .secondary, .choose .chosen { padding: 10px 12px; font-size: 14px; } .choose p { font-size: 16px; } }
 @media (max-width: 850px) { .heading { align-items: flex-start; margin-top: 30px; } .heading p { font-size: 17px; } .heading .secondary { flex-shrink: 0; } .context { margin-bottom: 24px; } .columns { display: none; } .row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; } .name { grid-column: 1 / -1; } .name p { max-width: none; } .value, .choose { padding-top: 0; } .mobileLabel { display: block; font-size: 13px; color: var(--color-muted); font-weight: 400; } .choose p { margin-top: 10px; } .value strong { font-size: 23px; } }
 @media (max-width: 480px) { .page { width: calc(100% - 40px); } .heading { flex-wrap: wrap; gap: 18px; } .heading h1 { font-size: 40px; } .row { gap: 24px 14px; } .row > div { padding-right: 0; } .name h2 { font-size: 27px; } .value strong { font-size: 20px; } .selected::before { left: 0; } .disclosures { gap: 6px 22px; } .footer { flex-wrap: wrap; } .footer > div { width: 100%; text-align: left; } .primary { width: 100%; font-size: 16px; padding-inline: 12px; } }
+
+/* Empty comparison keeps the next action prominent without fabricated results. */
+.empty { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 32px; padding: 32px 36px; border: 1px solid #e1dfd2; border-radius: 14px; background: #f1f0e6; }
+.emptyEyebrow { font-size: 10px; letter-spacing: .15em; font-weight: 600; color: #7a806b; }
+.empty h2 { font-size: clamp(28px, 3vw, 38px); line-height: 1.18; letter-spacing: -.035em; font-weight: 600; margin: 12px 0; color: #244b3e; }
+.empty p { font-size: 14px; line-height: 1.7; max-width: 440px; margin: 0 0 18px; }
+.empty .emptyAction { display: inline-flex; gap: 24px; align-items: center; min-height: 46px; background: #245646; color: #fff; border-radius: 7px; padding: 12px 18px; font-size: 14px; text-decoration: none; }
+.empty small { display: block; color: #7b8273; font-size: 11px; margin-top: 12px; }
+.emptyScene { width: 100%; max-width: 440px; justify-self: end; }
+.emptyScene svg { width: 100%; height: auto; }
+.emptyScene p { font-size: 10px; text-align: center; margin: 0; color: #7b8273; }
+.context { margin-bottom: 28px; }
+@media(max-width: 680px) { .empty { grid-template-columns: 1fr; padding: 26px 22px; gap: 16px; } .emptyScene { max-width: 320px; justify-self: center; } .empty h2 { font-size: 30px; } }

@@ -6,7 +6,7 @@
 .inputSection h1, .empty h1 { font-size: clamp(40px, 3.3vw, 58px); line-height: 1.1; font-weight: 700; letter-spacing: -.055em; margin: 0 0 16px; }
 .action { font-size: 16px; color: var(--color-muted); line-height: 1.5; margin: 0; }
 .due { font-size: 13px; color: var(--color-forest); margin: 8px 0 0; }
-.statusChoices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding: 0; border: 0; margin: 52px 0 58px; min-width: 0; }
+.statusChoices { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; padding: 0; border: 0; margin: 52px 0 58px; min-width: 0; }
 .statusChoices label { border: 1px solid var(--color-line); border-radius: var(--radius-control); background: var(--color-surface); padding: 16px 6px; min-height: 80px; display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 8px; cursor: pointer; font-size: 15px; position: relative; text-align: center; }
 .statusChoices label.selected { background: #edf3ed; border-color: var(--color-forest); }
 .statusChoices input, .rating input { position: absolute; opacity: 0; width: 1px; height: 1px; }

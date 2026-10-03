@@ -15,6 +15,11 @@ function fixture(values: Record<string, AnswerValue | null>): AssessmentDraft {
   return draft;
 }
 const solar = { heatTiming: ["afternoon"], windowOrientation: ["west"], externalShading: "none" };
+test("explicit external restrictions exclude external AC replacement instead of suggesting an impermissible installation", () => {
+  const view = coolingOptions(fixture({ cooling: ["air-conditioner"], externalChangesPermitted: false }));
+  assert.equal(view.options.some(o => o.id === "ac-replacement"), false);
+  assert.ok(view.gaps.some(g => g.includes("AC replacement is excluded")));
+});
 test("known matching sun exposure and absent shade enable shading investigation, not installation permission", () => {
   const option = coolingOptions(fixture(solar)).options[0]!;
   assert.equal(option.id, "external-shading");

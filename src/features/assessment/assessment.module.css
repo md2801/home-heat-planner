@@ -17,6 +17,11 @@
 .hint { color: var(--color-muted); line-height: 1.55; font-size: 16px; margin: -8px 0 22px; }
 .heatHint { font-size: 13px; line-height: 1.4; margin: -16px 0 10px; }
 .answers { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.directionAnswers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.directionAnswers .option { min-height: 60px; padding: 10px 12px; gap: 10px; font-size: 18px; }
+.directionAnswers .option > svg { width: 24px; height: 24px; }
+.directionAnswers .mark { width: 22px; height: 22px; }
+.directionAnswers .option:last-child { grid-column: 1 / -1; }
 .option { position: relative; display: flex; align-items: center; gap: 29px; min-height: 68px; padding: 13px 22px 13px 28px; border: 1px solid #dfddd7; border-radius: 9px; background: var(--color-surface); cursor: pointer; font-size: 20px; line-height: 1.35; }
 .option:hover { border-color: var(--color-cooling); }
 .option.selected { border-color: var(--color-forest); background: #eff5ef; font-weight: 600; }
@@ -43,8 +48,8 @@
 .continue:disabled { opacity: .48; cursor: not-allowed; }
 .back { padding: 12px 2px; font-size: 19px; min-height: 44px; color: #3d515e; cursor: pointer; background: transparent; border: 0; }
 .back:hover { text-decoration: underline; }
-.roomVisual { min-width: 0; padding-top: 14px; }
-.roomVisual figure { margin: 0; width: 110%; margin-left: -7%; }
+.roomVisual { min-width: 0; padding-top: 14px; position: sticky; top: 16px; }
+.roomVisual figure { margin: 0; width: 100%; }
 .roomVisual svg { display: block; width: 100%; height: auto; }
 .roomVisual figcaption { color: var(--color-muted); font-size: 12px; text-align: right; margin-top: 8px; padding-right: 3%; }
 .timeline { display: flex; align-items: flex-start; gap: 34px; color: #707a80; padding: 28px 0 0 8%; font-size: 17px; }
@@ -74,7 +79,7 @@
   .questionPanel { max-width: 620px; width: 100%; }
   .questionPanel h1 { font-size: clamp(36px, 6.5vw, 54px); margin-top: 28px; }
   .progressTrack { flex: 1; max-width: 240px; }
-  .roomVisual { padding-top: 0; }
+  .roomVisual { padding-top: 0; position: static; }
   .roomVisual figure { width: 100%; margin: 0; }
   .timeline { padding: 28px 4% 24px; }
 }

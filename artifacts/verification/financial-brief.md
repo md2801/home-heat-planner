@@ -1,0 +1,3 @@
+# Financial brief verification
+
+2026-10-03: 103 tests passed; lint, TypeScript and production build passed. Tested fallback UI on isolated production server port 3003, whose outbound provider connection failed. A live call through the existing development server port 3000 succeeded with a synthetic empty assessment and returned validated baseline/sensitivity IDs. No environment file contents were read. Mock tests cover invalid IDs, extra invented financial fields, incomplete responses, outages, caching, focus changes, process/client limits and hosting/missing-credential guards. Arithmetic fixtures confirm the baseline brief changes from AUD 54 to AUD 36 without attributing the change to an intervention.
