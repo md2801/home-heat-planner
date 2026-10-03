@@ -1,0 +1,39 @@
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+import { JourneyHeader } from '@/components/layout/journey-header';
+import { blankDraft, exampleDraft, fields, simulate, type Field } from './model';
+import styles from './thermal-scenario.module.css';
+
+const money = (n: number) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(n);
+export function ThermalScenario() {
+  const [draft, setDraft] = useState(blankDraft);
+  const [source, setSource] = useState('Your inputs');
+  const [result, setResult] = useState<ReturnType<typeof simulate> | null>(null);
+  const [error, setError] = useState('');
+  const edit = (key: string, value: string) => { setDraft(current => ({ ...current, [key]: value })); setResult(null); setError(''); };
+  const input = (key: Field) => <label key={key}>{fields[key][0]}<input type="number" step="any" min={fields[key][1]} max={fields[key][2]} value={draft[key]} onChange={event => edit(key, event.target.value)} /></label>;
+  const all = result ? [...result.baseline.temperatures, ...result.improved.temperatures] : [20, 40];
+  const low = Math.floor(Math.min(...all) - 1); const high = Math.ceil(Math.max(...all) + 1);
+  const y = (n: number) => 225 - (n - low) / (high - low) * 195;
+  const path = (values: number[]) => values.map((n, h) => `${h ? 'L' : 'M'}${50 + h * 28},${y(n)}`).join(' ');
+  return <div className={styles.page}><JourneyHeader /><Link href="/cooling-options">← Back to cooling options</Link>
+    <header className={styles.hero}><span>EXPERIMENTAL · 24-HOUR WHAT-IF</span><h1>One room.<br />A cooler possibility.</h1><p>Explore how changing heat gains and ventilation could change a room’s temperature and cooling bill under your assumptions.</p><button onClick={() => { setDraft(exampleDraft()); setSource('Synthetic example · editable, not your home or a weather forecast'); setResult(null); setError(''); }}>Load a synthetic example ↗</button></header>
+    <div className={styles.layout}><form onSubmit={event => { event.preventDefault(); try { setResult(simulate(draft)); setError(''); } catch (e) { setResult(null); setError(e instanceof Error ? e.message : 'Check the inputs.'); } }}>
+      <p className={styles.source}>{source}</p><h2>Set the scene</h2><p>These values need measurements or explicit assumptions. The room illustration does not establish them. Inputs stay on this page and reset when you leave.</p>
+      <details open><summary>Room & cooling assumptions</summary><div className={styles.inputs}>{(['volume', 'capacity', 'conductance', 'ach', 'internal', 'initial', 'setpoint', 'cooling', 'cop', 'tariff'] as Field[]).map(input)}</div><p>Envelope heat transfer is the combined fabric UA, excluding ventilation. Effective thermal capacity includes participating room mass. AC capacity is thermal output, not electrical input; COP converts between them.</p></details>
+      <details><summary>Outdoor conditions & solar gains</summary><p>24 rows, midnight to 23:00: outdoor temperature °C, solar heat entering the room W. Solar gain is transmitted heat, not outdoor irradiance. No header.</p><label>Hourly conditions<textarea rows={12} value={draft.weather} onChange={event => edit('weather', event.target.value)} placeholder="Outdoor °C, solar W" /></label></details>
+      <section className={styles.changes}><span>TRY A CHANGE</span><h2>Less heat in. More heat out.</h2><div className={styles.inputs}>{(['shade', 'insulation', 'nightAch'] as Field[]).map(input)}</div><p>Percentages are assumed effects, not product ratings. Extra ventilation runs 20:00–07:00 only when outdoors is cooler, using at least the background rate. Opening windows must be practical and safe.</p></section>
+      {error && <p role="alert" className={styles.error}>{error}</p>}<button type="submit">Compare this day →</button>
+    </form><section className={styles.results} aria-live="polite">{result ? <>
+      <span>SCENARIO RESULTS · {source}</span><h2>The same day, two possibilities.</h2><p>Temperature curves have AC switched off. Cost figures below use a separate run with AC available all day at the supplied setpoint and capacity.</p>
+      <div className={styles.legend}><span>● Baseline</span><span>● With changes</span></div>
+      <svg viewBox="0 0 760 265" role="img" aria-label="Hourly indoor temperature without AC, baseline versus changes. Values also available in the table below.">{[low, (low + high) / 2, high].map(t => <g key={t}><line x1="50" x2="722" y1={y(t)} y2={y(t)} stroke="#ded8cd" /><text x="0" y={y(t) + 4} fontSize="12">{t.toFixed(1)}°</text></g>)}<path d={path(result.baseline.temperatures)} fill="none" stroke="#b96708" strokeWidth="3" /><path d={path(result.improved.temperatures)} fill="none" stroke="#24584a" strokeWidth="3" />{[0, 6, 12, 18, 24].map(h => <text key={h} x={50 + h * 28} y="252" textAnchor="middle" fontSize="12">{h}:00</text>)}</svg>
+      <div className={styles.metrics}><div><small>Peak temperature · AC off</small><strong>{result.baseline.peak.toFixed(1)}° → {result.improved.peak.toFixed(1)}°C</strong></div><div><small>24-hour AC electricity cost</small><strong>{money(result.baselineAc.cost)} → {money(result.improvedAc.cost)}</strong></div></div>
+      <div className={styles.difference}><small>Baseline cost minus changed cost · this day only</small><strong>{money(result.baselineAc.cost - result.improvedAc.cost)}</strong><p>A negative difference means changes cost more. This excludes installation and additional ventilation electricity. It is not an annual saving or payback estimate.</p></div>
+      <p>AC electricity: {result.baselineAc.electricity.toFixed(2)} → {result.improvedAc.electricity.toFixed(2)} kWh. Time more than 0.1°C above setpoint with AC: {result.baselineAc.aboveSetpointHours.toFixed(1)} → {result.improvedAc.aboveSetpointHours.toFixed(1)} hours. A smaller bill may still leave the room too warm.</p>
+      <details><summary>Hourly temperatures · AC off</summary><table><thead><tr><th>Hour</th><th>Baseline °C</th><th>Changed °C</th></tr></thead><tbody>{result.baseline.temperatures.map((t, h) => <tr key={h}><th>{h}:00</th><td>{t.toFixed(2)}</td><td>{result.improved.temperatures[h]?.toFixed(2)}</td></tr>)}</tbody></table></details>
+    </> : <div className={styles.empty}><span>YOUR COMPARISON WILL APPEAR HERE</span><h2>What if your room<br />let less heat in?</h2><p>Enter assumptions or load the clearly labelled example, then compare. Unknown room details are never filled in automatically.</p></div>}
+      <details className={styles.method}><summary>How this model works & its limits</summary><p>A single, well-mixed room heat balance: C × temperature change = fabric and ventilation heat transfer + solar and internal gains − AC cooling. Five-minute steps use an analytical constant-input solution; hourly conditions remain constant within each hour.</p><p>This uncalibrated model omits humidity, radiant comfort, adjacent rooms, roof solar absorption, detailed thermal mass, wind and fan airflow. Insulation can also slow heat loss. Fan and AC placement does not determine performance here. Both cases start at the same temperature; this is one day, with no warm-up simulation.</p><p>AC uses fixed COP and ideal thermostat modulation capped at the supplied thermal capacity; real cycling and efficiency changes are excluded. Natural ventilation has no electricity charge in this scenario.</p><p>The simplified formulation is informed by <a href="https://energyplus.readthedocs.io/en/latest/guides/engineering-reference/2.1-basis-for-the-zone-and-air-system-integration.html">EnergyPlus heat-balance documentation</a>; this app does not run EnergyPlus. See <a href="https://www.yourhome.gov.au/passive-design/passive-cooling">Your Home passive cooling guidance</a> for practical context.</p></details>
+    </section></div></div>;
+}

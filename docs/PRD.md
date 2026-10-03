@@ -373,3 +373,8 @@ Monal is responsible for defining and documenting the backend DTOs (Data Transfe
 - Make frontend service calls and any temporary mocks use the same contracts, with a clear integration boundary for replacing them with the complete backend later. Provider API keys must remain server-side even during the prototype.
 
 The handoff deliverable is a checked-in contract specification with schemas or shared types and example payloads covering the core user journey. These contracts prepare the later backend implementation; they do not imply that persistence, authentication or production backend services have already been built.
+
+
+## Authorised extension: thermal what-if scenario (3 October 2026)
+
+The user requested addressing the lack of thermal simulation. A separate experimental 24-hour single-zone scenario is now permitted in addition to the core release. It requires explicit physical assumptions, offers only an opt-in labelled synthetic example, and never promotes results into supported savings or known room facts. No annualisation, payback, CFD or calibrated home-temperature claims. See `docs/contracts/thermal-scenario.md` for the model, limitations and acceptance checks. This overrides the earlier simulation exclusion only for this bounded experimental feature.

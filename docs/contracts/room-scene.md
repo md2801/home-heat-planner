@@ -37,3 +37,8 @@ The shared DynamicRoom component lazy-loads Three.js and same-origin GLB assets.
 - The nearest two walls and their attached objects hide during orbit. Vertical drag is inverted. Buttons support keyboard rotation/reset.
 - Editor proposals remain unconfirmed until confirmation; no automatic persistence comes from the 3D engine. Confirmed equipment positions survive window-only editor changes.
 - The renderer releases WebGL resources on unmount, ignores stale asset requests, and loads no external model URLs. No sunlight or cooling simulation is added.
+
+
+## Optional airflow preview
+
+The shared 3D renderer provides an opt-in illustrative stream overlay for placed fans and AC units. Blue identifies AC; teal identifies fans. The overlay assumes equipment is on, uses schematic directions and unscaled animation speeds, and does not solve a velocity field, collisions or heat transfer. It never changes recommendations or numerical estimates. Unknown equipment placement produces no stream; window airflow is excluded without opening and wind inputs. Reduced-motion preferences produce static paths and particles. Resources are disposed on scene rebuild/unmount.

@@ -628,3 +628,7 @@ The core prototype is complete when:
 - the application can be deployed to Vercel.
 
 Only after these conditions are substantially met should optional computer vision or other stretch features take priority.
+
+## Authorised extension: thermal what-if scenario (3 October 2026)
+
+The user requested addressing the lack of thermal simulation. A separate experimental 24-hour single-zone scenario is now permitted in addition to the core release. It requires explicit physical assumptions, offers only an opt-in labelled synthetic example, and never promotes results into supported savings or known room facts. No annualisation, payback, CFD or calibrated home-temperature claims. See `docs/contracts/thermal-scenario.md` for the model, limitations and acceptance checks. This overrides the earlier simulation exclusion only for this bounded experimental feature.
