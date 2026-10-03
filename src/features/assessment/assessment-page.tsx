@@ -119,7 +119,7 @@ export function AssessmentPage() {
         <div className={styles.saved}><span>You can leave details unknown.</span>{ready && (confirmClear ? <span>Clear saved answers? <button onClick={() => { assessmentRepository.clear(); setClearCount(count => count + 1); setConfirmClear(false); }}>Clear</button><button onClick={() => setConfirmClear(false)}>Cancel</button></span> : <button onClick={() => setConfirmClear(true)}>Clear assessment</button>)}</div>
       </section>
       <aside className={styles.roomVisual} aria-label="Your room preview">
-        <AssessmentRoomPreview draft={draft} questionId={question.id} />
+        <AssessmentRoomPreview draft={draft} questionId={question.id} compact />
       </aside>
     </div>
   </div>;

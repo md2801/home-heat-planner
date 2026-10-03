@@ -2,9 +2,10 @@ import type { SceneFocus } from "./assessment-scene";
 import * as T from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { visibleWalls, wallPoint, wallRotation, wallWidths, type RoomLayout, type Wall } from "./room-layout";
+import { createRoomLabels } from "./room-labels";
 export interface RoomEngine { update(layout: RoomLayout, proposed: boolean, focus?: SceneFocus): Promise<void>; reset(): void; turn(amount: number): void; dispose(): void }
 /** Browser-only renderer. No assessment writes or financial calculations. */
-export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => void): RoomEngine {
+export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => void, labelLayer: HTMLDivElement | null): RoomEngine {
   const renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75)); renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1;
@@ -15,8 +16,10 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
   const fill = new T.DirectionalLight("#e4efff", 1.1); fill.position.set(4, 3, 3); scene.add(fill);
   const templates = new Map<string, Promise<T.Group>>(); const loaded: T.Group[] = [];
   let disposed = false, revision = 0, root = new T.Group(), theta = .65, phi = 1.1, zoom = 1, drag = false, px = 0, py = 0;
-  const ownGeometries: T.BufferGeometry[] = [], ownMaterials: T.Material[] = [], ownTextures: T.Texture[] = [];
-  const releaseOwned = () => { ownGeometries.splice(0).forEach(g => g.dispose()); ownMaterials.splice(0).forEach(m => m.dispose()); ownTextures.splice(0).forEach(t => t.dispose()); };
+  const annotations = labelLayer ? createRoomLabels(labelLayer) : null;
+  let bedBounds: T.Box3 | undefined;
+  const ownGeometries: T.BufferGeometry[] = [], ownMaterials: T.Material[] = [];
+  const releaseOwned = () => { ownGeometries.splice(0).forEach(g => g.dispose()); ownMaterials.splice(0).forEach(m => m.dispose()); };
   function releaseTemplate(group: T.Group) { group.traverse(o => { if (o instanceof T.Mesh) { o.geometry.dispose(); (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose()); } }); }
   function asset(id: string) {
     let pending = templates.get(id);
@@ -27,18 +30,12 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
     const geometry = new T.BoxGeometry(w, h, d), material = new T.MeshStandardMaterial({ color, roughness: .85 });
     ownGeometries.push(geometry); ownMaterials.push(material); const m = new T.Mesh(geometry, material); m.name = name; m.position.set(...position); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
   }
-  function label(parent: T.Object3D, text: string, position: [number, number, number], scale = 1) {
-    const c = document.createElement("canvas"); c.width = 256; c.height = 64; const ctx = c.getContext("2d"); if (!ctx) return;
-    ctx.fillStyle = "rgba(250,248,239,.95)"; ctx.fillRect(0, 0, 256, 64); ctx.font = "30px Arial"; ctx.fillStyle = "#365443"; ctx.textAlign = "center"; ctx.fillText(text, 128, 43);
-    const texture = new T.CanvasTexture(c); texture.colorSpace = T.SRGBColorSpace; const material = new T.SpriteMaterial({ map: texture, depthTest: false, toneMapped: false });
-    ownTextures.push(texture); ownMaterials.push(material); const sprite = new T.Sprite(material); sprite.position.set(...position); sprite.scale.set(1.7 * scale, .425 * scale, 1); parent.add(sprite);
-  }
   async function update(layout: RoomLayout, proposed: boolean, focus: SceneFocus = "none") {
     const current = ++revision;
     const ids = new Set([...(layout.bed ? ["bed", "rug", "nightstand", "lamp"] : []), ...layout.equipment.map(e => e.asset)]);
     layout.windows.forEach(w => { ids.add(["curtains", "blinds", "shutters"].includes(w.covering) ? w.covering : "window"); if (w.shade === "awning") ids.add("awning"); });
     await Promise.all([...ids].map(asset)); if (disposed || current !== revision) return;
-    scene.remove(root); releaseOwned(); root = new T.Group(); scene.add(root);
+    scene.remove(root); releaseOwned(); annotations?.clear(); annotations?.setFocus(focus); bedBounds = undefined; root = new T.Group(); scene.add(root);
     const clone = async (id: string) => (await asset(id)).clone(true);
     // All awaited loads above have finished. A stale update cannot attach to a newer root.
     const models = new Map<string, T.Group>(); for (const id of ids) models.set(id, await clone(id));
@@ -63,19 +60,23 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
         const windowModel = place(["curtains", "blinds", "shutters"].includes(w.covering) ? w.covering : "window", wall, [w.offset, bottom, .02], 0, w.scale);
         if (focus === "windows") highlights.push({ object: windowModel, wall: side });
         if (w.shade === "awning") { const awning = place("awning", wall, [w.offset, top, -.18], Math.PI, .9 * w.scale); awning.name = proposed ? "Proposed awning, not installed" : "Reported awning"; }
-        label(wall, `${w.id.replace("window-", "W")} · ${w.direction}`, [w.offset, bottom - .12, .12], .70 * w.scale);
-        if (w.covering === "unknown" || w.shade === "present-unspecified") label(wall, w.covering === "unknown" ? "Covering ?" : "Shade type ?", [w.offset, top + .16, .12], .7 * w.scale);
+        const direction = w.direction.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join("-");
+        annotations?.add(`${w.id.replace("window-", "Window ")} · ${direction}`, wallPoint(side, w.offset, bottom + .67 * w.scale, .12), "windows", side);
       }
       if (edge < width / 2) cube(wall, "Wall pier", width / 2 - edge, 2.8, .12, "#eee8db", [(width / 2 + edge) / 2, 1.4, 0]);
       cube(wall, "Skirting", width, .09, .04, "#f2eee3", [0, .065, .09]);
-      label(root, side.toUpperCase(), wallPoint(side, 0, .05, -.35), .65);
+      annotations?.add(side.charAt(0).toUpperCase() + side.slice(1), wallPoint(side, 0, .05), "compass", side);
     }
-    if (layout.bed) { place("rug", root, [-.4, .04, .3], 0, .85); place("bed", root, [-.65, .045, .05]); place("nightstand", root, [.77, .045, -.83]); place("lamp", root, [.77, .64, -.83]); }
+    if (layout.bed) { place("rug", root, [-.4, .04, .3], 0, .85); const bed = place("bed", root, [-.65, .045, .05]); bedBounds = new T.Box3().setFromObject(bed); place("nightstand", root, [.77, .045, -.83]); place("lamp", root, [.77, .64, -.83]); }
     for (const e of layout.equipment) {
       // Placement is in room coordinates; attach to the wall without changing its transform.
       const model = place(e.asset, root, e.position, e.rotation); if (e.asset === "vent") model.rotation.x = Math.PI / 2;
       if (e.wall) { root.updateMatrixWorld(true); walls[e.wall].attach(model); }
       if (focus === "cooling") highlights.push({ object: model, ...(e.wall ? { wall: e.wall } : {}) });
+      const bearing = e.direction ?? e.wall;
+      const direction = bearing?.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join("-");
+      const text = e.id === "ceiling-fan" ? "Ceiling fan" : e.id === "portable-fan" ? "Portable fan" : e.asset === "vent" ? "Ducted vent" : `AC${direction ? ` · ${direction}` : ""}`;
+      annotations?.add(text, new T.Box3().setFromObject(model).getCenter(new T.Vector3()).toArray() as [number, number, number], "cooling", e.wall);
     }
     root.updateMatrixWorld(true);
     const addOutline = (bounds: T.Box3, wall?: Wall) => {
@@ -100,10 +101,11 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
     const r = 8.9 * Math.max(1, .95 / camera.aspect) * zoom;
     camera.position.set(r * Math.sin(phi) * Math.sin(theta), 1.2 + r * Math.cos(phi), r * Math.sin(phi) * Math.cos(theta)); camera.lookAt(0, 1.2, 0);
     const visible = visibleWalls(camera.position.x, camera.position.z); root.children.forEach(o => { if (o.userData.wall) o.visible = visible.includes(o.userData.wall as Wall); }); renderer.render(scene, camera);
+    annotations?.render(camera, canvas.clientWidth, canvas.clientHeight, visible, bedBounds);
   });
   return { update, reset, turn: amount => { theta += amount; }, dispose() {
     disposed = true; revision++; renderer.setAnimationLoop(null); observer.disconnect();
     canvas.removeEventListener("pointerdown", down); canvas.removeEventListener("pointerup", up); canvas.removeEventListener("pointercancel", up); canvas.removeEventListener("pointermove", move); canvas.removeEventListener("wheel", wheel); canvas.removeEventListener("webglcontextlost", lost);
-    releaseOwned(); loaded.forEach(releaseTemplate); renderer.dispose(); renderer.forceContextLoss();
+    annotations?.dispose(); releaseOwned(); loaded.forEach(releaseTemplate); renderer.dispose(); renderer.forceContextLoss();
   } };
 }

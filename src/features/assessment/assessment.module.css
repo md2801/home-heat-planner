@@ -48,7 +48,7 @@
 .continue:disabled { opacity: .48; cursor: not-allowed; }
 .back { padding: 12px 2px; font-size: 19px; min-height: 44px; color: #3d515e; cursor: pointer; background: transparent; border: 0; }
 .back:hover { text-decoration: underline; }
-.roomVisual { min-width: 0; padding-top: 14px; position: sticky; top: 16px; }
+.roomVisual { min-width: 0; position: sticky; top: 16px; }
 .roomVisual figure { margin: 0; width: 100%; }
 .roomVisual svg { display: block; width: 100%; height: auto; }
 .roomVisual figcaption { color: var(--color-muted); font-size: 12px; text-align: right; margin-top: 8px; padding-right: 3%; }
@@ -69,7 +69,6 @@
   .progressTrack { width: 130px; }
   .option { font-size: 18px; gap: 18px; padding-inline: 18px; }
   .navigation { font-size: 16px; }
-  .roomVisual { padding-top: 40px; }
   .timeline { font-size: 14px; gap: 20px; padding-top: 40px; }
 }
 @media (max-width: 850px) {

@@ -1,4 +1,5 @@
 .preview { padding: 18px 0 20px 38px; color: #284b3e; }
+.headingRight { width: fit-content; max-width: min(100%, 320px); margin-left: auto; }
 .eyebrow { font-size: 11px; letter-spacing: .14em; color: #69776b; margin: 0 0 9px; }
 .preview h2 { font-size: 25px; letter-spacing: -.03em; margin: 0 0 10px; }
 .focus { min-height: 38px; margin: 0; font-size: 14px; color: #687569; line-height: 1.5; }
@@ -9,4 +10,8 @@
 .facts div { padding: 10px 0; border-top: 1px solid #dddccf; }
 .facts dt { font-size: 11px; color: #717b70; margin-bottom: 4px; }
 .facts dd { margin: 0; line-height: 1.5; }
+@media (min-width:851px) {
+  .compactPreview { padding-top: 0; }
+  .compactPreview canvas { height: clamp(480px, 39vw, 560px); }
+}
 @media (max-width:850px) { .preview { padding: 20px 0; } }

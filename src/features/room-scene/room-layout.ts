@@ -3,7 +3,7 @@ import type { EquipmentPlacement } from "./equipment-details.ts";
 export type Wall = "north" | "east" | "south" | "west";
 export type Point = [number, number, number];
 export interface PlacedWindow extends SceneWindow { id: string; wall: Wall; offset: number; scale: number }
-export interface PlacedAsset { id: string; asset: string; position: Point; rotation: number; wall?: Wall }
+export interface PlacedAsset { id: string; asset: string; position: Point; rotation: number; wall?: Wall; direction?: SceneWindow["direction"] }
 export interface RoomLayout { windows: PlacedWindow[]; equipment: PlacedAsset[]; notes: string[]; reported: string[]; bed: boolean; above: RoomScene["above"] }
 export const wallWidths: Record<Wall, number> = { north: 4.5, south: 4.5, east: 4.2, west: 4.2 };
 export const wallRotation: Record<Wall, number> = { north: 0, east: -Math.PI / 2, south: Math.PI, west: Math.PI / 2 };
@@ -36,7 +36,7 @@ export function roomLayout(scene: RoomScene, placement: EquipmentPlacement = {})
     const matching = windows.filter(w => w.wall === wall);
     matching.forEach((w, i) => { w.scale = Math.min(1, (wallWidths[wall] - .5) / (matching.length * 1.8)); w.offset = (i - (matching.length - 1) / 2) * (wallWidths[wall] - .5) / matching.length; });
   }
-  const add = (id: string, asset: string, position: Point, wall?: Wall) => equipment.push({ id, asset, position, rotation: wall ? wallRotation[wall] : 0, ...(wall ? { wall } : {}) });
+  const add = (id: string, asset: string, position: Point, wall?: Wall, direction?: SceneWindow["direction"]) => equipment.push({ id, asset, position, rotation: wall ? wallRotation[wall] : 0, ...(wall ? { wall } : {}), ...(direction ? { direction } : {}) });
   const eq = scene.equipment ?? [];
   if (scene.equipment === null) notes.push("Cooling equipment not confirmed.");
   if (eq.includes("fan-unspecified")) notes.push("Fan reported; type and position not confirmed.");
@@ -55,7 +55,7 @@ export function roomLayout(scene: RoomScene, placement: EquipmentPlacement = {})
     const type = placement.acType ?? (eq.includes("split-ac") ? "wall-mounted" : undefined);
     const wall = placement.acWall ? directionWall(placement.acWall) : null;
     if ((type === "wall-mounted" || type === "window-mounted") && wall) {
-      add("ac", type === "wall-mounted" ? "split-ac" : "window-ac", wallPoint(wall, 0, type === "wall-mounted" ? 2.35 : 1.70, .14), wall);
+      add("ac", type === "wall-mounted" ? "split-ac" : "window-ac", wallPoint(wall, 0, type === "wall-mounted" ? 2.35 : 1.70, .14), wall, placement.acWall);
       reported.push(`AC · ${type} · ${placement.acWall}`);
       if (placement.acWall?.includes("-")) notes.push(`AC ${placement.acWall} shown approximately on the ${wall} side.`);
       if (type === "window-mounted") notes.push("Window/wall AC position is illustrative; its mounting opening is not confirmed.");

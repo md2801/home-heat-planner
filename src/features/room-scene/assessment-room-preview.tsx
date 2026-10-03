@@ -4,7 +4,7 @@ import { assessmentScene, sceneFocus, valueOf } from "./assessment-scene";
 import { equipmentPlacement, equipmentDetailText } from "./equipment-details";
 import styles from "./assessment-room-preview.module.css";
 
-export function AssessmentRoomPreview({ draft, questionId = "" }: { draft: AssessmentDraft; questionId?: string }) {
+export function AssessmentRoomPreview({ draft, questionId = "", compact = false }: { draft: AssessmentDraft; questionId?: string; compact?: boolean }) {
   const scene = assessmentScene(draft.answers, draft.sceneDetails);
   const focus = sceneFocus(questionId);
   const count = valueOf(draft.answers, "windowCount");
@@ -20,12 +20,14 @@ export function AssessmentRoomPreview({ draft, questionId = "" }: { draft: Asses
     cooling: "Cooling equipment · added as you select it",
     none: "Your room takes shape as you answer",
   };
-  return <section className={styles.preview} aria-label="Live room preview">
-    <p className={styles.eyebrow}>YOUR ROOM SO FAR</p>
-    <h2>Built from your answers</h2>
-    <p className={styles.focus} aria-live="polite">{texts[focus]}</p>
-    <figure><RoomScene scene={scene} focus={focus} placement={equipmentPlacement(draft.answers)} /><figcaption>Furniture, finishes, roof shape and layout are illustrative. Equipment labels reflect your answers; positions and distances are schematic. Unanswered details remain unknown.</figcaption></figure>
-    <dl className={styles.facts} aria-live="polite">
+  return <section className={`${styles.preview} ${compact ? styles.compactPreview : ""}`} aria-label="Live room preview">
+    <div className={compact ? styles.headingRight : ""}>
+      <p className={styles.eyebrow}>YOUR ROOM SO FAR</p>
+      <h2>Built from your answers</h2>
+      <p className={styles.focus} aria-live="polite">{texts[focus]}</p>
+    </div>
+    <figure><RoomScene scene={scene} focus={focus} placement={equipmentPlacement(draft.answers)} showDetails={!compact} />{!compact && <figcaption>Furniture, finishes, roof shape and layout are illustrative. Equipment labels reflect your answers; positions and distances are schematic. Unanswered details remain unknown.</figcaption>}</figure>
+    {!compact && <dl className={styles.facts} aria-live="polite">
       <div><dt>Position</dt><dd>{position === "ground-floor" ? "Ground floor" : position === "upper-floor" ? "Upper floor" : "Not yet known"}</dd></div>
       <div><dt>Windows</dt><dd>{typeof count === "number" ? `${count} reported` : count === "more-than-four" ? "More than four · beyond preview limit" : "Count not yet known"}</dd></div>
       <div><dt>Directions</dt><dd>{count === 0 ? "No windows" : scene.windows?.length ? scene.windows.map((w, i) => `Window ${i + 1}: ${w.direction === "unknown" ? "Not sure" : w.direction}`).join(" · ") : Array.isArray(orientation) ? orientation.join(", ") : "Not yet known"}</dd></div>
@@ -34,6 +36,6 @@ export function AssessmentRoomPreview({ draft, questionId = "" }: { draft: Asses
       <div><dt>Hottest times</dt><dd>{Array.isArray(heat) ? heat.join(", ") : "Not yet known"}</dd></div>
       <div><dt>Fan</dt><dd>{equipmentDetailText(draft.answers, "fan")}</dd></div>
       <div><dt>Air conditioner</dt><dd>{equipmentDetailText(draft.answers, "air-conditioner")}</dd></div>
-    </dl>
+    </dl>}
   </section>;
 }
