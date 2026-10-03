@@ -92,10 +92,23 @@
 }
 @media (prefers-reduced-motion: reduce) { .primaryCta { transition: none; } }
 
-/* Interactive model occupies its own column, so controls never overlap the CTA. */
-.hero { display:grid; grid-template-columns:minmax(0, .85fr) minmax(0, 1.15fr); gap:32px; align-items:center; min-height:0; padding:30px 0; }
-.introduction { width:100%; padding-top:0; }
-.illustration { position:relative; top:auto; left:auto; width:100%; margin:0; min-width:0; --room-canvas-height:520px; }
-.exampleCaption { text-align:center; font-size:12px; color:var(--color-muted); margin-top:12px; }
-@media(max-width:1150px) { .hero {gap:20px;} .illustration {--room-canvas-height:440px;} }
-@media(max-width:850px) { .hero {grid-template-columns:1fr;} .illustration {width:100%; margin:0;} }
+/* Keep the explanation beside the room, with the model visible while reading. */
+.hero { display:grid; grid-template-columns:minmax(0, .85fr) minmax(0, 1.15fr); gap:32px; align-items:start; min-height:0; margin-top:8px; padding:12px 0 28px; }
+.introduction { width:100%; padding-top:0; min-width:0; }
+.introduction h1 { font-size:clamp(38px, 3.5vw, 58px); line-height:1.04; letter-spacing:-.055em; max-width:560px; }
+.subtitle { margin:16px 0 0; font-size:18px; }
+.actions { margin-top:20px; gap:20px; flex-wrap:wrap; }
+.primaryCta { min-height:52px; padding:12px 20px; font-size:17px; }
+.actions p { font-size:14px; }
+.roomStory { margin-top:24px; }
+.illustration { position:sticky; top:24px; left:auto; width:100%; margin:0; min-width:0; --room-canvas-height:clamp(480px, calc(100svh - 180px), 760px); }
+.exampleCaption { text-align:center; font-size:12px; color:var(--color-muted); margin-top:8px; }
+@media(max-width:1150px) { .hero {gap:24px; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);} .introduction h1 {font-size:40px;} }
+@media(max-width:850px) {
+  .hero {grid-template-columns:1fr; gap:20px;}
+  .introduction {max-width:none; display:contents;}
+  .introduction h1 {max-width:620px; font-size:clamp(38px, 7vw, 54px);}
+  .subtitle, .actions, .roomStory {margin-top:0;}
+  .illustration {position:relative; top:auto; width:100%; margin:0; grid-row:4; --room-canvas-height:440px; --room-canvas-mobile-height:360px;}
+  .roomStory {grid-row:5;}
+}

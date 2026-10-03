@@ -1,19 +1,21 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RoomScene as FlatRoom } from "../../components/illustrations/room-scene";
 import type { RoomScene } from "../../contracts/room-scene";
 import type { EquipmentPlacement } from "./equipment-details";
 import type { SceneFocus } from "./assessment-scene";
 import { roomLayout } from "./room-layout";
 import type { RoomEngine } from "./room-engine";
+import { CoolingStory } from "./cooling-story";
 import styles from "./dynamic-room.module.css";
-interface Props { scene: RoomScene; placement?: EquipmentPlacement; proposed?: boolean; focus?: SceneFocus; showDetails?: boolean; title?: string; presentation?: boolean; coolingStory?: boolean }
+interface Props { scene: RoomScene; placement?: EquipmentPlacement; proposed?: boolean; focus?: SceneFocus; showDetails?: boolean; title?: string; presentation?: boolean; coolingStory?: boolean; showStory?: boolean; onStoryStageChange?: (stage: number) => void }
 export function DynamicRoom(props: Props) {
-  const { scene, placement, proposed = false, focus = "none", showDetails = true, presentation = false, coolingStory = false } = props;
+  const { scene, placement, proposed = false, focus = "none", showDetails = true, presentation = false, coolingStory = false, showStory = true, onStoryStageChange } = props;
   const canvas = useRef<HTMLCanvasElement>(null), engine = useRef<RoomEngine | null>(null);
   const labelLayer = useRef<HTMLDivElement>(null);
   const [flat, setFlat] = useState(false), [failed, setFailed] = useState(false), [ready, setReady] = useState(false);
   const [storyStage, setStoryStage] = useState(0);
+  const handleStoryStage = useCallback((stage: number) => { setStoryStage(stage); onStoryStageChange?.(stage); }, [onStoryStageChange]);
   const [airflow, setAirflow] = useState(false);
   const serialized = JSON.stringify(roomLayout(scene, placement));
   const layout = roomLayout(scene, placement);
@@ -23,10 +25,10 @@ export function DynamicRoom(props: Props) {
     let cancelled = false; const element = canvas.current;
     import("./room-engine").then(({ createRoomEngine }) => {
       if (cancelled) return;
-      engine.current = createRoomEngine(element, () => setFailed(true), labelLayer.current, presentation, coolingStory ? setStoryStage : undefined); setReady(true);
+      engine.current = createRoomEngine(element, () => setFailed(true), labelLayer.current, presentation, coolingStory ? handleStoryStage : undefined); setReady(true);
     }).catch(() => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; engine.current?.dispose(); engine.current = null; };
-  }, [flat, failed, presentation, coolingStory]);
+  }, [flat, failed, presentation, coolingStory, handleStoryStage]);
   useEffect(() => {
     if (!engine.current || flat || failed) return;
     let cancelled = false;
@@ -37,12 +39,7 @@ export function DynamicRoom(props: Props) {
     {!presentation && <div className={styles.heading}><span>{props.title ?? (proposed ? "Proposed improvement · not installed" : flat || failed ? "Your room in 2D" : "Your room in 3D")}</span><button type="button" onClick={() => { if (failed) { setFailed(false); setFlat(false); } else setFlat(!flat); setReady(false); }}>{flat || failed ? "Show 3D" : "Show 2D"}</button></div>}
     {flat || failed ? <><FlatRoom {...props} />{failed && <p role="status">3D is unavailable on this device. Your room is shown in 2D.</p>}</> : <>
       <div className={styles.viewport}>
-        {coolingStory && <div className={styles.story}>
-          <span>{['01 · COOLING TODAY', '02 · KEEP HEAT OUT', '03 · LET COOLER AIR IN'][storyStage]}</span>
-          <strong>{['Comfort starts with the room.', 'Shade the glass. Reduce solar heat.', 'Open up when it’s cooler outside.'][storyStage]}</strong>
-          <p>{['Watch one rotation to explore changes that can reduce AC demand.', 'External shade can reduce cooling demand. Less AC electricity can mean lower bills and electricity emissions.', 'Ventilate only when outside air is cooler and safe. Fans support comfort; AC may still be needed in extreme heat.'][storyStage]}</p>
-          <small>Illustrative options · AC hidden to reveal alternatives, not a removal recommendation. <a href="https://www.yourhome.gov.au/passive-design/passive-cooling" target="_blank" rel="noreferrer">Why this helps ↗</a></small>
-        </div>}
+        {coolingStory && showStory && <CoolingStory stage={storyStage} />}
         <canvas ref={canvas} className={styles.canvas} aria-label={presentation ? "Illustrative 3D bedroom" : "Interactive bedroom built from your answers. Use the rotation buttons or drag to rotate."} />
         {!presentation && <div ref={labelLayer} className={styles.labelLayer} />}
       </div>

@@ -3,6 +3,7 @@ import * as T from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { visibleWalls, wallPoint, wallRotation, wallWidths, type RoomLayout, type Wall } from "./room-layout";
 import { createRoomLabels } from "./room-labels";
+import { createWindowStoryEffects } from "./window-story-effects";
 import { createAirflowPreview } from "./airflow-preview";
 export interface RoomEngine { update(layout: RoomLayout, proposed: boolean, focus?: SceneFocus): Promise<void>; airflow(enabled: boolean): void; reset(): void; turn(amount: number): void; dispose(): void }
 /** Browser-only renderer. No assessment writes or financial calculations. */
@@ -21,7 +22,8 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
   let storyAngle = 0, storyStage = -1, passiveBlend = 0, windowBlend = 0;
   const storyWindowWalls = new Set<Wall>();
   let fadeMaterials = new WeakMap<T.Object3D, { material: T.Material; opacity: number; transparent: boolean; depthWrite: boolean }[]>();
-  const storyAc: T.Object3D[] = [], storyShades: T.Object3D[] = [], storyGlass: T.Object3D[] = [];
+  const storyAc: T.Object3D[] = [], storyShades: T.Object3D[] = [];
+  const windowEffects: ReturnType<typeof createWindowStoryEffects>[] = [];
   let windowAirflow: ReturnType<typeof createAirflowPreview> | undefined;
   let passiveAirflow: ReturnType<typeof createAirflowPreview> | undefined;
   let bedBounds: T.Box3 | undefined;
@@ -68,7 +70,7 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
     if (onStory) ids.add("awning");
     await Promise.all([...ids].map(asset)); if (disposed || current !== revision) return;
     airflow?.dispose(); airflow = undefined; passiveAirflow?.dispose(); passiveAirflow = undefined; windowAirflow?.dispose(); windowAirflow = undefined;
-    storyAc.length = 0; storyShades.length = 0; storyGlass.length = 0;
+    storyAc.length = 0; storyShades.length = 0; windowEffects.splice(0).forEach(effect => effect.dispose());
     storyWindowWalls.clear();
     if (onStory) layout.windows.forEach(window => storyWindowWalls.add(window.wall));
     scene.remove(root); releaseOwned(); fadeMaterials = new WeakMap(); annotations?.clear(); annotations?.setFocus(focus); bedBounds = undefined; root = new T.Group(); scene.add(root);
@@ -80,6 +82,10 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
       const model = models.get(id)!.clone(true); model.position.set(...position); model.rotation.y = rotation; model.scale.setScalar(scale);
       model.traverse(o => { if (o instanceof T.Mesh) { o.castShadow = true; o.receiveShadow = true; } }); parent.add(model); return model;
     };
+    // Wall-local +Z faces indoors. After the awning's 180° turn, its minimum
+    // asset Z becomes its innermost point; keep that point beyond the outer face.
+    const awningMinZ = models.has("awning") ? new T.Box3().setFromObject(models.get("awning")!).min.z : 0;
+    const awningOffset = (scale: number) => -.06 - .005 + awningMinZ * scale;
     cube(root, "Foundation", 4.6, .12, 4.3, "#cfb58e", [0, -.06, 0]);
     for (let i = 0; i < 18; i++) cube(root, "Floor board", .246, .03, 4.20, i % 3 ? "#d7c2a0" : "#d0b894", [-2.125 + i * .25, .015, 0]);
     const walls = {} as Record<Wall, T.Group>;
@@ -94,11 +100,11 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
         cube(wall, "Wall above window", half * 2, 2.8 - top, .12, "#eee8db", [w.offset, (top + 2.8) / 2, 0]); edge = right;
         const windowModel = place(["curtains", "blinds", "shutters"].includes(w.covering) ? w.covering : "window", wall, [w.offset, bottom, .02], 0, w.scale);
         if (onStory) {
-          const shade = place("awning", wall, [w.offset, top, -.18], Math.PI, .9 * w.scale);
+          const shade = place("awning", wall, [w.offset, top, awningOffset(.9 * w.scale)], Math.PI, .9 * w.scale);
           shade.visible = false; storyShades.push(shade);
-          windowModel.traverse(o => { if (o.name === 'Glass') storyGlass.push(o); });
+          windowEffects.push(createWindowStoryEffects(windowModel));
         }
-        if (w.shade === "awning") { const awning = place("awning", wall, [w.offset, top, -.18], Math.PI, .9 * w.scale); awning.name = proposed ? "Proposed awning, not installed" : "Reported awning"; }
+        if (w.shade === "awning") { const awning = place("awning", wall, [w.offset, top, awningOffset(.9 * w.scale)], Math.PI, .9 * w.scale); awning.name = proposed ? "Proposed awning, not installed" : "Reported awning"; }
         const direction = w.direction.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join("-");
         annotations?.add(`${w.id.replace("window-", "Window ")} · ${direction}`, wallPoint(side, w.offset, bottom + .67 * w.scale, .12), "windows", side);
       }
@@ -111,7 +117,7 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
       // Placement is in room coordinates; attach to the wall without changing its transform.
       const model = place(e.asset, root, e.position, e.rotation); if (e.asset === "vent") model.rotation.x = Math.PI / 2;
       if (onStory && e.id === "ac") storyAc.push(model);
-      if (e.wall) { root.updateMatrixWorld(true); walls[e.wall].attach(model); }
+      if (e.wall && !onStory) { root.updateMatrixWorld(true); walls[e.wall].attach(model); }
       const bearing = e.direction ?? e.wall;
       const direction = bearing?.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join("-");
       const text = e.id === "ceiling-fan" ? "Ceiling fan" : e.id === "portable-fan" ? "Portable fan" : e.asset === "vent" ? "Ducted vent" : `AC${direction ? ` · ${direction}` : ""}`;
@@ -157,12 +163,12 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
       windowBlend = approach(windowBlend, stage === 2 ? 1 : 0);
       const smooth = (value: number) => value * value * (3 - 2 * value);
       const blend = smooth(passiveBlend);
-      storyAc.forEach(o => fade(o, 1 - blend));
+      storyAc.forEach(o => { o.visible = true; });
       storyShades.forEach(o => fade(o, blend));
-      storyGlass.forEach(o => { o.rotation.y = -Math.PI / 3 * smooth(windowBlend); });
-      fade(airflow.group, showAirflow ? 1 - blend : 0);
+      windowEffects.forEach(effect => effect.update(smooth(windowBlend), blend, reducedMotion.matches ? 1 : time / 1000));
+      fade(airflow.group, showAirflow ? (1 - .55 * blend) * (1 - smooth(windowBlend)) : 0);
       if (passiveAirflow) {
-        fade(passiveAirflow.group, showAirflow ? blend : 0);
+        fade(passiveAirflow.group, showAirflow ? blend * (.55 + .45 * smooth(windowBlend)) : 0);
         passiveAirflow.animate(reducedMotion.matches ? 1 : time / 1000);
       }
       if (windowAirflow) {
@@ -171,7 +177,7 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
       }
       canvas.dataset.storyStage = String(stage);
     }
-    const r = 8.9 * Math.max(1, .95 / camera.aspect) * zoom;
+    const r = (presentation ? 10.2 : 8.9) * Math.max(1, .95 / camera.aspect) * zoom;
     camera.position.set(r * Math.sin(phi) * Math.sin(theta), 1.2 + r * Math.cos(phi), r * Math.sin(phi) * Math.cos(theta)); camera.lookAt(0, 1.2, 0);
     if (showAirflow) airflow?.animate(reducedMotion.matches ? 1 : time / 1000);
     const visible = visibleWalls(camera.position.x, camera.position.z);
@@ -185,6 +191,6 @@ export function createRoomEngine(canvas: HTMLCanvasElement, onFailure: () => voi
   return { update, airflow(enabled) { showAirflow = enabled; if (airflow) airflow.group.visible = enabled; }, reset, turn: amount => { theta += amount; }, dispose() {
     disposed = true; revision++; renderer.setAnimationLoop(null); observer.disconnect();
     canvas.removeEventListener("pointerdown", down); canvas.removeEventListener("pointerup", up); canvas.removeEventListener("pointercancel", up); canvas.removeEventListener("pointermove", move); canvas.removeEventListener("wheel", wheel); canvas.removeEventListener("webglcontextlost", lost);
-    windowAirflow?.dispose(); passiveAirflow?.dispose(); airflow?.dispose(); annotations?.dispose(); releaseOwned(); loaded.forEach(releaseTemplate); renderer.dispose(); renderer.forceContextLoss();
+    windowEffects.forEach(effect => effect.dispose()); windowAirflow?.dispose(); passiveAirflow?.dispose(); airflow?.dispose(); annotations?.dispose(); releaseOwned(); loaded.forEach(releaseTemplate); renderer.dispose(); renderer.forceContextLoss();
   } };
 }

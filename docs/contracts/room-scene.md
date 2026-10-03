@@ -53,3 +53,10 @@ The camera now continues at constant angular speed through both rotations. Story
 The homepage open-window stage now includes separate pale-blue illustrative inward streams originating at its window openings. Their opacity follows the same eased opening fraction as the glass, including the closing transition. This explicit example does not infer that assessment windows are open or establish real wind direction/velocity. Normal room previews still exclude window airflow. Streams respect reduced motion and dispose their resources with the scene.
 
 The wall above the homepage window remains intact in every stage. No wall removal is shown or recommended. The external awning can be occluded by the wall from interior viewpoints; this preserves the actual building geometry.
+
+
+## Homepage cost-and-comfort comparison
+
+The newer story keeps the AC unit visible (superseding earlier AC-removal descriptions). Shade-stage airflow dims illustratively, while the unit remains available. A tested synthetic shade-only scenario from `homepage-example.ts` supplies costs and electricity; both controlled trajectories remain at 25°C. No insulation or ventilation changes enter these numbers. The animated bar compares daily AC kWh, and dollar figures are daily AC electricity only. Example assumptions and limitations are expandable beside the model. The separate evening/open-window stage hides the numerical comparison and switches off AC streams while leaving fan/window streams. No perceived-comfort guarantee, user-specific savings or quantified carbon reduction is claimed.
+
+The homepage now uses two framed casement sashes with side pivots and attached handles, opening outwards with the existing eased opening fraction. The fixed outer frame, sill and curtains stay in place. Original static glass/crossbars are hidden only in this example. Orange schematic sunlight paths reach through the closed window before shade and terminate at the awning afterward; they fade during the evening ventilation stage. These visuals do not drive the financial calculation or represent measured radiation.
