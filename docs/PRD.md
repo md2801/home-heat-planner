@@ -378,3 +378,8 @@ The handoff deliverable is a checked-in contract specification with schemas or s
 ## Authorised extension: thermal what-if scenario (3 October 2026)
 
 The user requested addressing the lack of thermal simulation. A separate experimental 24-hour single-zone scenario is now permitted in addition to the core release. It requires explicit physical assumptions, offers only an opt-in labelled synthetic example, and never promotes results into supported savings or known room facts. No annualisation, payback, CFD or calibrated home-temperature claims. See `docs/contracts/thermal-scenario.md` for the model, limitations and acceptance checks. This overrides the earlier simulation exclusion only for this bounded experimental feature.
+
+
+## Heat-reduction journey update - 3 October 2026
+
+The AC-and-shading financial example remains the featured homepage demonstration. The product goal is to reduce bedroom heat and cooling energy while retaining comfort, with money as a motivation. Present eligible shading and insulation investigations, then ventilation review, then conditional AC replacement. Retain all four eligible paths rather than dropping a passive option to satisfy the earlier three-option limit. This is a reading order, not an effectiveness ranking. Core intake includes window coverings, opening ability and constraints before equipment questions. Every option has a mechanism, room evidence and a practical next step without requiring an AI call. AC label calculations remain separate; personal passive savings and emissions are not invented. Follow-up reviews comfort, usage and spending as observations.

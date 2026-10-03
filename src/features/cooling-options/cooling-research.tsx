@@ -49,7 +49,7 @@ function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps
 
   return <section className={styles.research} aria-labelledby="cooling-research-title" aria-busy={pending}>
     <div className={styles.header}>
-      <div><span className={styles.eyebrow}>FROM YOUR ANSWERS TO YOUR NEXT STEP</span><h2 id="cooling-research-title">What you could explore</h2><p>Choose a next step, or search for more guidance about your room.</p></div>
+      <div><span className={styles.eyebrow}>FROM YOUR ANSWERS TO YOUR NEXT STEP</span><h2 id="cooling-research-title">What you could explore</h2><p>Room improvements come first here; this is a reading order, not a predicted savings ranking.</p></div>
       <button onClick={search} disabled={pending}>{pending ? "Searching guidance…" : result ? "Search again" : "Find guidance for my room"}<span aria-hidden="true">↗</span></button>
     </div>
     <p className={styles.disclosure}>Optional search of Australian government guidance. OpenAI receives room categories; your address, free-text answers, bills and quotes aren’t sent.</p>
@@ -77,6 +77,13 @@ function GuidanceSkeleton({ count }: { count: number }) {
   </div>;
 }
 
+const benefits: Record<OptionId, { category: string; text: string }> = {
+  "external-shading": { category: "KEEP HEAT OUT", text: "External shade could reduce solar heat entering through glass and the cooling energy needed. Check the sun path and shade design for your window." },
+  "ceiling-insulation": { category: "KEEP HEAT OUT", text: "Suitable ceiling insulation could limit heat transfer from a hot roof space. Confirm existing insulation and arrange a qualified inspection." },
+  "opening-review": { category: "RELEASE HEAT WHEN CONDITIONS ALLOW", text: "Ventilation could help release stored heat when outdoor air is cooler. Check air quality, security and noise; close windows while running AC." },
+  "ac-replacement": { category: "COOL EFFICIENTLY WHEN NEEDED", text: "A comparable efficient AC could use less electricity for cooling. Room improvements may also reduce the load on the equipment you already have." },
+};
+
 const investigationCopy: Record<OptionId, { headline: string; action: string }> = {
   "external-shading": { headline: "Explore shade for your windows", action: "Check when direct sun comes in" },
   "ceiling-insulation": { headline: "Check heat from above", action: "Check your insulation records" },
@@ -90,9 +97,9 @@ function ImprovementCard({ option, suggestion, selected, onChoose }: { option: C
   const sources = suggestion?.sources ?? contributorEvidence.filter(source => option.recommendation.sourceIds.includes(source.id));
   return <article className={`${styles.panel} ${selected ? styles.selected : ""}`} aria-labelledby={`research-${option.id}`}>
     <div className={styles.panelHeading}><span className={styles.icon}><ImprovementIcon optionId={option.id} /></span><span className={styles.optionName}>{option.title}</span></div>
-    <h3 id={`research-${option.id}`}>{suggestion?.headline ?? copy.headline}</h3>
+    <p className={styles.pathway}>{benefits[option.id].category}</p><h3 id={`research-${option.id}`}>{suggestion?.headline ?? copy.headline}</h3>
     <div className={styles.roomFit}><span>Your room · reported by you</span><p>{suggestion?.whyForRoom ?? (roomFacts || (option.id === "ac-replacement" ? "You reported air conditioning in this bedroom." : option.description))}</p></div>
-    {suggestion && <div className={styles.benefit}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M5 12L10 17L19 7" /></svg><p>{suggestion.potentialBenefit}</p></div>}
+    {<div className={styles.benefit}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M5 12L10 17L19 7" /></svg><p>{suggestion?.potentialBenefit ?? benefits[option.id].text}</p></div>}
     <div className={styles.action}><span className={styles.actionEyebrow}>START HERE</span><h4>{suggestion?.nextAction.label ?? copy.action}</h4><p>{suggestion?.nextAction.detail ?? option.recommendation.description}</p></div>
     {suggestion && <ul className={styles.checks} aria-label={`Checks for ${option.title}`}>{suggestion.checks.map(check => <li key={check}><span aria-hidden="true">○</span>{check}</li>)}</ul>}
     <details className={styles.details}><summary>Details & checks <span aria-hidden="true">⌄</span></summary><p>{option.contributor.explanation}</p><ul>{option.recommendation.requiredChecks.map(check => <li key={check}>{check}</li>)}</ul>{option.recommendation.comfortTradeOffs.map(tradeoff => <p key={tradeoff}>{tradeoff}</p>)}</details>

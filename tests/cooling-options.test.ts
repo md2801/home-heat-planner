@@ -67,7 +67,8 @@ test("valid 54 AUD baseline never establishes intervention savings, cost, afford
   const view = coolingOptions(draft);
   assert.equal(view.baseline.result?.amountAud.status, "known");
   if (view.baseline.result?.amountAud.status === "known") assert.equal(view.baseline.result.amountAud.value, 54);
-  assert.equal(view.options.length, 3);
+  assert.equal(view.options.length, 4);
+  assert.deepEqual(view.options.map(option => option.id), ["external-shading", "ceiling-insulation", "opening-review", "ac-replacement"]);
   for (const option of view.options) {
     assert.equal(option.status, "insufficient-evidence");
     assert.equal(option.comparison.annualNetSavings.amountAud.status, "unknown");

@@ -74,3 +74,7 @@
 @media(prefers-reduced-motion: reduce) { .skeletonBlock { animation: none; } }
 @media(max-width: 1000px) { .panels { grid-template-columns: repeat(2, minmax(0, 1fr)); } .panel { padding: 20px; } }
 @media(max-width: 700px) { .header { align-items: flex-start; flex-direction: column; } .panels, .panels[data-count="2"] { grid-template-columns: minmax(0, 1fr); } .resultBar { align-items: flex-start; flex-direction: column; gap: 5px; } }
+
+.panels[data-count="4"] { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.pathway { margin:18px 0 -8px; font-size:10px; letter-spacing:.08em; color:var(--color-forest); font-weight:600; }
+@media(max-width:750px) { .panels[data-count="4"] {grid-template-columns:1fr;} }

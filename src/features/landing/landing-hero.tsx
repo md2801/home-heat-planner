@@ -18,7 +18,7 @@ export function LandingHero() {
   return <section className={styles.hero} aria-labelledby="landing-title">
     <div className={styles.introduction}>
       <h1 id="landing-title">Your bedroom shouldn’t cost a fortune to <span>keep cool.</span></h1>
-      <p className={styles.subtitle}>Find what could help in about 5 minutes.</p>
+      <p className={styles.subtitle}>Keep heat out. Stay comfortable. Use less cooling energy.</p>
       <div className={styles.actions}>
         <Link href="/assessment" className={styles.primaryCta}>Start my assessment <span aria-hidden="true">→</span></Link>
         <p>Free. No account.</p>

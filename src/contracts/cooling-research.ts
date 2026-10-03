@@ -41,7 +41,7 @@ function cardCopy(value: unknown, field: keyof typeof RESEARCH_COPY_LIMITS): val
 }
 export function validResearchResult(value: unknown, allowed: readonly OptionId[]): value is Extract<CoolingResearchResult, { ok: true }> {
   const data = record(value);
-  if (Object.keys(data).some(key => !["ok", "schemaVersion", "retrievedAt", "suggestions"].includes(key)) || data.ok !== true || data.schemaVersion !== RESEARCH_UI_VERSION || typeof data.retrievedAt !== "string" || !Number.isFinite(Date.parse(data.retrievedAt)) || !Array.isArray(data.suggestions) || data.suggestions.length < 1 || data.suggestions.length > 3) return false;
+  if (Object.keys(data).some(key => !["ok", "schemaVersion", "retrievedAt", "suggestions"].includes(key)) || data.ok !== true || data.schemaVersion !== RESEARCH_UI_VERSION || typeof data.retrievedAt !== "string" || !Number.isFinite(Date.parse(data.retrievedAt)) || !Array.isArray(data.suggestions) || data.suggestions.length < 1 || data.suggestions.length > 4) return false;
   const ids = new Set<string>();
   return data.suggestions.every(value => {
     const item = record(value);
@@ -64,7 +64,7 @@ export function researchResponseFormat(allowed: readonly OptionId[]) {
     type: "object", additionalProperties: false,
     properties: {
       schemaVersion: { type: "integer", enum: [RESEARCH_UI_VERSION] },
-      suggestions: { type: "array", maxItems: 3, items: {
+      suggestions: { type: "array", maxItems: 4, items: {
         type: "object", additionalProperties: false,
         properties: {
           component: { type: "string", enum: ["improvement-card"] }, optionId: { type: "string", enum: allowed },

@@ -197,7 +197,7 @@ function completeCore(equipment: AnswerValue | null = ["fan"]): AssessmentDraft 
   return draft;
 }
 test("active core interactions lead the retained full question set; early exit is hidden on core screens", () => {
-  assert.deepEqual(activeQuestions({}).slice(0, 8).map(q => q.id), ["heatTiming", "position", "aboveRoom", "windowCount", "windowOrientation", "externalShading", "insulation", "cooling"]);
+  assert.deepEqual(activeQuestions({}).slice(0, 11).map(q => q.id), ["heatTiming", "position", "aboveRoom", "windowCount", "windowOrientation", "externalShading", "insulation", "internalCoverings", "windowsOpen", "ventilationConstraints", "cooling"]);
   assert.equal(questions.length, 39);
   assert.equal(new Set(questions.map(q => q.id)).size, 39);
   let draft = emptyAssessment();

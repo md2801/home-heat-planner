@@ -26,9 +26,9 @@ function BenefitIcon({ kind }: { kind: "sun" | "compare" | "leaves" }) {
 }
 
 const benefits = [
-  { icon: "sun", title: "Understand the heat", description: "See what’s making your room hot." },
-  { icon: "compare", title: "Compare your options", description: "See what could work for your room and budget." },
-  { icon: "leaves", title: "See what could save", description: "Get clear costs, potential savings and next steps." },
+  { icon: "sun", title: "Keep heat out", description: "Explore shade and insulation for your room." },
+  { icon: "compare", title: "Let heat escape", description: "Review ventilation for cooler, safe outdoor conditions." },
+  { icon: "leaves", title: "Cool efficiently", description: "Compare energy and costs when cooling is needed." },
 ] as const;
 
 export function LandingPage() {
