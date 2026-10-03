@@ -42,3 +42,14 @@ The shared DynamicRoom component lazy-loads Three.js and same-origin GLB assets.
 ## Optional airflow preview
 
 The shared 3D renderer provides an opt-in illustrative stream overlay for placed fans and AC units. Blue identifies AC; teal identifies fans. The overlay assumes equipment is on, uses schematic directions and unscaled animation speeds, and does not solve a velocity field, collisions or heat transfer. It never changes recommendations or numerical estimates. Unknown equipment placement produces no stream; window airflow is excluded without opening and wind inputs. Reduced-motion preferences produce static paths and particles. Resources are disposed on scene rebuild/unmount.
+
+
+## Homepage cooling story
+
+The opt-in coolingStory presentation uses accumulated visible rotation (not wall-clock timers). One full rotation shows AC and fan airflow, the next half-rotation hides AC and its streams and adds external awnings, and the final half-rotation also opens the illustrative window glass. It then repeats. No assessment facts or financial calculations change. Captions explain conditional reductions in cooling electricity and emissions, cooler/safe outside-air requirements, and that AC may remain necessary. Reduced-motion preference displays the final example without rotation. Source: https://www.yourhome.gov.au/passive-design/passive-cooling .
+
+The camera now continues at constant angular speed through both rotations. Story changes never reset or override its angle. AC, airflow and awning crossfade over 1.8 seconds using smoothstep easing; window opening interpolates over the same duration. The return to the initial room also crossfades without a camera jump. Per-instance material clones prevent fades from affecting shared asset templates.
+
+The homepage open-window stage now includes separate pale-blue illustrative inward streams originating at its window openings. Their opacity follows the same eased opening fraction as the glass, including the closing transition. This explicit example does not infer that assessment windows are open or establish real wind direction/velocity. Normal room previews still exclude window airflow. Streams respect reduced motion and dispose their resources with the scene.
+
+The wall above the homepage window remains intact in every stage. No wall removal is shown or recommended. The external awning can be occluded by the wall from interior viewpoints; this preserves the actual building geometry.

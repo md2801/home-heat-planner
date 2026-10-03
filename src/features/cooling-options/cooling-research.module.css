@@ -44,5 +44,33 @@
 .cardActions > a { color: var(--color-forest); text-decoration: none; font-size: 13px; line-height: 1.5; }
 .cardActions > a:hover { text-decoration: underline; }
 .cardActions button { font-size: 13px; padding: 10px 14px; min-height: 44px; gap: 10px; }
+.readiness { color: var(--color-muted); font-size: 12px; line-height: 1.5; }
+.details { margin: 16px 0 20px; color: var(--color-muted); font-size: 13px; line-height: 1.6; }
+.details summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; color: var(--color-forest); cursor: pointer; list-style: none; }
+.details summary::-webkit-details-marker { display: none; }
+.details[open] summary > span { transform: rotate(180deg); }
+.details summary:focus-visible { outline: 3px solid var(--color-forest); outline-offset: 3px; }
+.details ul { padding-left: 18px; }
+.details li + li { margin-top: 8px; }
+.details p { margin: 10px 0; }
+.skeletonCard { min-height: 510px; }
+.skeletonBlock { display: block; border-radius: 5px; background: #e3e8dc; animation: skeletonPulse 1.8s ease-in-out infinite; }
+.skeletonMeta { width: 160px; height: 12px; }
+.skeletonIcon { width: 44px; height: 44px; flex-shrink: 0; border-radius: 8px; }
+.skeletonOption { width: 46%; height: 12px; }
+.skeletonTitle { margin: 20px 0; }
+.skeletonTitle > span { width: 85%; height: 22px; }
+.skeletonTitle > span + span { margin-top: 8px; }
+.skeletonTitle > .skeletonShort { width: 55%; }
+.skeletonLabel { width: 80px; height: 9px; }
+.skeletonLine { width: 95%; height: 12px; margin-top: 10px; }
+.skeletonShort { width: 65%; }
+.skeletonDot { width: 18px; height: 18px; flex-shrink: 0; border-radius: 50%; }
+.benefit .skeletonLine { margin-top: 3px; }
+.skeletonAction { width: 72%; height: 16px; margin-top: 10px; }
+.skeletonSource { width: 110px; height: 12px; }
+.skeletonButton { width: 150px; height: 44px; }
+@keyframes skeletonPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+@media(prefers-reduced-motion: reduce) { .skeletonBlock { animation: none; } }
 @media(max-width: 1000px) { .panels { grid-template-columns: repeat(2, minmax(0, 1fr)); } .panel { padding: 20px; } }
 @media(max-width: 700px) { .header { align-items: flex-start; flex-direction: column; } .panels, .panels[data-count="2"] { grid-template-columns: minmax(0, 1fr); } .resultBar { align-items: flex-start; flex-direction: column; gap: 5px; } }

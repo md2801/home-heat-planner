@@ -632,3 +632,7 @@ Only after these conditions are substantially met should optional computer visio
 ## Authorised extension: thermal what-if scenario (3 October 2026)
 
 The user requested addressing the lack of thermal simulation. A separate experimental 24-hour single-zone scenario is now permitted in addition to the core release. It requires explicit physical assumptions, offers only an opt-in labelled synthetic example, and never promotes results into supported savings or known room facts. No annualisation, payback, CFD or calibrated home-temperature claims. See `docs/contracts/thermal-scenario.md` for the model, limitations and acceptance checks. This overrides the earlier simulation exclusion only for this bounded experimental feature.
+
+## Authorised presentation revision: cooling options (3 October 2026)
+
+The user requested replacing the empty financial comparison table with improvement cards as the primary screen-five view. Show reviewed guidance, reported room context, practical next steps, evidence and investigation selection immediately; optional internet search enriches those cards. Keep the AC label method and quote inputs in an initially collapsed `Compare costs and savings` section. Display individual figures only when their inputs support them; otherwise explain what is needed to calculate the comparison. The spending guide and experimental simulator are secondary disclosures. This changes the earlier screen-five presentation, while retaining eligibility, financial calculations, unknown input states, source provenance and the action-plan journey.

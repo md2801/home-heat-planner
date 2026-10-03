@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { AssessmentDraft } from "../assessment/state";
 import { validResearchResult, type CoolingResearchResult, type ResearchSuggestion } from "../../contracts/cooling-research";
 import { coolingResearchContext, type CoolingResearchContext } from "./research-context";
-import type { OptionId } from "./model";
+import { coolingOptions, type CoolingOption, type OptionId } from "./model";
+import { contributorEvidence } from "../heat-contributors/evidence";
 import styles from "./cooling-research.module.css";
 
 type ResearchProps = { draft: AssessmentDraft; selectedId: OptionId | null; onChoose: (id: OptionId) => void };
@@ -16,6 +17,7 @@ export function CoolingResearch({ draft, selectedId, onChoose }: ResearchProps) 
 }
 
 function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps & { context: CoolingResearchContext }) {
+  const options = coolingOptions(draft).options;
   const [result, setResult] = useState<Extract<CoolingResearchResult, { ok: true }> | null>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
@@ -35,7 +37,7 @@ function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps
       const data: unknown = await response.json();
       if (controller.current !== abort) return;
       if (response.ok && validResearchResult(data, context.options.map(option => option.id))) {
-        setResult(data); setMessage("Your guidance is ready. Choose an investigation when you’re ready.");
+        setResult(data); setMessage("Search complete. Your options now include any relevant guidance we found.");
       } else setMessage("The search could not finish. Your options and existing evidence are still available. You can retry shortly.");
     } catch {
       if (controller.current === abort) setMessage("The search could not finish. Your options and existing evidence are still available. You can retry shortly.");
@@ -47,31 +49,57 @@ function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps
 
   return <section className={styles.research} aria-labelledby="cooling-research-title" aria-busy={pending}>
     <div className={styles.header}>
-      <div><span className={styles.eyebrow}>FROM YOUR ANSWERS TO YOUR NEXT STEP</span><h2 id="cooling-research-title">A clearer way to cool your room</h2><p>Explore what may help, why it fits your room and where to start.</p></div>
+      <div><span className={styles.eyebrow}>FROM YOUR ANSWERS TO YOUR NEXT STEP</span><h2 id="cooling-research-title">What you could explore</h2><p>Choose a next step, or search for more guidance about your room.</p></div>
       <button onClick={search} disabled={pending}>{pending ? "Searching guidance…" : result ? "Search again" : "Find guidance for my room"}<span aria-hidden="true">↗</span></button>
     </div>
     <p className={styles.disclosure}>Optional search of Australian government guidance. OpenAI receives room categories; your address, free-text answers, bills and quotes aren’t sent.</p>
     <p role="status" className={styles.message}>{pending ? "Searching Your Home, energy.gov.au and Energy Rating. This may take a moment." : message}</p>
-    {result && <div className={styles.results}>
-      <div className={styles.resultBar}><span>{result.suggestions.length} {result.suggestions.length === 1 ? "investigation" : "investigations"} for your room</span><span>Searched {new Intl.DateTimeFormat("en-AU", { dateStyle: "medium", timeStyle: "short" }).format(new Date(result.retrievedAt))}</span></div>
-      <div className={styles.panels} data-count={result.suggestions.length}>{result.suggestions.map(suggestion => <ImprovementCard key={suggestion.optionId} suggestion={suggestion} title={context.options.find(option => option.id === suggestion.optionId)!.title} selected={selectedId === suggestion.optionId} onChoose={onChoose} />)}</div>
-      <p className={styles.disclosure}>Things to investigate, with suitability, permissions and costs still to confirm. Savings and payback use your comparison inputs above.</p>
+    {pending ? <GuidanceSkeleton count={options.length} /> : <div className={styles.results}>
+      <div className={styles.resultBar}><span>{options.length} {options.length === 1 ? "investigation" : "investigations"} for your room</span><span>{result ? `Searched ${new Intl.DateTimeFormat("en-AU", { dateStyle: "medium", timeStyle: "short" }).format(new Date(result.retrievedAt))}` : "Based on your answers · reviewed guidance"}</span></div>
+      <div className={styles.panels} data-count={options.length}>{options.map(option => <ImprovementCard key={option.id} option={option} suggestion={result?.suggestions.find(suggestion => suggestion.optionId === option.id)} selected={selectedId === option.id} onChoose={onChoose} />)}</div>
+      <p className={styles.disclosure}>Choose an investigation to build your plan. Suitability, permissions and costs still need confirming; these options do not establish savings.</p>
     </div>}
   </section>;
 }
 
-function ImprovementCard({ suggestion, title, selected, onChoose }: { suggestion: ResearchSuggestion; title: string; selected: boolean; onChoose: ResearchProps["onChoose"] }) {
-  return <article className={`${styles.panel} ${selected ? styles.selected : ""}`} aria-labelledby={`research-${suggestion.optionId}`}>
-    <div className={styles.panelHeading}><span className={styles.icon}><ImprovementIcon optionId={suggestion.optionId} /></span><span className={styles.optionName}>{title}</span></div>
-    <h3 id={`research-${suggestion.optionId}`}>{suggestion.headline}</h3>
-    <div className={styles.roomFit}><span>Your room</span><p>{suggestion.whyForRoom}</p></div>
-    <div className={styles.benefit}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M5 12L10 17L19 7" /></svg><p>{suggestion.potentialBenefit}</p></div>
-    <div className={styles.action}><span className={styles.actionEyebrow}>START HERE</span><h4>{suggestion.nextAction.label}</h4><p>{suggestion.nextAction.detail}</p></div>
-    <ul className={styles.checks} aria-label={`Checks for ${title}`}>{suggestion.checks.map(check => <li key={check}><span aria-hidden="true">○</span>{check}</li>)}</ul>
+function GuidanceSkeleton({ count }: { count: number }) {
+  return <div className={styles.results} aria-hidden="true">
+    <div className={styles.resultBar}><span className={`${styles.skeletonBlock} ${styles.skeletonMeta}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonMeta}`} /></div>
+    <div className={styles.panels} data-count={count}>{Array.from({ length: count }, (_, index) => <div className={`${styles.panel} ${styles.skeletonCard}`} key={index}>
+      <div className={styles.panelHeading}><span className={`${styles.skeletonBlock} ${styles.skeletonIcon}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonOption}`} /></div>
+      <div className={styles.skeletonTitle}><span className={styles.skeletonBlock} /><span className={`${styles.skeletonBlock} ${styles.skeletonShort}`} /></div>
+      <div className={styles.roomFit}><span className={`${styles.skeletonBlock} ${styles.skeletonLabel}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonLine}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonLine} ${styles.skeletonShort}`} /></div>
+      <div className={styles.benefit}><span className={`${styles.skeletonBlock} ${styles.skeletonDot}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonLine}`} /></div>
+      <div className={styles.action}><span className={`${styles.skeletonBlock} ${styles.skeletonLabel}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonAction}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonLine}`} /></div>
+      <div className={styles.checks}><span className={`${styles.skeletonBlock} ${styles.skeletonLine}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonLine} ${styles.skeletonShort}`} /></div>
+      <div className={styles.panelFooter}><span className={`${styles.skeletonBlock} ${styles.skeletonLabel}`} /><div className={styles.sources}><span className={`${styles.skeletonBlock} ${styles.skeletonSource}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonSource}`} /></div><div className={styles.cardActions}><span className={`${styles.skeletonBlock} ${styles.skeletonSource}`} /><span className={`${styles.skeletonBlock} ${styles.skeletonButton}`} /></div></div>
+    </div>)}</div>
+  </div>;
+}
+
+const investigationCopy: Record<OptionId, { headline: string; action: string }> = {
+  "external-shading": { headline: "Explore shade for your windows", action: "Check when direct sun comes in" },
+  "ceiling-insulation": { headline: "Check heat from above", action: "Check your insulation records" },
+  "opening-review": { headline: "Explore safe airflow", action: "Review how your windows can open" },
+  "ac-replacement": { headline: "Compare like-for-like cooling", action: "Check both AC energy labels" },
+};
+
+function ImprovementCard({ option, suggestion, selected, onChoose }: { option: CoolingOption; suggestion: ResearchSuggestion | undefined; selected: boolean; onChoose: ResearchProps["onChoose"] }) {
+  const copy = investigationCopy[option.id];
+  const roomFacts = option.contributor.reasons.filter(reason => reason.fact.status === "known" && reason.fieldId !== "ventilationConstraints").map(reason => `${reason.label}: ${reason.value}`).join(" · ");
+  const sources = suggestion?.sources ?? contributorEvidence.filter(source => option.recommendation.sourceIds.includes(source.id));
+  return <article className={`${styles.panel} ${selected ? styles.selected : ""}`} aria-labelledby={`research-${option.id}`}>
+    <div className={styles.panelHeading}><span className={styles.icon}><ImprovementIcon optionId={option.id} /></span><span className={styles.optionName}>{option.title}</span></div>
+    <h3 id={`research-${option.id}`}>{suggestion?.headline ?? copy.headline}</h3>
+    <div className={styles.roomFit}><span>Your room · reported by you</span><p>{suggestion?.whyForRoom ?? (roomFacts || (option.id === "ac-replacement" ? "You reported air conditioning in this bedroom." : option.description))}</p></div>
+    {suggestion && <div className={styles.benefit}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M5 12L10 17L19 7" /></svg><p>{suggestion.potentialBenefit}</p></div>}
+    <div className={styles.action}><span className={styles.actionEyebrow}>START HERE</span><h4>{suggestion?.nextAction.label ?? copy.action}</h4><p>{suggestion?.nextAction.detail ?? option.recommendation.description}</p></div>
+    {suggestion && <ul className={styles.checks} aria-label={`Checks for ${option.title}`}>{suggestion.checks.map(check => <li key={check}><span aria-hidden="true">○</span>{check}</li>)}</ul>}
+    <details className={styles.details}><summary>Details & checks <span aria-hidden="true">⌄</span></summary><p>{option.contributor.explanation}</p><ul>{option.recommendation.requiredChecks.map(check => <li key={check}>{check}</li>)}</ul>{option.recommendation.comfortTradeOffs.map(tradeoff => <p key={tradeoff}>{tradeoff}</p>)}</details>
     <div className={styles.panelFooter}>
       <span className={styles.sourceLabel}>Read the guidance</span>
-      <ul className={styles.sources} aria-label={`Sources for ${title}`}>{suggestion.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}<span aria-hidden="true">↗</span></a></li>)}</ul>
-      <div className={styles.cardActions}><a href={`#${suggestion.optionId}-title`}>View comparison <span aria-hidden="true">↑</span></a><button aria-pressed={selected} aria-label={`${selected ? "Selected investigation" : "Choose investigation"} · ${title}`} onClick={() => onChoose(suggestion.optionId)}>{selected ? "Selected ✓" : "Choose investigation"}<span aria-hidden="true">→</span></button></div>
+      <ul className={styles.sources} aria-label={`Sources for ${option.title}`}>{sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}<span aria-hidden="true">↗</span></a></li>)}</ul>
+      <div className={styles.cardActions}><span className={styles.readiness}>{option.id === "ac-replacement" ? "Check labels, sizing & quote" : option.readiness}</span><button aria-pressed={selected} aria-label={`${selected ? "Selected investigation" : "Choose this investigation"} · ${option.title}`} onClick={() => onChoose(option.id)}>{selected ? "Selected ✓" : "Choose this investigation"}<span aria-hidden="true">→</span></button></div>
     </div>
   </article>;
 }

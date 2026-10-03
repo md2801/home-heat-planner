@@ -19,3 +19,13 @@
 .details summary { cursor:pointer; }
 .details ul { padding-left:20px; }
 @media(max-width:600px) { .canvas {height:var(--room-canvas-mobile-height, 340px);} }
+
+.presentation .canvas { cursor: default; touch-action: auto; }
+.presentation :global(svg text) { display: none; }
+
+.story { position:relative; z-index:1; max-width:540px; margin:0 auto 8px; padding:16px 20px; border-left:2px solid #91ab90; min-height:155px; }
+.story span { display:block; font-size:10px; letter-spacing:1.6px; color:#64725f; }
+.story strong { display:block; margin:8px 0; font-size:20px; letter-spacing:-.5px; }
+.story p { margin:0 0 8px; font-size:13px; line-height:1.5; color:#59666c; }
+.story small { font-size:10px; line-height:1.4; display:block; color:#64725f; }
+.story a { color:#24584a; }

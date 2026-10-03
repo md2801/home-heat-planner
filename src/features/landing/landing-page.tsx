@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BedroomCrossSection } from "@/components/illustrations/bedroom-cross-section";
+import { DynamicRoom } from "@/features/room-scene/dynamic-room";
+import type { RoomScene } from "@/contracts/room-scene";
 import styles from "./landing.module.css";
 
 function LeafMark() {
@@ -31,6 +32,12 @@ const benefits = [
   { icon: "leaves", title: "See what could save", description: "Get clear costs, potential savings and next steps." },
 ] as const;
 
+const exampleBedroom: RoomScene = {
+  version: 1, above: "roof", bed: "present",
+  windows: [{ direction: "north", covering: "curtains", shade: "none" }],
+  equipment: ["ceiling-fan", "split-ac"],
+};
+
 export function LandingPage() {
   return <div className={styles.page}>
     <header className={styles.header}>
@@ -52,8 +59,8 @@ export function LandingPage() {
         </div>
       </div>
       <figure className={styles.illustration}>
-        <BedroomCrossSection />
-        <figcaption className="sr-only">Illustrative bedroom with afternoon sunlight, roof exposure, external window shading and airflow. This illustration does not describe your home.</figcaption>
+        <DynamicRoom scene={exampleBedroom} placement={{ acType: "wall-mounted", acWall: "east" }} showDetails={false} presentation coolingStory />
+        <figcaption className="sr-only">Example room · your own bedroom takes shape during the assessment.</figcaption>
       </figure>
     </section>
 
