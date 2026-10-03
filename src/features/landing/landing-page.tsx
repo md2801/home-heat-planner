@@ -37,6 +37,7 @@ export function LandingPage() {
       <Link href="/" className={styles.brand}><LeafMark /><span>Home Heat Planner</span></Link>
       <nav aria-label="Main navigation" className={styles.navigation}>
         <Link href="/cooling-plan">My Plan</Link>
+        <Link href="/knowledge-base">Simple techniques</Link>
         <a href="#how-it-works">How it works</a>
         <a href="#help">Help</a>
       </nav>

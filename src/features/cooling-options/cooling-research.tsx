@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import type { AssessmentDraft } from "../assessment/state";
 import { validResearchResult, type CoolingResearchResult, type ResearchSuggestion } from "../../contracts/cooling-research";
 import { coolingResearchContext, type CoolingResearchContext } from "./research-context";
 import { coolingOptions, type CoolingOption, type OptionId } from "./model";
 import { contributorEvidence } from "../heat-contributors/evidence";
+import { recommendationResources } from "../knowledge-base/recommendation-resources";
+import { reviewedOn, techniques } from "../knowledge-base/catalogue";
 import styles from "./cooling-research.module.css";
 
 type ResearchProps = { draft: AssessmentDraft; selectedId: OptionId | null; onChoose: (id: OptionId) => void };
@@ -36,7 +39,7 @@ function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps
       });
       const data: unknown = await response.json();
       if (controller.current !== abort) return;
-      if (response.ok && validResearchResult(data, context.options.map(option => option.id))) {
+      if (response.ok && validResearchResult(data, context.options.map(option => option.id), recommendationResources(context).byOption)) {
         setResult(data); setMessage("Search complete. Your options now include any relevant guidance we found.");
       } else setMessage("The search could not finish. Your options and existing evidence are still available. You can retry shortly.");
     } catch {
@@ -104,11 +107,18 @@ function ImprovementCard({ option, suggestion, selected, onChoose }: { option: C
     {suggestion && <ul className={styles.checks} aria-label={`Checks for ${option.title}`}>{suggestion.checks.map(check => <li key={check}><span aria-hidden="true">○</span>{check}</li>)}</ul>}
     <details className={styles.details}><summary>Details & checks <span aria-hidden="true">⌄</span></summary><p>{option.contributor.explanation}</p><ul>{option.recommendation.requiredChecks.map(check => <li key={check}>{check}</li>)}</ul>{option.recommendation.comfortTradeOffs.map(tradeoff => <p key={tradeoff}>{tradeoff}</p>)}</details>
     <div className={styles.panelFooter}>
+      {suggestion && suggestion.techniqueIds.length > 0 && <LibraryGuides ids={suggestion.techniqueIds} />}
       <span className={styles.sourceLabel}>Read the guidance</span>
       <ul className={styles.sources} aria-label={`Sources for ${option.title}`}>{sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}<span aria-hidden="true">↗</span></a></li>)}</ul>
       <div className={styles.cardActions}><span className={styles.readiness}>{option.id === "ac-replacement" ? "Check labels, sizing & quote" : option.readiness}</span><button aria-pressed={selected} aria-label={`${selected ? "Selected investigation" : "Choose this investigation"} · ${option.title}`} onClick={() => onChoose(option.id)}>{selected ? "Selected ✓" : "Choose this investigation"}<span aria-hidden="true">→</span></button></div>
     </div>
   </article>;
+}
+
+function LibraryGuides({ ids }: { ids: readonly string[] }) {
+  const resources = ids.flatMap(id => { const technique = techniques.find(item => item.id === id); return technique ? [technique] : []; });
+  if (!resources.length) return null;
+  return <div className={styles.libraryGuides}><span className={styles.sourceLabel}>Simple techniques to try</span><ul>{resources.map(resource => <li key={resource.id}><Link href={`/knowledge-base#${resource.id}`}>{resource.title}<span aria-hidden="true">→</span></Link></li>)}</ul><small>From our reviewed library · <time dateTime={reviewedOn}>3 October 2026</time></small></div>;
 }
 
 function ImprovementIcon({ optionId }: { optionId: OptionId }) {

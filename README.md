@@ -130,6 +130,19 @@ Before/after usage is shown only when both records and comparable-use confirmati
 
 Material changes to your room or comparison inputs require reviewing the selection and saving a revised plan. Earlier saved plan snapshots and check-ins remain available in history until the assessment is reset.
 
+## Simple techniques knowledge base
+
+Open **Simple techniques** in the navigation or **Browse simple techniques** on the cooling options page. The `/knowledge-base` library contains 14 researched techniques for a room or house:
+
+- Close curtains before direct sun arrives; add external shade; grow suitable shading plants.
+- Use cooler outdoor air, seal unwanted gaps and check insulation with qualified help.
+- Use fans for occupied spaces, cool rooms in use, choose a comfortable thermostat setting and clean AC filters.
+- Choose LEDs, switch off unnecessary electronics, air-dry laundry and shift heat-producing chores away from peak heat.
+
+Search the library or filter by focus and effort. Each entry explains its energy-saving mechanism and expands into practical steps, suitability checks and links to Australian government guidance. Entries were reviewed on **3 October 2026**; the date records our review, not the source's publication date.
+
+The catalogue is checked into `src/features/knowledge-base/catalogue.ts` and renders without a provider request. Optional live recommendation research also receives a relevant subset of these entries, including their practical steps, checks and source links. The model can select up to three matching guides per investigation, displayed as **Simple techniques to try**. The app validates the guide IDs against the room context and renders links to the library. These reviewed resources are labelled separately from freshly searched sources and do not generate personalised financial savings, emissions or temperature predictions. Review the linked sources when updating entries.
+
 ## What the 3D room represents
 
 The diagram gives your answers a visual reference: window directions, roof context, coverings and cooling equipment. You can rotate it, zoom, reset the view and switch to 2D. Equipment and window labels follow your reported details.
@@ -205,6 +218,8 @@ Assessment and comparison drafts save automatically. Plans and check-ins have ex
 If browser saving is blocked, the app shows a notice and keeps working in the current tab, but a refresh may lose progress. Resetting the questionnaire clears the saved assessment, diagram, plans and history for that browser origin. Calendar files contain a generic check-in and return link, rather than private room or financial details.
 
 ## Routes
+
+The educational library is available at `/knowledge-base`, including before an assessment is completed.
 
 | Route | Screen |
 | --- | --- |

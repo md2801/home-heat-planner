@@ -13,6 +13,7 @@ import { assessmentScene } from "../room-scene/assessment-scene";
 import { FinancialCoach } from "./financial-coach";
 import { ReplacementComparison } from "./replacement-comparison";
 import { CoolingResearch } from "./cooling-research";
+import { techniques } from "../knowledge-base/catalogue";
 
 export function CoolingOptionsPage() {
   const { draft, ready, notice } = useSyncExternalStore(assessmentRepository.subscribe, assessmentRepository.getSnapshot, assessmentRepository.getServerSnapshot);
@@ -32,6 +33,7 @@ export function CoolingOptionsPage() {
       </div></details>
       <details className={styles.optionalSection}><summary><span><strong>Explore a cooling scenario</strong><small>Try the experimental temperature & cost simulator</small></span><span aria-hidden="true">⌄</span></summary><div className={styles.optionalBody}><p>Explore a 24-hour heat-balance scenario for shading, insulation and night ventilation, using explicit assumptions. Results are experimental scenarios, with no annual savings or payback calculation.</p><Link href="/thermal-scenario">Open experimental simulator →</Link></div></details>
     </> : <div className={styles.empty}><div><span className={styles.emptyEyebrow}>LET’S START WITH YOUR ROOM</span><h2>A few details.<br />A clearer way forward.</h2><p>Tell us about your room and cooling use so we can identify improvements worth investigating.</p><Link href="/assessment" className={styles.emptyAction}>Complete my room profile <span aria-hidden="true">→</span></Link><small>Not sure about something? You can leave it unknown.</small></div><div className={styles.emptyScene}><RoomScene scene={assessmentScene(draft.answers, draft.sceneDetails)} /><p>Illustrative layout · built from your answers</p></div></div>}
+    <section className={styles.knowledgeLink} aria-labelledby="simple-techniques-title"><div><h2 id="simple-techniques-title">Start with a simple change</h2><p>Explore {techniques.length} practical ways to use less energy, with steps, checks and government guidance.</p></div><Link href="/knowledge-base">Browse simple techniques →</Link></section>
     <div className={styles.notes}><Link href="/assessment">Refine my answers →</Link></div>
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
     <footer className={styles.footer}><Link href="/heat-contributors">← Back</Link><div><p role="status">{view.selected ? `${view.selected.title} selected as your next investigation.` : "Choose an investigation to continue."}</p><button className={styles.primary} disabled={!view.selected} onClick={() => { const destination = coolingOptionsDestination(assessmentRepository.getSnapshot().draft); if (destination) router.push(destination); }}>Continue to my cooling plan →</button></div></footer>

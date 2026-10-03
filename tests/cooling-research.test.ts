@@ -6,6 +6,7 @@ import { answerFor, emptyAssessment, updateAnswer, type AssessmentDraft } from "
 import { questions } from "../src/features/assessment/questions.ts";
 import { coolingOptions } from "../src/features/cooling-options/model.ts";
 import { researchOutput, searchCoolingGuidance } from "../src/server/cooling-research.ts";
+import { recommendationResources } from "../src/features/knowledge-base/recommendation-resources.ts";
 const at = "2026-10-03T00:00:00Z", url = "https://www.yourhome.gov.au/passive-design/shading";
 function fixture(): AssessmentDraft {
   let draft = emptyAssessment();
@@ -15,7 +16,7 @@ function fixture(): AssessmentDraft {
   }
   return draft;
 }
-const suggestion = { component: "improvement-card", optionId: "external-shading", headline: "Keep afternoon sun outside", whyForRoom: "You reported west-facing windows without external shade.", potentialBenefit: "External shade may reduce sunlight entering your room.", nextAction: { label: "Confirm permission for exterior work", detail: "Ask the responsible owner or strata manager about suitable external shading." }, checks: ["Check window access with an installer", "Keep light and ventilation in mind"], sourceUrls: [url] };
+const suggestion = { component: "improvement-card", optionId: "external-shading", headline: "Keep afternoon sun outside", whyForRoom: "You reported west-facing windows without external shade.", potentialBenefit: "External shade may reduce sunlight entering your room.", nextAction: { label: "Confirm permission for exterior work", detail: "Ask the responsible owner or strata manager about suitable external shading." }, checks: ["Check window access with an installer", "Keep light and ventilation in mind"], sourceUrls: [url], techniqueIds: ["close-curtains", "external-shade"] };
 const envelope = (suggestions: unknown[] = [suggestion]) => ({ status: "completed", output: [
   { type: "web_search_call", status: "completed", action: { type: "search", sources: [{ type: "url", url }] } },
   { type: "message", content: [{ type: "output_text", text: JSON.stringify({ schemaVersion: RESEARCH_UI_VERSION, suggestions }), annotations: [{ type: "url_citation", url, title: "Shading · Your Home" }] }] },
@@ -44,6 +45,7 @@ test("completed search yields linked qualitative guidance without changing room 
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.suggestions[0]!.sources[0]!.title, "Shading · Your Home");
+  assert.deepEqual(result.suggestions[0]!.techniqueIds, ["close-curtains", "external-shade"]);
   const withoutTitle = envelope(); withoutTitle.output[1]!.content![0]!.annotations = [];
   const labelled = researchOutput(withoutTitle, coolingResearchContext(draft).options);
   assert.equal(labelled.ok && labelled.suggestions[0]!.sources[0]!.title, "Shading · Your Home");
@@ -86,13 +88,37 @@ test("missing or incomplete search, refusals, malformed JSON and extra output fi
   assert.equal(researchOutput(extra, allowed).ok, false);
 });
 
+test("library guides are bounded by option and room reports, and keep source provenance separate", () => {
+  const input = coolingResearchContext(fixture());
+  const library = recommendationResources(input);
+  assert.deepEqual(library.byOption["external-shading"], ["close-curtains", "external-shade", "shade-plants"]);
+  assert.ok(library.byOption["ceiling-insulation"]?.includes("check-insulation"));
+  assert.equal(library.byOption["ac-replacement"]?.includes("fans"), false);
+  const constrained = recommendationResources({ ...input, room: { ...input.room, windowsOpen: "none", externalChangesPermitted: false }, options: [...input.options, { id: "opening-review", title: "Review openings" }] });
+  assert.deepEqual(constrained.byOption["opening-review"], []);
+  assert.deepEqual(constrained.byOption["external-shading"], ["close-curtains"]);
+  const fan = recommendationResources({ ...input, room: { ...input.room, coolingEquipment: ["fan", "air-conditioner"] } });
+  assert.ok(fan.byOption["ac-replacement"]?.includes("fans"));
+  for (const ids of [["invented"], ["fans"], ["close-curtains", "close-curtains"], ["close-curtains", "external-shade", "shade-plants", "check-insulation"], [url], [null]]) {
+    assert.equal(researchOutput(envelope([{ ...suggestion, techniqueIds: ids }]), input.options, undefined, library.byOption).ok, false);
+  }
+  assert.equal(researchOutput(envelope([{ ...suggestion, techniqueIds: [] }]), input.options, undefined, library.byOption).ok, true);
+  assert.equal(researchOutput(envelope(), input.options, undefined, constrained.byOption).ok, false);
+  // A reviewed library URL is not evidence that the live search retrieved it.
+  assert.equal(researchOutput(envelope([{ ...suggestion, sourceUrls: ["https://www.yourhome.gov.au/passive-design/insulation"] }]), input.options).ok, false);
+});
+
 test("explicit provider search is bounded, cached, and refreshed when room categories change", async () => {
   process.env.OPEN_AI_KEY = "synthetic-test-only"; delete process.env.VERCEL;
   let count = 0;
   const provider: typeof fetch = async (_url, init) => {
     count++; const body = JSON.parse(String(init?.body));
     assert.equal(body.store, false);
-    assert.equal(/Synthetic|Ignore all rules|1234/.test(body.input[1].content), false);
+    const payload = JSON.parse(body.input.find((item: { role: string }) => item.role === "user").content);
+    assert.equal(/Synthetic|Ignore all rules|1234/.test(JSON.stringify(payload)), false);
+    assert.deepEqual(payload.knowledgeBase, recommendationResources(input));
+    assert.ok(payload.knowledgeBase.entries.some((item: { id: string }) => item.id === "close-curtains"));
+    assert.ok(payload.knowledgeBase.entries.every((item: { sources: {url: string}[]; checks: string[] }) => item.sources.length && item.checks.length));
     if (body.tools) {
       assert.equal(body.model, "gpt-5.5");
       assert.equal(body.tool_choice, "required"); assert.equal(body.max_tool_calls, 2);
@@ -104,8 +130,8 @@ test("explicit provider search is bounded, cached, and refreshed when room categ
     }
     assert.equal(body.model, "gpt-4.1-mini");
     assert.equal(body.text.format.strict, true);
-    assert.deepEqual(body.text.format, researchResponseFormat(input.options.map(option => option.id)));
-    assert.equal(JSON.parse(body.input[1].content).retrievedSources[0].url, url);
+    assert.deepEqual(body.text.format, researchResponseFormat(input.options.map(option => option.id), recommendationResources(input).byOption));
+    assert.equal(payload.retrievedSources[0].url, url);
     return Response.json({ status: "completed", output: [envelope().output[1]] });
   };
   const input = coolingResearchContext(fixture());
