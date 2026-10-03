@@ -106,3 +106,18 @@
 .checkIn { margin-top: 0; padding-top: 0; border-top: 0; }
 @media(max-width:850px) { .roomStage { grid-template-columns: 1fr; gap: 16px; } .planOverview { margin-top: 0; padding-left: 0; border-left: 0; } .nextSteps { grid-template-columns: 1fr; gap: 24px; } .checkIn { border-top: 1px solid var(--color-line); padding-top: 16px; } }
 @media(max-width:480px) { .illustration { --room-canvas-mobile-height: 380px; } .room h1 { font-size: 36px; } }
+
+.heatwave { border-top: 1px solid var(--color-line); margin-top: 30px; padding-top: 28px; }
+.heatwave h2 { font-size: 30px; line-height: 1.2; letter-spacing: -1px; margin: 0 0 12px; }
+.heatwave > .sectionIntro { max-width: 850px; }
+.heatwaveGroups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 32px; margin: 24px 0; }
+.heatwaveGroups h3 { font-size: 20px; font-weight: 600; line-height: 1.3; margin: 0 0 14px; color: var(--color-forest); }
+.heatwaveGroups > section > ul { list-style: none; padding: 0; margin: 0; }
+.heatwaveGroups > section > ul > li { border-top: 1px solid var(--color-line); padding: 16px 0; }
+.heatwaveGroups h4 { font-size: 16px; line-height: 1.4; margin: 0 0 8px; }
+.heatwaveGroups p, .heatwaveGroups details { font-size: 14px; line-height: 1.6; color: var(--color-muted); margin: 4px 0; }
+.heatwaveGroups summary { cursor: pointer; color: var(--color-forest); padding: 8px 0; }
+.heatwave a { color: var(--color-forest); text-underline-offset: 4px; }
+.heatwaveSources { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.planOverview .nextStepPreview { margin: 20px 0 24px; }
+@media(max-width:480px) { .heatwaveGroups { gap: 20px; } .heatwave h2 { font-size: 28px; } }

@@ -49,7 +49,7 @@ export function HeatContributorsPage() {
         </aside>
       </div>
       {notice && <p className={styles.notice} role="status">{notice}</p>}
-      <footer className={styles.footer}><Link href="/room-baseline" className={styles.back}>← <span>Back</span></Link><Link href="/cooling-options" className={styles.primary}>Compare cooling options <span aria-hidden="true">→</span></Link></footer>
+      <footer className={styles.footer}><Link href="/room-baseline" className={styles.back}>← <span>Back</span></Link><Link href="/cooling-options" className={styles.primary}>Explore room improvements <span aria-hidden="true">→</span></Link></footer>
     </> : <p role="status" className={styles.loading}>Loading your room answers…</p>}
   </div>;
 }

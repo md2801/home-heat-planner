@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "Home Heat Planner", template: "%s | Home Heat Planner" },
-  description: "A bedroom cooling planner for Greater Sydney homeowners.",
+  description: "Understand bedroom overheating, reduce unnecessary cooling demand and prepare a practical room plan for hotter days in Greater Sydney.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

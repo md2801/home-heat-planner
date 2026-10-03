@@ -17,7 +17,7 @@ export function ThermalScenario() {
   const low = Math.floor(Math.min(...all) - 1); const high = Math.ceil(Math.max(...all) + 1);
   const y = (n: number) => 225 - (n - low) / (high - low) * 195;
   const path = (values: number[]) => values.map((n, h) => `${h ? 'L' : 'M'}${50 + h * 28},${y(n)}`).join(' ');
-  return <div className={styles.page}><JourneyHeader /><Link href="/cooling-options">← Back to cooling options</Link>
+  return <div className={styles.page}><JourneyHeader /><Link href="/cooling-options">← Back to room improvements</Link>
     <header className={styles.hero}><span>EXPERIMENTAL · 24-HOUR WHAT-IF</span><h1>One room.<br />A cooler possibility.</h1><p>Explore how changing heat gains and ventilation could change a room’s temperature and cooling bill under your assumptions.</p><button onClick={() => { setDraft(exampleDraft()); setSource('Synthetic example · editable, not your home or a weather forecast'); setResult(null); setError(''); }}>Load a synthetic example ↗</button></header>
     <div className={styles.layout}><form onSubmit={event => { event.preventDefault(); try { setResult(simulate(draft)); setError(''); } catch (e) { setResult(null); setError(e instanceof Error ? e.message : 'Check the inputs.'); } }}>
       <p className={styles.source}>{source}</p><h2>Set the scene</h2><p>These values need measurements or explicit assumptions. The room illustration does not establish them. Inputs stay on this page and reset when you leave.</p>

@@ -7,8 +7,8 @@ export function CoolingStory({ stage }: { stage: number }) {
   const current = shaded ? comparison.after : comparison.before;
   const reduction = comparison.before.cost - comparison.after.cost;
   return <div className={styles.story}>
-    <span>{['01 · COOLING TODAY', '02 · SAME TARGET, LESS ELECTRICITY', '03 · A SEPARATE COOL-EVENING OPTION'][stage]}</span>
-    <strong>{['Keep cool. See what it costs.', 'Keep the comfort. Reduce the cooling load.', 'Let cooler outdoor air do some of the work.'][stage]}</strong>
+    <span>{['01 · HEAT ENTERING THE ROOM', '02 · KEEP HEAT OUT, REDUCE DEMAND', '03 · RELEASE HEAT WHEN CONDITIONS ALLOW'][stage]}</span>
+    <strong>{['Start with the heat entering your room.', 'Keep heat out. Reduce cooling demand.', 'Let cooler outdoor air do some of the work.'][stage]}</strong>
     {stage === 2 ? <div className={styles.evening}><p>Open windows when outside air is cooler and safe. AC is off in this illustration; the fan keeps air moving.</p><small>This evening scene has no cost or comfort prediction. Close windows when running AC.</small></div> : <>
       <div className={styles.comfort}><span aria-hidden="true">●</span> {comparison.target}°C cooling target <b>{comparison.comparable ? 'Maintained in both cases' : 'Target not maintained — comparison limited'}</b></div>
       <div className={styles.energyHeader}><span>AC electricity · example day</span><strong>{current.electricity.toFixed(2)} <small>kWh</small></strong></div>

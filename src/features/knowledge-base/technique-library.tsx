@@ -41,7 +41,7 @@ export function TechniqueLibrary() {
       </article>)}
     </section>
     {matches.length === 0 && <div className={styles.empty}><h2>No techniques match yet</h2><p>Try a broader search, or clear the filters to explore all techniques.</p><button onClick={clearFilters}>Show all techniques</button></div>}
-    <footer className={styles.footer}><div><h2>Which changes fit your bedroom?</h2><p>Your room answers can help identify what is worth investigating.</p></div><Link href="/assessment">Explore my room <span aria-hidden="true">→</span></Link><Link href="/cooling-options">Back to cooling options</Link></footer>
+    <footer className={styles.footer}><div><h2>Which changes fit your bedroom?</h2><p>Your room answers can help identify what is worth investigating.</p></div><Link href="/assessment">Explore my room <span aria-hidden="true">→</span></Link><Link href="/cooling-options">Back to room improvements</Link></footer>
   </>;
 }
 

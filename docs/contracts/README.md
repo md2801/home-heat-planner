@@ -73,3 +73,8 @@ After cooling, fanType is active for fans and portableFanPosition for portable/b
 ## Guided AC comparison progress
 
 ReplacementInputs accepts optional step metadata (integer 0–3). Legacy drafts omit it and resume at the first incomplete input section. New drafts save it with existing fields and confirmations through the assessment repository. Step changes do not change the material financial signature, eligibility or computed amounts. Unknown fields and unchecked declarations remain incomplete; leaving the guide never supplies defaults.
+
+
+## Heatwave-Ready presentation
+
+The room-plan screen derives a small read-only Heatwave-Ready guide from the retained assessment and reviewed library. It does not extend PlanSaveRequest, CoolingPlanDraft, checklist IDs or CheckInSaveRequest. Preparation guidance is not an immutable historical snapshot; existing investigation/financial snapshots retain their original meaning. Follow-up notes can record hot-day actions tried. No additional API operation or provider request is introduced.

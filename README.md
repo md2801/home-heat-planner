@@ -1,10 +1,10 @@
 # Home Heat Planner
 
-**Understand why your bedroom gets hot, explore cooling improvements, and turn a next step into a plan.**
+**Understand why your bedroom overheats, reduce unnecessary cooling demand, and prepare a practical plan for hotter days.**
 
 Home Heat Planner is a web app for homeowners in Greater Sydney, built for the Junction Climate Hack-tion 2026 under the Resilient Cities and Buildings track. The prototype focuses on one bedroom at a time.
 
-It starts with the details you know about your room, explains what may be contributing to overheating, and helps you investigate shading, insulation, ventilation or an AC replacement. Where the required energy readings, assumptions and quote details are available, it calculates cooling costs and a bounded financial comparison. You can then save a checklist and return to review progress, spending and comfort.
+It starts with the details you know about your room, explains what may be contributing to overheating, and helps you investigate shading, insulation, ventilation or an AC replacement. Where the required energy readings, assumptions and quote details are available, it calculates cooling costs and a bounded financial comparison. Your room plan combines reviewed Heatwave-Ready guidance for the next hot day with your selected longer-term investigation. You can save its checklist and return to review progress, spending and comfort.
 
 **No account is required. The full manual journey works without an AI API key.**
 
@@ -31,7 +31,7 @@ No provider setup is needed to answer questions, review guidance, calculate from
 
 ```text
 Home → Room assessment → Room & cooling cost review → Heat contributors
-     → Cooling options → Saved cooling plan → Follow-up
+     → Room improvements → Saved room plan → Follow-up
 ```
 
 ### 1. Start with your bedroom
@@ -77,9 +77,9 @@ The heat contributors page explains what is worth investigating based on your an
 
 Each explanation identifies the facts it uses, what remains uncertain, relevant guidance and a next check. **Why these?** explains the selection. These are plausible contributors, not a measured diagnosis of your building.
 
-You can refine your answers or continue to the cooling options.
+You can refine your answers or continue to room improvements.
 
-### 5. Explore cooling options
+### 5. Explore room improvements
 
 Improvement cards lead with your reported room context, a practical next action, checks to make and source links. Depending on eligibility, you may see window shading, ceiling insulation, window-opening or comparable AC replacement investigations. The app can show fewer options when the evidence or permissions do not support them.
 
@@ -95,7 +95,7 @@ Three optional sections provide more detail:
 - **Understand your cooling costs:** your baseline, inputs to confirm and, when supported figures exist, a spending explanation.
 - **Explore a cooling scenario:** the separate experimental temperature and cost tool.
 
-Select an investigation, then choose **Continue to my cooling plan**.
+Select an investigation, then choose **Continue to my plan**.
 
 #### The guided AC comparison
 
@@ -114,9 +114,13 @@ When those checks are complete, the app shows annual label electricity costs, an
 
 This is a comparison under standard annual label conditions, **not a prediction of your household's actual savings**. Labels and quotes are transcribed by you and are not independently verified. See the [financial method](docs/financial-method.md) for applicability and limitations.
 
-### 6. Save a cooling plan
+### 6. Save a room plan
 
-Your selected investigation becomes **My cooling plan**, with a room view, plan summary, practical checklist and supporting assumptions/evidence. Checklist items help you gather information, confirm constraints or arrange the next step; checking them does not prove that installation has occurred.
+Your selected investigation becomes **My room plan**, with a room view, plan summary, practical checklist and supporting assumptions/evidence. Checklist items help you gather information, confirm constraints or arrange the next step; checking them does not prove that installation has occurred.
+
+The **Heatwave-Ready** section groups a few reviewed actions into **Before the hot day**, **During peak heat** and, where supported, **When it’s cooler outside**. Selection is deterministic and uses existing room/equipment eligibility and knowledge-base entries, without a provider call. Curtains and equipment advice require reported coverings/equipment; shading preparation requires an eligible shading investigation. Window-opening advice requires reported opening ability and an explicit no-known-limits answer; reported or unknown constraints omit it. Outdoor temperature, air quality, humidity and security must still be checked each time. With missing facts, only a general reviewed action about avoiding extra indoor heat appears.
+
+These are preparation guides, not weather forecasts or heat-health assessments. They predict no personal savings or temperature reduction. Guidance is derived from the retained assessment when reopening the plan, rather than stored as a new snapshot or tracked with separate completion boxes. The existing longer-term checklist, plan history, check-in and calendar export are unchanged; follow-up notes can record hot-day actions tried.
 
 Choose a check-in in **7 days**, **14 days**, or on a custom date. You can also save without a date. Choose **Save my plan** to preserve the plan and its financial/evidence snapshot in this browser.
 
