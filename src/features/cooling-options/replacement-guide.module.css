@@ -28,7 +28,7 @@
 .moreDetails { border-top: 1px solid var(--color-line); margin-top: 24px; font-size: 14px; color: var(--color-muted); }
 .moreDetails > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 54px; color: var(--color-forest); list-style: none; font-weight: 500; }
 .moreDetails > summary::-webkit-details-marker { display: none; }
-.moreDetails[open] > summary > span { transform: rotate(180deg); }
+.moreDetails[open] > summary > span[aria-hidden="true"] { transform: rotate(180deg); }
 .moreDetails p, .moreDetails li { line-height: 1.65; overflow-wrap: anywhere; }
 .moreDetails li + li { margin-top: 6px; }
 .moreDetails .field { margin-top: 16px; }

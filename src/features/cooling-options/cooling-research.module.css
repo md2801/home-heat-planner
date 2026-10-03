@@ -53,7 +53,7 @@
 .details { margin: 16px 0 20px; color: var(--color-muted); font-size: 13px; line-height: 1.6; }
 .details summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; color: var(--color-forest); cursor: pointer; list-style: none; }
 .details summary::-webkit-details-marker { display: none; }
-.details[open] summary > span { transform: rotate(180deg); }
+.details[open] summary > span[aria-hidden="true"] { transform: rotate(180deg); }
 .details summary:focus-visible { outline: 3px solid var(--color-forest); outline-offset: 3px; }
 .details ul { padding-left: 18px; }
 .details li + li { margin-top: 8px; }

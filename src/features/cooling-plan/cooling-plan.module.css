@@ -24,7 +24,7 @@
 .evidence { font-size: 14px; line-height: 1.6; color: var(--color-muted); }
 .evidence summary { list-style: none; min-height: 44px; display: flex; align-items: center; gap: 12px; color: var(--color-forest); cursor: pointer; width: fit-content; font-size: 15px; }
 .evidence summary::-webkit-details-marker { display: none; }
-.evidence[open] summary span { transform: rotate(180deg); }
+.evidence[open] summary > span[aria-hidden="true"] { transform: rotate(180deg); }
 .evidence dl > div { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 60%); padding: 8px 0; border-top: 1px solid var(--color-line); gap: 10px; }
 .evidence dd { margin: 0; overflow-wrap: anywhere; }
 .evidence li + li { margin-top: 6px; }

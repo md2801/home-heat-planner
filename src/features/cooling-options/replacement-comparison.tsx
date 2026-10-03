@@ -18,7 +18,7 @@ export function ReplacementComparison({ draft, profile, storageNotice }: { draft
   }
   return <>
     <details ref={disclosure} id="ac-cost-comparison" className={styles.optionalSection}>
-      <summary><span><strong>Compare costs and savings</strong><small>Optional · see whether replacing your AC could be worth it</small></span><span aria-hidden="true">⌄</span></summary>
+      <summary><span><strong>Considering an AC replacement?</strong><small>Compare costs and savings after reviewing room improvements</small></span><span aria-hidden="true">⌄</span></summary>
       <div className={styles.optionalBody}>
         <p>Compare your current AC with a replacement, one step at a time. Add only details you can confirm.</p>
         <ReplacementInputForm draft={draft} profile={profile} storageNotice={storageNotice} onFinishLater={finishLater} />

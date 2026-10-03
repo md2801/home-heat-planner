@@ -94,3 +94,9 @@
 .footer { background:#edf1e7; border:0; padding:30px; border-radius:14px; }
 @media(max-width:1050px) { .hero {gap:30px;} .library {grid-template-columns:repeat(2,minmax(0,1fr));} .browseHeading p {display:none;} }
 @media(max-width:700px) { .hero {grid-template-columns:1fr;gap:24px;padding:24px 0 30px;} .environment {padding:20px;} .heroArt {height:95px;} .hero h1 {font-size:44px;} .hero > div > p {font-size:16px;} .browseHeading h2 {font-size:27px;} .categories {gap:8px;} .categories button {font-size:12px;padding:9px 12px;flex:1 1 44%;justify-content:center;} .filters {flex-direction:column;align-items:stretch;gap:14px;} .filters .search {flex-basis:auto;} .library {grid-template-columns:1fr;} .technique h2,.summary,.benefit {min-height:0;} .resultBar {gap:12px;font-size:12px;} .resultBar > span {display:none;} .footer {padding:24px;gap:14px;} }
+
+.photoHeader { position:relative; height:170px; overflow:hidden; align-items:flex-end; }
+.photoHeader > img { object-fit:cover; object-position:center 55%; }
+.photoHeader::after { content:""; position:absolute; inset:0; background:rgb(237 241 231 / 12%); pointer-events:none; }
+.photoHeader > svg { position:relative; z-index:1; width:44px; height:44px; padding:8px; border-radius:8px; color:var(--color-forest); background:#fffef9ed; }
+.photoHeader > span { position:absolute; z-index:1; top:16px; right:20px; color:var(--color-forest); background:#fffef9ed; }

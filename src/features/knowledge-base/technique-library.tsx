@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { categories, efforts, filterTechniques, sources, techniques, type Category, type Effort } from "./catalogue";
 import styles from "./knowledge-base.module.css";
@@ -26,7 +27,10 @@ export function TechniqueLibrary() {
     <div className={styles.resultBar}><p role="status" aria-live="polite">Showing {matches.length} of {techniques.length} techniques</p>{(query || category !== "all" || effort !== "all") && <button onClick={clearFilters}>Clear filters</button>}<span>Pick one change to try first</span></div>
     <section aria-label="Energy-saving techniques" className={styles.library}>
       {matches.map(technique => <article className={styles.technique} id={technique.id} key={technique.id}>
-        <div className={styles.cardArt} data-category={technique.category}><TechniqueIcon category={technique.category} /><span>{efforts[technique.effort]}</span></div><div className={styles.techniqueMeta}><span>{categories[technique.category]}</span><span>{technique.steps.length} practical steps</span></div>
+        <div className={`${styles.cardArt} ${styles.photoHeader}`} data-category={technique.category}>
+          <Image src={`/images/techniques/${technique.id}.png`} alt={`Illustrative example: ${technique.title}`} fill sizes="(max-width: 700px) 90vw, (max-width: 1050px) 43vw, 440px" />
+          <TechniqueIcon category={technique.category} /><span>{efforts[technique.effort]}</span>
+        </div><div className={styles.techniqueMeta}><span>{categories[technique.category]}</span><span>{technique.steps.length} practical steps</span></div>
         <h2>{technique.title}</h2><p className={styles.summary}>{technique.summary}</p>
         <div className={styles.benefit}><span aria-hidden="true">↘</span><p>{technique.benefit}</p></div>
         <details><summary><span>How to try it</span><span aria-hidden="true" className={styles.chevron}>＋</span></summary><div className={styles.details}>

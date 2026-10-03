@@ -30,7 +30,7 @@
 .disclosures details[open] { flex-basis: 100%; }
 .disclosures summary, .notes summary { list-style: none; cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 12px; width: fit-content; font-size: 15px; color: var(--color-muted); }
 .disclosures summary::-webkit-details-marker, .notes summary::-webkit-details-marker { display: none; }
-.disclosures details[open] summary span, .notes details[open] summary span { transform: rotate(180deg); }
+.disclosures details[open] summary > span[aria-hidden="true"], .notes details[open] summary > span[aria-hidden="true"] { transform: rotate(180deg); }
 .disclosures details > div, .notes details > div { padding: 12px 0 8px; max-width: 850px; font-size: 15px; line-height: 1.65; color: var(--color-muted); overflow-wrap: anywhere; }
 .disclosures dl > div { display: grid; grid-template-columns: minmax(0, 32%) minmax(0, 68%); padding: 8px 0; border-top: 1px solid var(--color-line); }
 .disclosures dd { margin: 0; }
@@ -85,8 +85,8 @@
 .optionalSection > summary::-webkit-details-marker { display: none; }
 .optionalSection > summary strong { display: block; font-size: 18px; font-weight: 600; }
 .optionalSection > summary small { display: block; color: var(--color-muted); font-size: 13px; line-height: 1.5; margin-top: 5px; }
-.optionalSection > summary > span:last-child { font-size: 20px; }
-.optionalSection[open] > summary > span:last-child { transform: rotate(180deg); }
+.optionalSection > summary > span[aria-hidden="true"] { font-size: 20px; }
+.optionalSection[open] > summary > span[aria-hidden="true"] { transform: rotate(180deg); }
 .optionalSection > summary:focus-visible { outline: 3px solid var(--color-forest); outline-offset: 3px; }
 .optionalBody { padding: 0 24px 20px; color: var(--color-muted); font-size: 14px; line-height: 1.65; }
 .optionalBody > p { max-width: 850px; }

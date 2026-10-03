@@ -48,7 +48,7 @@
 .calculation { color: var(--color-forest-dark); margin-top: 12px; font-size: 15px; }
 .calculation summary { cursor: pointer; display: flex; gap: 16px; align-items: center; min-height: 40px; list-style: none; width: fit-content; }
 .calculation summary::-webkit-details-marker { display: none; }
-.calculation[open] summary span { transform: rotate(180deg); }
+.calculation[open] summary > span[aria-hidden="true"] { transform: rotate(180deg); }
 .calculation p { line-height: 1.6; color: var(--color-muted); margin: 12px 0; }
 .calculation dl { margin: 16px 0; }
 .calculation dl > div { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 10px 0; border-top: 1px solid var(--color-line); }
