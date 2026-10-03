@@ -2737,6 +2737,11 @@
                 }
               }
             },
+            "step": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
             "updatedAt": {
               "type": "string",
               "format": "date-time"

@@ -31,12 +31,13 @@ export const replacementChecks = [
   ["conditions", "Use the label's standard annual conditions (Average zone: 840 cooling hours). Actual use, comfort and bills may differ; this is not my measured annual bill."],
 ] as const;
 export type ReplacementCheck = typeof replacementChecks[number][0];
-export interface ReplacementInputs { fields: Partial<Record<ReplacementField, string>>; confirmations: Partial<Record<ReplacementCheck, boolean>>; updatedAt: string }
+export type ReplacementStep = 0 | 1 | 2 | 3;
+export interface ReplacementInputs { fields: Partial<Record<ReplacementField, string>>; confirmations: Partial<Record<ReplacementCheck, boolean>>; updatedAt: string; step?: ReplacementStep }
 export function emptyReplacement(now: string): ReplacementInputs { return { fields: {}, confirmations: {}, updatedAt: now }; }
 export function isReplacementInputs(value: unknown): value is ReplacementInputs {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const v = value as ReplacementInputs;
-  return typeof v.updatedAt === "string" && Number.isFinite(Date.parse(v.updatedAt)) && !!v.fields && typeof v.fields === "object" && !Array.isArray(v.fields) && !!v.confirmations && typeof v.confirmations === "object" && !Array.isArray(v.confirmations)
+  return typeof v.updatedAt === "string" && Number.isFinite(Date.parse(v.updatedAt)) && (v.step === undefined || (Number.isInteger(v.step) && v.step >= 0 && v.step <= 3)) && !!v.fields && typeof v.fields === "object" && !Array.isArray(v.fields) && !!v.confirmations && typeof v.confirmations === "object" && !Array.isArray(v.confirmations)
     && Object.entries(v.fields).every(([key, val]) => replacementFields.some(f => f[0] === key) && typeof val === "string" && val.length <= 500)
     && Object.entries(v.confirmations).every(([key, val]) => replacementChecks.some(c => c[0] === key) && typeof val === "boolean");
 }

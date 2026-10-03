@@ -69,3 +69,7 @@ Known counts of one to four activate window1Orientation through window4Orientati
 ## Cooling equipment details
 
 After cooling, fanType is active for fans and portableFanPosition for portable/both fans. acType is active for AC; acWall is active for wall-mounted/window-mounted units. Each permits an explicit unknown. Branch changes prune incompatible details. All four travel as validated user-reported assessment answers, with their own provenance scopes. Positions are schematic labels/placements; no power, performance or savings are inferred. Existing completed drafts resume missing active questions without losing answers. The bounded room-scene DTO still describes equipment categories; precise placement stays in assessment answers and is applied by deterministic rendering.
+
+## Guided AC comparison progress
+
+ReplacementInputs accepts optional step metadata (integer 0–3). Legacy drafts omit it and resume at the first incomplete input section. New drafts save it with existing fields and confirmations through the assessment repository. Step changes do not change the material financial signature, eligibility or computed amounts. Unknown fields and unchecked declarations remain incomplete; leaving the guide never supplies defaults.

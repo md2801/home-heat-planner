@@ -1,61 +1,264 @@
 # Home Heat Planner
 
-All seven designed pages work as a manual journey: assessment → room/baseline review → contributors → options → saved plan → observational follow-up. Browser persistence retains answers, plan snapshots and check-ins without an account.
+**Understand why your bedroom gets hot, explore cooling improvements, and turn a next step into a plan.**
 
-## Run and validate
+Home Heat Planner is a web app for homeowners in Greater Sydney, built for the Junction Climate Hack-tion 2026 under the Resilient Cities and Buildings track. The prototype focuses on one bedroom at a time.
 
-Use Node 22.18+ and npm. Run `npm ci`, `npm run dev`, then open http://localhost:3000. Validation: `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`. `npm start` serves the production build. Webpack is selected for compatibility with the local environment.
+It starts with the details you know about your room, explains what may be contributing to overheating, and helps you investigate shading, insulation, ventilation or an AC replacement. Where the required energy readings, assumptions and quote details are available, it calculates cooling costs and a bounded financial comparison. You can then save a checklist and return to review progress, spending and comfort.
 
-| Route | Function |
+**No account is required. The full manual journey works without an AI API key.**
+
+## Start the app locally
+
+Requirements: **Node.js 22.18 or newer** and **npm**.
+
+```sh
+git clone https://github.com/md2801/home-heat-planner.git
+cd home-heat-planner
+npm ci
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Use the URL printed in the terminal if another process is already using that port. To choose a port explicitly:
+
+```sh
+npm run dev -- --port 3001
+```
+
+No provider setup is needed to answer questions, review guidance, calculate from your own inputs, save a plan or record a check-in. Optional AI features are described below.
+
+## A full walkthrough
+
+```text
+Home → Room assessment → Room & cooling cost review → Heat contributors
+     → Cooling options → Saved cooling plan → Follow-up
+```
+
+### 1. Start with your bedroom
+
+The home page introduces the app and shows an illustrative bedroom cooling story. Choose **Start my assessment** to begin. The example room is a demonstration, not a model of your home.
+
+### 2. Answer questions about your room
+
+The assessment presents one question at a time and builds a live 3D room preview as you answer. It asks about:
+
+- When the room feels hottest, its floor, and what is directly above it.
+- The number of windows, their compass-facing walls and external shade.
+- Whether ceiling or roof insulation is known to be present.
+- Fans and air conditioning, including equipment type and relevant placement details.
+
+The questionnaire adapts to your answers. One to four windows each get their own direction question; an unknown count or more than four uses a room-wide direction question. Fan questions appear when you report a fan, and wall placement appears for wall-mounted or window-mounted ACs. The preview supports up to four windows.
+
+Choose **Not sure** when a detail is unknown. **Why this matters** explains how an answer is used. Once the core questions are complete, **See my assessment** lets you continue; optional questions can refine cooling use, budget, permissions, window coverings, opening constraints, location and comfort.
+
+If you want to describe the problem in your own words, optional question assistance can suggest a relevant question from the app's defined list. It does not automatically turn your description into confirmed room facts.
+
+Answers save in the same browser. **Reset questionnaire** asks for confirmation before clearing that browser's assessment, diagram, plans and check-ins.
+
+### 3. Review your room and current cooling cost
+
+The room review shows your reported details alongside the diagram. Correct answers before confirming the review, or use **Refine your room diagram** to edit window details, coverings, shade and equipment. An optional description-based diagram proposal must be reviewed and confirmed before it updates your answers.
+
+The cost section offers three paths:
+
+| Path | What you provide | What the app shows |
+| --- | --- | --- |
+| Cooling-specific measurement | Total cooling kWh, start/end dates, measurement scope and a flat electricity rate | Electricity cost for that measured period, once bedroom-only scope is confirmed |
+| What-if estimate | Assumed average electrical input, operating hours per cooling day, cooling days, period and a flat rate | A cost conditional on your stated equipment-use assumptions |
+| Skip / unknown | No reliable energy information | Room guidance without an invented cooling bill |
+
+A whole-home electricity bill does not identify bedroom cooling consumption. For a measurement, enter the **total kWh over the whole stated period**, not an hourly or daily average. For an estimate, electrical input power is different from an AC's advertised cooling capacity.
+
+Expand **See calculation** to inspect the arithmetic, units, period and input provenance. Continue with **See what's heating your room** to confirm the reported profile and open the assessment.
+
+### 4. Understand possible heat contributors
+
+The heat contributors page explains what is worth investigating based on your answers. Examples include sun through unshaded windows, roof/ceiling heat transfer where insulation is absent or unknown, and practical limits on opening windows.
+
+Each explanation identifies the facts it uses, what remains uncertain, relevant guidance and a next check. **Why these?** explains the selection. These are plausible contributors, not a measured diagnosis of your building.
+
+You can refine your answers or continue to the cooling options.
+
+### 5. Explore cooling options
+
+Improvement cards lead with your reported room context, a practical next action, checks to make and source links. Depending on eligibility, you may see window shading, ceiling insulation, window-opening or comparable AC replacement investigations. The app can show fewer options when the evidence or permissions do not support them.
+
+Choose **Find guidance for my room** for an optional internet search of Australian government guidance from Your Home, energy.gov.au and Energy Rating. A loading skeleton appears while the search runs. Returned guidance includes source links and a search timestamp; the existing reviewed guidance remains available if the search fails.
+
+Use **Set a budget** or **Change budget** to refine your spending limit. A budget alone does not establish an installation price or savings. Choosing an investigation selects a next step; it does not commit you to purchasing or installing anything.
+
+Three optional sections provide more detail:
+
+- **Compare costs and savings:** the guided AC replacement comparison described below.
+- **Understand your cooling costs:** your baseline, inputs to confirm and, when supported figures exist, a spending explanation.
+- **Explore a cooling scenario:** the separate experimental temperature and cost tool.
+
+Select an investigation, then choose **Continue to my cooling plan**.
+
+#### The guided AC comparison
+
+For an eligible AC replacement investigation, **Compare costs and savings** opens four focused steps:
+
+1. **Your current AC:** indoor/outdoor model numbers, cooling capacity, yearly label cooling energy and a label link.
+2. **The replacement:** the equivalent details for the proposed system, with help finding the right energy-label figures.
+3. **Rate & quote:** your flat electricity usage rate, installed price, quote provider/inclusions/date and any extra yearly costs.
+4. **Your comparison:** the two systems side by side, required comparability confirmations and supported results.
+
+Details and your current step save automatically. Use **Finish later** to return when you have the remaining information. Blank values remain unknown; zero recurring costs must be entered explicitly when applicable.
+
+The method compares two distinct, equal-capacity, comparable **non-ducted single-split AC systems** using current Zoned Energy Rating Labels for a confirmed **Average climate zone**. It also requires installer confirmation of sizing and comparable features, bedroom-only system scope, installation permission, dated references and a scoped quote. Optional sourced service-life information helps assess payback.
+
+When those checks are complete, the app shows annual label electricity costs, annual net savings, installed price and simple payback where calculable. Negative savings appear as a higher annual cost. Missing details produce an explanation of what still needs checking.
+
+This is a comparison under standard annual label conditions, **not a prediction of your household's actual savings**. Labels and quotes are transcribed by you and are not independently verified. See the [financial method](docs/financial-method.md) for applicability and limitations.
+
+### 6. Save a cooling plan
+
+Your selected investigation becomes **My cooling plan**, with a room view, plan summary, practical checklist and supporting assumptions/evidence. Checklist items help you gather information, confirm constraints or arrange the next step; checking them does not prove that installation has occurred.
+
+Choose a check-in in **7 days**, **14 days**, or on a custom date. You can also save without a date. Choose **Save my plan** to preserve the plan and its financial/evidence snapshot in this browser.
+
+With a saved plan and check-in date, **Add to calendar** downloads an `.ics` event that you can import into your calendar. The app itself does not send email, SMS or push reminders. Changing the date in the app does not update an event already imported into a calendar.
+
+### 7. Return and record what happened
+
+Open your saved plan and continue to check-in. Record **Not started**, **Started**, **Completed**, **I'm stuck**, or **Deferred**.
+
+If you are stuck, record a barrier such as cost, permissions, installation, time or uncertainty and review a smaller next step. For completed work, you can record the completion details, actual spending, cooling use and comfort, with optional energy readings and period information. Choose **Save update** to save the check-in.
+
+Before/after usage is shown only when both records and comparable-use confirmation are supplied. Comfort ratings use a 1–5 scale and need comparable conditions and times of day. Weather, behaviour and other changes can affect the result, so these observations do not prove the selected action caused a saving or comfort improvement.
+
+Material changes to your room or comparison inputs require reviewing the selection and saving a revised plan. Earlier saved plan snapshots and check-ins remain available in history until the assessment is reset.
+
+## What the 3D room represents
+
+The diagram gives your answers a visual reference: window directions, roof context, coverings and cooling equipment. You can rotate it, zoom, reset the view and switch to 2D. Equipment and window labels follow your reported details.
+
+Furniture, finishes, dimensions and exact spacing are illustrative. The optional airflow animation is a visual preview, not a physical airflow or temperature simulation. The diagram does not establish consumption, installation suitability or savings.
+
+## Experimental 24-hour cooling scenario
+
+Open the simulator from **Explore a cooling scenario**, or visit `/thermal-scenario`.
+
+Enter explicit room, heat-transfer, ventilation, AC and tariff assumptions plus 24 hourly outdoor-temperature and solar-gain pairs. Alternatively, choose **Load a synthetic example** to explore clearly labelled demonstration data. Try assumed changes to shading, insulation or night ventilation and choose **Compare this day**.
+
+The tool compares a simplified single-room heat balance. Temperature curves use AC-off runs; separate AC-on runs calculate cooling electricity and cost for the supplied conditions. Inputs are page-local, reset when you leave, and do not become confirmed room facts or supported annual savings.
+
+It is an uncalibrated what-if model, not a weather forecast or validated building prediction. It does not model detailed airflow, humidity or neighbouring rooms, and it does not calculate annual savings or payback. See the [thermal scenario documentation](docs/contracts/thermal-scenario.md).
+
+## Where the advice and numbers come from
+
+| Part of the app | How it works |
 | --- | --- |
-| / | Landing and explanation |
-| /assessment | Seven core interactions, optional details, explicit unknowns and question assistance |
-| /room-baseline | Room review and measured/scenario cooling cost |
-| /heat-contributors | Conditional explanations and reviewed evidence |
-| /cooling-options | Investigations and optional standard-label AC comparison |
-| /cooling-plan | Checklist, date, financial snapshot and calendar download |
-| /follow-up | Five progress states, completion, barriers, spending, usage, comfort and history |
+| Questions and eligibility | Defined question branches and deterministic rules use your reported facts and constraints |
+| Contributor explanations | Conservative rules connect those facts to reviewed guidance and visible unknowns |
+| Improvement cards | Reviewed guidance is available immediately; optional sourced web search adds qualitative explanations |
+| Current cooling cost | Code multiplies measured cooling energy by the tariff, or uses your explicit power/time scenario |
+| AC financial comparison | Code applies the documented label method to validated inputs and confirmations |
+| 3D diagram | Rendering code builds an illustrative scene; optional AI proposes details for your confirmation |
+| Follow-up | Your saved, self-reported observations are compared only when the required context is supplied |
 
-## Financial scope
+The cooling-cost equations are:
 
-Current cost uses cooling-specific measured kWh or an explicit average electrical-input scenario, multiplied by a supplied flat tariff. It never substitutes cooling capacity for electrical input or annualises a short measured period.
+```text
+Measured-period cost = total cooling kWh × AUD/kWh
 
-Method `zerl-comparable-ac-v1` supports **standard annual label comparisons** for equal-capacity, comparable non-ducted single-split ACs in the confirmed Average climate zone. It requires dated label references, installer sizing confirmation, permission, an installed quote, tariff and recurring costs. It does not predict the home's actual savings. See [method and applicability](docs/financial-method.md).
+What-if period cost = average electrical input kW × hours/cooling day
+                      × cooling days × AUD/kWh
 
-Shading, insulation and opening investigations have no numeric savings method here. Their unknown cost/savings/payback remain visible. No best-value installation is selected from incomplete evidence.
+AC annual net savings = (current label kWh/year − replacement label kWh/year)
+                        × AUD/kWh + current extra yearly costs
+                        − replacement extra yearly costs
 
-## Architecture and persistence
+Simple payback years = installed replacement price ÷ positive annual net savings
+```
 
-Transport DTOs exclude browser cursor, completion flag, saved history and storage keys. Runtime guards validate requests and responses. The working local and HTTP adapters share deterministic logic through `/api/planner`; room confirmation calls the adapter through `plannerClient`. Page projections reuse pure calculation models. The old placeholder service/duplicate contracts are removed. See [contracts, units and examples](docs/contracts/README.md).
+The calculators support a flat usage rate and exclude fixed supply charges and time-of-use pricing. A short measured period is not automatically annualised. General shading, insulation and ventilation guidance does not supply a numerical savings method, so the app does not invent those savings or payback periods. The experimental scenario stays separate from supported comparisons.
 
-Plan/check-in save contracts use actual structured snapshots and explicit save scope; current repositories save only in this browser. No server persistence or external notification service is claimed. Material value changes invalidate selection and archive saved estimates/check-ins. Re-entering the same values or editing unrelated goals preserves the saved snapshot. Baseline comfort is captured in the original plan.
+The environmental aim is to help people investigate reducing cooling energy demand while considering comfort. Actual benefits depend on the building, equipment and operation. The prototype does **not** calculate carbon emissions or claim verified environmental savings.
 
-Calendar downloads contain a generic all-day check-in and return link. Manage an imported event in your calendar; changing the app date does not update it. Clear assessment deletes this browser's saved history.
+## Optional AI setup and data handling
 
-## Optional providers
+The server reads **`OPEN_AI_KEY`** for optional OpenAI features. Configure it through your local server environment or an ignored `.env.local` file, then restart the development server. Use this exact variable name; the app does not read `OPENAI_API_KEY`. Never put a provider key in a `NEXT_PUBLIC_*` variable or commit it to Git.
 
-Optional OpenAI endpoints emit server-only `[openai]` diagnostics with an allowlisted failure boundary, HTTP status, request ID, known error code/type and incomplete reason. Prompts, generated text, credentials, headers and raw error messages are never logged. `networkCode: EACCES` means the running process was denied an outbound connection; start it in an approved environment with HTTPS access to OpenAI. Provider authentication/model/schema errors are separate from this network failure. Same-origin checks compare the browser origin to the incoming Host, preserving local hostname aliases while rejecting cross-origin requests.
+| Feature | AI's role | Information sent |
+| --- | --- | --- |
+| Question assistance | Select a relevant allowed question (`gpt-4.1-mini`) | The submitted problem description and allowed questions |
+| Room proposal | Suggest a structured diagram for review (`gpt-6-luna`) | The submitted room description and current diagram details |
+| Financial explanation | Choose the reading order of app-owned explanation cards (`gpt-6-luna`) | Recomputed summaries, limitations and checks, not raw complaints, location or quote identities |
+| Online guidance | Search allowed government sources (`gpt-5.5`), then format concise cards (`gpt-4.1-mini`) | Room categories, unknowns and eligible option IDs; not location, free-text answers, energy use, budgets or quote/model identities |
 
-The manual journey needs no credentials. Server runtime reads `OPEN_AI_KEY` for optional complaint classification/allowed-question selection. Input is at most 500 characters, structured output is validated, `store:false`, output limit 200 tokens, timeout 10 seconds. No room fact or financial result is generated. Failures offer manual continuation and retry.
+**AI does not calculate financial results, choose an installation for you or turn missing information into facts.** Diagram proposals require confirmation, and web guidance cannot override eligibility or calculation rules. Provider failures retain the manual flow. Calls use validated structured outputs, server-side credentials and `store: false`.
 
-Local guards: three requests/client/minute, `AI_MAX_REQUESTS` (default 50, max 500), and a conservative USD 0.05/request reservation against `AI_MAX_SPEND_USD` (default 2, max 25). These reset on process restart and are **not actual billing measurement or a distributed spending guarantee**. A five-minute server cache uses hashed keys. Descriptions are retained in the same browser for room review, cleared by Clear assessment, and are not logged or saved on the application server.
+Descriptions submitted to assistance are sent to OpenAI; leave out addresses and personal details. The app's provider diagnostics exclude credentials, prompts, generated text and raw error messages.
 
-On Vercel, assistance defaults off. Set `AI_DISTRIBUTED_LIMITS_CONFIRMED=true` only after external/account-wide hard limits and abuse controls exist; the flag does not implement those controls. Configure credentials through the hosting platform's environment UI; never upload local environment files. Provider success is not required for the demo.
+Local endpoints have request limits, timeouts and, where applicable, short-lived caches. Intake also uses `AI_MAX_REQUESTS` and `AI_MAX_SPEND_USD` as conservative process-local guards, not actual billing measurement. Limits reset when the process restarts and are not distributed spend controls. See [API contracts and limits](docs/contracts/README.md).
 
-Jev remains a dependency: no usable provider adapter/documented endpoint is configured in the repository. ElevenLabs voice and computer vision remain deferred. `ELEVEN_API_KEY` is not used.
+On Vercel, optional assistance defaults off unless `AI_DISTRIBUTED_LIMITS_CONFIRMED=true`. That flag declares external/account-wide limits and abuse controls have been configured; it does not implement them. Keep it unset until those controls exist. Voice and photo-based assessment are not implemented.
 
-## Deployment
+## Saving and privacy
 
-Target: Vercel, Next.js preset, `npm run build`. No deployment was completed in this change. Automatic approval review blocked source export to that destination; the connected account lists no projects. Explicit deployment approval and project configuration remain necessary. Keep local environment files excluded. The deterministic/manual demo needs no provider credentials.
+The prototype uses browser storage, with no account or server database for assessments, plans or check-ins. Return using the **same browser profile and site origin** to reopen your progress; changing devices, browsers or localhost ports does not share that storage.
 
-Requirements, build spec and seven visual references remain in `docs/`. Business models/calculations, feature UI, persistence, transport DTOs and server provider calls are separated under `src/`.
+Assessment and comparison drafts save automatically. Plans and check-ins have explicit **Save my plan** and **Save update** actions. Relevant input edits invalidate stale selections and preserve earlier saved snapshots in history; navigating between comparison steps does not change the financial inputs.
 
-## Financial explanation assistance
+If browser saving is blocked, the app shows a notice and keeps working in the current tab, but a refresh may lose progress. Resetting the questionnaire clears the saved assessment, diagram, plans and history for that browser origin. Calendar files contain a generic check-in and return link, rather than private room or financial details.
 
-Cooling options now includes a calculated brief and optional OpenAI gpt-6-luna call to prioritise explanations for understanding, budget or next-step focus. The server recomputes the comparison; the model returns allowed card IDs only. App-owned wording preserves figures, evidence limitations and next-input links. This does not create a shading/insulation savings method. The local brief remains usable without a provider. See docs/contracts/README.md for limits and transport.
+## Routes
 
-## Online cooling guidance
+| Route | Screen |
+| --- | --- |
+| `/` | Introduction and illustrative cooling story |
+| `/assessment` | Adaptive questionnaire and live room preview |
+| `/room-baseline` | Room review, diagram editor and cooling-cost baseline |
+| `/heat-contributors` | Possible contributors, evidence and investigations |
+| `/cooling-options` | Improvement cards, optional search and guided AC comparison |
+| `/cooling-plan` | Checklist, saved plan and calendar check-in |
+| `/follow-up` | Progress, barriers, completion, usage, comfort and history |
+| `/thermal-scenario` | Optional experimental 24-hour temperature/cost comparison |
 
-On cooling options, **Find guidance for my room** performs an optional OpenAI Responses web search of Your Home, energy.gov.au and Energy Rating. It returns qualitative explanations and next checks for existing eligible improvements, with retrieved source links and a search timestamp. Only room categories reach the provider; addresses, free-text answers, bills and quotes are excluded. It uses the existing server `OPEN_AI_KEY`, requires no new package, and preserves unknown prices/savings/payback and the manual journey on failure. Search is bounded, cached for five minutes and subject to the hosted usage-control guard above. See [search contract and limits](docs/contracts/README.md#optional-cooling-guidance-search).
+## Development and architecture
 
-Guidance uses a [versioned UI contract](docs/contracts/cooling-research-ui.md): concise improvement cards with a takeaway, reported room context, possible benefit, next action, checks and sources. Word/character limits keep them compact. App-owned selection buttons connect each card to the existing comparison and plan flow.
+The app uses **Next.js App Router, React, TypeScript and Three.js**. Feature styling uses CSS modules alongside the shared styles. Development and production builds use Webpack.
+
+```text
+src/app/               Pages and API routes
+src/features/          Assessment, diagrams, guidance, comparison, plans and follow-up UI
+src/domain/            Typed facts, plans, provenance and material input signatures
+src/lib/               Calculations and browser persistence utilities
+src/services/          Planner adapters and provider request clients
+src/contracts/         Request/response types, schemas and validation
+src/server/            Server-only OpenAI integration and request guards
+docs/                  Product requirements, build spec, designs and method contracts
+```
+
+UI components, pure business/calculation models, persistence and provider calls are kept separate. The current planner client uses a local typed adapter; `/api/planner` exposes the same deterministic logic through an HTTP boundary. Optional provider calls use `/api/intake`, `/api/room-scene`, `/api/financial-brief` and `/api/cooling-research`. Transport inputs exclude the assessment question cursor, completion flag, saved history and storage keys. The comparison draft's optional step metadata does not affect calculations.
+
+Run the project checks:
+
+```sh
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
+
+Serve a production build locally:
+
+```sh
+npm run build
+npm start
+```
+
+Vercel is the intended hosting target: use the Next.js preset and `npm run build`, and configure any optional provider credentials in the hosting environment. The manual app can run without credentials. This README does not imply that a deployment is currently live.
+
+## Further reading
+
+- [Product requirements](docs/PRD.md): audience, scope, evidence rules and acceptance criteria.
+- [Build specification](docs/BUILD_SPEC.md): architecture and authorised feature/presentation extensions.
+- [Approved designs](docs/design/): the seven original screen references.
+- [Financial method](docs/financial-method.md): AC comparison inputs, applicability and equations.
+- [API and persistence contracts](docs/contracts/README.md): validation, units, provider limits and examples.
+- [Guidance UI contract](docs/contracts/cooling-research-ui.md): how searched guidance becomes concise improvement cards.
+- [Room scene contract](docs/contracts/room-scene.md): diagram proposals, confirmation and limitations.
+- [Thermal scenario contract](docs/contracts/thermal-scenario.md): experimental model and checks.
