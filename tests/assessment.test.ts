@@ -44,6 +44,48 @@ test("switching cooling branches removes incompatible values without inventing d
   assert.equal(activeQuestions(draft.answers).some(q => q.id === "flatTariffAudPerKwh"), false);
   assert.equal(assessmentJourney(draft).currentCoolingCost.status, "unknown");
 });
+
+test("skipping cooling costs clears either energy branch, preserves room answers and survives reload", () => {
+  for (const basis of ["measured", "scenario"] as const) {
+    let draft = emptyAssessment();
+    while (CORE_QUESTION_IDS.some(id => id === draft.currentQuestionId)) {
+      draft = answer(draft, draft.currentQuestionId, draft.currentQuestionId === "cooling" ? ["fan"] : null);
+      draft = moveAssessment(draft, "continue");
+    }
+    draft = answer(draft, "energyBasis", basis);
+    const values = basis === "measured"
+      ? { coolingKwh: 20, energyScope: "Synthetic dedicated cooling meter", periodStart: "2026-10-01", periodEnd: "2026-10-02" }
+      : { averageElectricalInputKw: 0.06, hoursPerDay: 6, coolingDays: 10, periodDescription: "Synthetic ten-day period" };
+    for (const [id, value] of Object.entries(values)) draft = answer(draft, id, value);
+    draft = answer(draft, "flatTariffAudPerKwh", 0.3);
+    draft = { ...draft, currentQuestionId: "energyBasis" };
+    const roomAnswers = draft.answers.cooling;
+    draft = answer(draft, "energyBasis", null);
+    const activeIds = activeQuestions(draft.answers).map(q => q.id);
+    for (const id of ["coolingKwh", "energyScope", "periodStart", "periodEnd", "averageElectricalInputKw", "hoursPerDay", "coolingDays", "periodDescription", "flatTariffAudPerKwh"]) {
+      assert.equal(activeIds.includes(id), false);
+      assert.equal(draft.answers[id], undefined);
+    }
+    assert.deepEqual(draft.answers.cooling, roomAnswers);
+    assert.equal(assessmentJourney(draft).baselineInputs.status, "unknown");
+    assert.equal(assessmentJourney(draft).currentCoolingCost.status, "unknown");
+    draft = moveAssessment(draft, "continue");
+    assert.equal(draft.currentQuestionId, "budgetAud");
+    assert.equal(canSeeAssessment(draft), true);
+    draft = finishAssessment(draft);
+    assert.equal(assessmentDestination(draft), "/room-baseline");
+    const savedAnswers = storage();
+    const persistence = createBrowserPersistence("skip-test", isAssessmentDraft, () => savedAnswers);
+    const repo = createAssessmentRepository(persistence);
+    repo.hydrate();
+    repo.save(draft);
+    const reloaded = createAssessmentRepository(persistence);
+    reloaded.hydrate();
+    assert.equal(reloaded.getSnapshot().draft.answers.energyBasis?.status, "unknown");
+    assert.equal(reloaded.getJourney().baselineInputs.status, "unknown");
+    assert.equal(reloaded.getSnapshot().draft.completed, true);
+  }
+});
 test("number, date and choice validation distinguish zero from missing and reject invalid values", () => {
   assert.equal(validValue(question("hoursPerDay"), 0), true);
   for (const value of [-1, 25, Infinity, NaN, "6", null]) assert.equal(validValue(question("hoursPerDay"), value), false);

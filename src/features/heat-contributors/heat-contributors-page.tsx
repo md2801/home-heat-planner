@@ -35,12 +35,15 @@ export function HeatContributorsPage() {
             <div className={styles.explanation}><h3>{contributor.title}</h3><p>{contributor.explanation}</p><p>{contributor.nextStep}</p><p className={styles.reasonLabel}>Your supplied facts</p><dl>{contributor.reasons.map(reason => <div key={reason.fieldId}><dt>{reason.label}</dt><dd>{reason.value}{reason.fact.status === "known" && <small>Reported by you</small>}</dd></div>)}</dl><ul>{contributor.unknowns.map(item => <li key={item}>{item}</li>)}</ul></div>
           </details>)}</div> : <div className={styles.empty}><h3>No contributor established yet</h3><p>Your answers don’t establish a window, roof or opening issue. That doesn’t rule out other causes.</p><p>You can refine your answers or continue to compare options with the information you have.</p></div>}
           <div className={styles.other}><h3>Other factors</h3><div className={styles.context}>{assessment.context.map(item => <div key={item.id}><AreaIcon kind={item.id} /><h4>{item.label}</h4><p>{item.value}</p></div>)}</div></div>
-          <div className={styles.reviewControls}><details className={styles.why}><summary><AreaIcon kind="book" />Why these? <span aria-hidden="true">⌄</span></summary>
+          <div className={styles.reviewControls}><details className={styles.why}>
+            <summary><AreaIcon kind="book" /><span>Why these?</span><svg className={styles.whyChevron} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9L12 15L18 9" /></svg></summary>
+            <div className={styles.whyBody}>
             <p>These are plausible explanations from your reported facts, not a diagnosis or a ranking of heat sources. Existing cooling and internal coverings provide context; their performance has not been measured.</p>
             {assessment.gaps.length > 0 && <><h3>Details that could refine this</h3><ul>{assessment.gaps.map(gap => <li key={gap}>{gap}</li>)}</ul></>}
             <h3>Supporting guidance</h3><p>General guidance explains the mechanisms. It does not establish the cause or size of a cooling benefit for your room.</p>
             {contributorEvidence.filter(source => assessment.contributors.some(c => c.sourceIds.includes(source.id))).map(source => <div className={styles.source} key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a><p>{source.excerpt}</p><small>Reviewed {source.reviewedAt} · {source.contentVersion}</small></div>)}
             {!assessment.contributors.length && <p>No room-specific contributor has been selected from this guidance.</p>}
+            </div>
           </details>
           <Link href="/assessment" className={styles.refine}>Refine my answers →</Link></div>
         </aside>

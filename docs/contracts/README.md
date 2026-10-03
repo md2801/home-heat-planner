@@ -2,6 +2,8 @@
 
 Canonical DTOs: `src/contracts/journey.ts`, `src/contracts/intake.ts`, `src/domain/models.ts`, `src/domain/cooling-plan.ts`, `src/domain/follow-up.ts`. Runtime guards: `src/contracts/validation.ts`, `src/contracts/intake.ts`, `src/domain/value-guards.ts`. JSON request schema: [planner-request.schema.json](planner-request.schema.json). Active branches, dates, applicability and snapshot association also require domain guards.
 
+The cooling-energy entry offers a measured reading (`energyBasis: measured`), help with a what-if estimate (`energyBasis: scenario`), or “I don’t know / skip” (an explicit unknown `energyBasis`, preserving the existing DTO). Only the measured branch asks for total kWh, scope and dates; only the estimate branch asks for average electrical input, hours, cooling days and a stated period. Skipping prunes both branches and the tariff, leaves financial results unknown and still permits room review and guidance. Equipment descriptions and model names never supply inferred power; estimate inputs remain explicit user assumptions. Shared-system measurements still require bedroom attribution at review.
+
 ## Calculation API
 
 `POST /api/planner`, JSON byte limit 128,000, schemaVersion 1. Operation: assess, confirm, recommend, compare. Returns a recomputed view; confirm also returns room-review confirmation. No database write. HTTP adapter timeout 15 seconds; response no-store.
@@ -47,6 +49,18 @@ POST /api/financial-brief accepts {command: PlannerCommand, focus: "understand" 
 A local summary remains available without the provider. Calls are explicit, cached for five minutes (100 entries), limited to three/client/minute and 30/process, with 1,200 output tokens and an 18-second timeout. These are local demo limits, not distributed spend measurement; the existing hosted usage-control guard applies. A quote does not supply a missing intervention-effect method.
 
 API reference: https://developers.openai.com/api/docs/guides/structured-outputs
+
+## Optional cooling guidance search
+
+`POST /api/cooling-research` accepts `{command: PlannerCommand}` with operation `recommend`, the existing 128,000-byte body limit and same-origin guard. Eligibility is recomputed server-side. Only typed room categories, unknowns and allowed option IDs/titles reach OpenAI; location, complaints, opening-constraint descriptions, energy use, budgets and quote/model identities are excluded. The region is the product's Greater Sydney scope, not inferred from a private address.
+
+Retrieval uses `gpt-5.5` with low reasoning effort, `web_search` with required tool choice, live access, and an allowed-domain filter for `yourhome.gov.au`, `energy.gov.au` and `energyrating.gov.au`. It includes `web_search_call.action.sources`. A completed, sourced search must precede a separate `gpt-4.1-mini` explanation call without tools. Its strict version-2 UI contract contains up to three `improvement-card` suggestions with a short headline, room-specific reason, possible benefit, one next action, prerequisite checks and source URLs. Character and word limits keep output scannable. See [UI contract and example](cooling-research-ui.md). Each HTTPS citation must match an actual retrieved source and an allowed hostname boundary; assistant-invented links, extra fields, duplicate/foreign IDs, empty results and prose containing numeric figures are rejected. Source titles come from provider source/citation metadata, with a readable URL-path/publisher label as fallback.
+
+Success: `{ok:true,schemaVersion:2,retrievedAt,suggestions:[{component,optionId,headline,whyForRoom,potentialBenefit,nextAction:{label,detail},checks,sources:[{url,title}]}]}`. Failure: `{ok:false,message}`; invalid/oversized/cross-origin requests retain 400/413/403. The browser validates output, links sources beside each suggestion, reports the search timestamp, and clears results/cancels stale requests when room context or eligible options change. Suggestions are temporary guidance and never modify room answers, eligibility or financial results. The app-owned Choose investigation button uses the existing validated selection flow, synchronising cards and comparison rows; the model cannot select an action. Online guidance is not a personalised performance method or installed quote. Existing evidence and the manual journey remain available after any provider failure.
+
+Demo limits: two research requests/client/minute, 20/process, at most two provider requests and two built-in search calls per research request, 2,200 output tokens per provider response, a shared 40-second deadline and 45-second browser timeout. Successful results are cached for five minutes (100 entries) using a hash of the minimal context. Repeated clicks within that period reuse the original timestamp. Cache keys include the UI contract version. Hosted assistance stays disabled without the existing external usage-control guard; local limits are not distributed spend measurement. `OPEN_AI_KEY` remains server-only and `store:false` is used. No additional provider credential or dependency is required. AI-written qualitative explanations still need human review; citation matching checks source provenance, not semantic entailment.
+
+API reference: https://developers.openai.com/api/docs/guides/tools-web-search
 
 ## Individual window directions
 

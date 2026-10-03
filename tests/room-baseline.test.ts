@@ -66,6 +66,19 @@ test("missing tariff or electrical input yields insufficient information and no 
     assert.equal(view.arithmetic, null);
   }
 });
+
+test("skipped cooling costs keep the room profile available without a measured or scenario result", () => {
+  const draft = fixture({ heatTiming: ["afternoon"], aboveRoom: "roof", cooling: ["air-conditioner"], servesOnlyRoom: false, energyBasis: null });
+  const view = roomBaseline(confirmRoomReview(draft, at));
+  assert.equal(view.kind, "unavailable");
+  assert.equal(view.result, null);
+  assert.equal(view.inputs, null);
+  assert.equal(view.scopeConfirmationAvailable, false);
+  assert.equal(view.profile.cooling.status === "known" && view.profile.cooling.value.servesOnlyRoom.status === "known" && view.profile.cooling.value.servesOnlyRoom.value, false);
+  assert.equal(view.profile.aboveRoom.status === "known" && view.profile.aboveRoom.value, "roof");
+  assert.equal(view.journey.confirmedProfile.status, "known");
+  assert.equal(view.journey.currentCoolingCost.status, "unknown");
+});
 test("zero hours, cooling days, power and tariff are real supplied values", () => {
   for (const field of ["hoursPerDay", "coolingDays", "averageElectricalInputKw", "flatTariffAudPerKwh"]) {
     const draft = scenario({ [field]: 0 });

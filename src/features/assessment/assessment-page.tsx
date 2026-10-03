@@ -31,7 +31,7 @@ function QuestionInput({ question }: { question: Question }) {
   const selectedValues = answer?.status === "known" ? answer.value : undefined;
   const unknownControl = <label className={`${styles.option} ${unsure ? styles.selected : ""}`}>
     <input type={question.multiple ? "checkbox" : "radio"} name={question.id} checked={unsure} onChange={() => { setRaw(""); setAnswer(null); }} />
-    <AnswerIcon kind="unknown" /><span>Not sure</span><Mark selected={unsure} />
+    <AnswerIcon kind="unknown" /><span>{question.unknownLabel ?? "Not sure"}</span><Mark selected={unsure} />
   </label>;
   if (question.kind === "choice") return <fieldset className={`${styles.answers} ${question.id === "acWall" || WINDOW_DIRECTION_IDS.some(id => id === question.id) ? styles.directionAnswers : ""}`} aria-describedby={question.hint ? "question-hint" : undefined}>
     <legend className="sr-only">{question.title}</legend>

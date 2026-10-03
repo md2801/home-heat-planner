@@ -54,6 +54,7 @@ export function RoomBaselinePage() {
   const result = baseline.result;
   const amount = result?.amountAud;
   const available = amount?.status === "known" && typeof amount.value === "number";
+  const costSkipped = draft.answers.energyBasis?.status === "unknown";
   return <div className={styles.page}>
     <header className={styles.header}>
       <Link href="/" className={styles.brand}><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="4" fill="var(--color-heat-light)" stroke="var(--color-forest)" strokeWidth="2" /><path d="M8 25C9 9 19 15 25 7C26 20 19 25 12 23M7 26L21 13M12 21L13 15M16 18L22 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Home Heat Planner</span></Link>
@@ -75,22 +76,22 @@ export function RoomBaselinePage() {
             <dt><DetailIcon kind={row.icon} /><span>{row.label}</span></dt><dd className={row.value === "Not sure" ? styles.unknown : ""}>{row.value}{"secondary" in row && <small>{row.secondary}</small>}</dd>
           </div>)}</dl>
           <section className={`${styles.baseline} ${available ? "" : styles.unavailable}`} aria-labelledby="baseline-title">
-            <p className={styles.resultType}>{available ? baseline.kind === "measured" ? "Measured baseline · user-reported data" : "What-if scenario" : "Insufficient information"}</p>
-            <h2 id="baseline-title">{available ? baseline.kind === "measured" ? "Current cooling electricity cost" : "Estimated cooling cost for your stated scenario" : "Cooling cost not available yet"}</h2>
-            {available && amount.status === "known" && typeof amount.value === "number" ? <><p className={styles.amount}>{formatMoney(amount.value)} <span>AUD</span></p><p className={styles.period}>{baseline.periodLabel}</p></> : <>{baseline.noEquipment ? <p>No cooling equipment was reported. We haven’t assumed an existing cooling bill.</p> : <><p>To calculate this, we still need:</p><ul>{baseline.missing.map(item => <li key={item}>{item}</li>)}</ul></>}<Link href="/assessment">Add or edit cooling details →</Link></>}
+            <p className={styles.resultType}>{costSkipped ? "Cooling costs skipped" : available ? baseline.kind === "measured" ? "Measured baseline · user-reported data" : "What-if scenario" : "Insufficient information"}</p>
+            <h2 id="baseline-title">{costSkipped ? "Continue without a cooling cost" : available ? baseline.kind === "measured" ? "Current cooling electricity cost" : "Estimated money you’re spending to cool your room" : "Cooling cost not available yet"}</h2>
+            {available && amount.status === "known" && typeof amount.value === "number" ? <><p className={styles.amount}>{formatMoney(amount.value)} <span>AUD</span></p><p className={styles.period}>{baseline.periodLabel}</p></> : <>{costSkipped ? <p>You chose to skip energy readings and estimates. Cooling costs remain unknown, and you can still continue to room guidance. Add these details later if you want to calculate costs.</p> : baseline.noEquipment ? <p>No cooling equipment was reported. We haven’t assumed an existing cooling bill.</p> : <><p>To calculate this, we still need:</p><ul>{baseline.missing.map(item => <li key={item}>{item}</li>)}</ul></>}<Link href="/assessment">Add or edit cooling details →</Link></>}
             {baseline.kind === "measured" && <div className={styles.scopeConfirmation}>
               {baseline.scopeConfirmationAvailable && <p>Your measurement record: {draft.answers.energyScope?.status === "known" ? String(draft.answers.energyScope.value) : "Not sure"}</p>}
               {baseline.scopeConfirmationAvailable ? <label><input type="checkbox" checked={baseline.scopeConfirmed} onChange={event => assessmentRepository.save(event.target.checked ? confirmMeasuredScope(draft, new Date().toISOString()) : revokeMeasuredScope(draft))} /><span>I confirm this measurement covers only cooling equipment serving this bedroom, not a whole-home bill or other rooms.</span></label> : <p>Bedroom-only measurement scope is not confirmed. Shared or unknown system scope needs attribution evidence.</p>}
             </div>}
           </section>
-          <details className={styles.calculation}><summary>See calculation <span aria-hidden="true">⌄</span></summary>
+          {!costSkipped && <details className={styles.calculation}><summary>See calculation <span aria-hidden="true">⌄</span></summary>
             <p>{baseline.kind === "measured" ? "Cooling-specific measured energy × flat electricity usage rate." : baseline.kind === "scenario" ? "Assumed average electrical input × operating hours per cooling day × cooling days × flat electricity usage rate." : "Choose measured cooling-specific energy or enter an explicit electrical-input scenario in your assessment."}</p>
             {baseline.arithmetic && <p className={styles.arithmetic}>{baseline.arithmetic}</p>}
             <dl>{baseline.inputRows.map(row => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}<small>{row.provenance}{row.recordedAt && <time dateTime={row.recordedAt}> · {new Date(row.recordedAt).toLocaleDateString("en-AU", { timeZone: "UTC" })}</time>}</small></dd></div>)}</dl>
             {baseline.inputs && <p>Period: {baseline.periodLabel}</p>}
             <p>{baseline.kind === "scenario" ? "These are your explicit scenario assumptions. Electrical input is not cooling capacity. This is the cost of the supplied equipment scenario; actual bedroom consumption has not been established." : "Measured inputs and measurement scope are reported by you; they have not been independently verified."}</p>
             <p>Flat usage charges only. Excludes fixed supply charges, time-of-use tariffs and solar opportunity costs. Amounts are rounded to the nearest cent. No annualisation, improvement savings or cooling benefit is calculated.</p>
-          </details>
+          </details>}
         </section>
       </div>
       {notice && <p className={styles.notice} role="status">{notice}</p>}

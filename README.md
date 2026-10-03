@@ -53,3 +53,9 @@ Requirements, build spec and seven visual references remain in `docs/`. Business
 ## Financial explanation assistance
 
 Cooling options now includes a calculated brief and optional OpenAI gpt-6-luna call to prioritise explanations for understanding, budget or next-step focus. The server recomputes the comparison; the model returns allowed card IDs only. App-owned wording preserves figures, evidence limitations and next-input links. This does not create a shading/insulation savings method. The local brief remains usable without a provider. See docs/contracts/README.md for limits and transport.
+
+## Online cooling guidance
+
+On cooling options, **Find guidance for my room** performs an optional OpenAI Responses web search of Your Home, energy.gov.au and Energy Rating. It returns qualitative explanations and next checks for existing eligible improvements, with retrieved source links and a search timestamp. Only room categories reach the provider; addresses, free-text answers, bills and quotes are excluded. It uses the existing server `OPEN_AI_KEY`, requires no new package, and preserves unknown prices/savings/payback and the manual journey on failure. Search is bounded, cached for five minutes and subject to the hosted usage-control guard above. See [search contract and limits](docs/contracts/README.md#optional-cooling-guidance-search).
+
+Guidance uses a [versioned UI contract](docs/contracts/cooling-research-ui.md): concise improvement cards with a takeaway, reported room context, possible benefit, next action, checks and sources. Word/character limits keep them compact. App-owned selection buttons connect each card to the existing comparison and plan flow.

@@ -15,6 +15,7 @@ import { FinancialCoach } from "./financial-coach";
 import { ReplacementInputForm } from "./replacement-inputs";
 import { replacementComparison } from "./replacement";
 import { financialSummary, financialText } from "./financial-summary";
+import { CoolingResearch } from "./cooling-research";
 
 export function CoolingOptionsPage() {
   const { draft, ready, notice } = useSyncExternalStore(assessmentRepository.subscribe, assessmentRepository.getSnapshot, assessmentRepository.getServerSnapshot);
@@ -41,6 +42,7 @@ export function CoolingOptionsPage() {
         </div>
       </article>)}</> : <div className={styles.empty}><div><span className={styles.emptyEyebrow}>LET’S START WITH YOUR ROOM</span><h2>A few details.<br />A clearer way forward.</h2><p>Tell us about your room and cooling use so we can identify suitable improvements and explain their costs.</p><Link href="/assessment" className={styles.emptyAction}>Complete my room profile <span aria-hidden="true">→</span></Link><small>Not sure about something? You can leave it unknown.</small></div><div className={styles.emptyScene}><RoomScene scene={assessmentScene(draft.answers, draft.sceneDetails)} /><p>Illustrative layout · built from your answers</p></div></div>}
     </section>
+    <CoolingResearch draft={draft} selectedId={view.selected?.id ?? null} onChoose={id => assessmentRepository.save(selectCoolingOption(draft, id, new Date().toISOString()))} />
     <div className={styles.notes}><h2>Explore a cooler room</h2><p>Try a 24-hour heat-balance scenario for shading, insulation and night ventilation, with explicit assumptions and cooling electricity costs.</p><Link href="/thermal-scenario">Open experimental temperature & cost simulator →</Link></div>
     <FinancialCoach draft={draft} />
     {view.options.some(option => option.id === "ac-replacement") && <ReplacementInputForm draft={draft} />}
