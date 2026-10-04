@@ -5,14 +5,14 @@ The five routes compose the existing DTOs in `src/contracts/journey.ts`, `Coolin
 ## Storage setup
 
 1. Connect a Neon Postgres database through the [Vercel Marketplace](https://vercel.com/docs/marketplace-storage). The [Neon HTTP driver](https://github.com/neondatabase/serverless) supports Vercel functions without keeping a process-local database connection.
-2. Set server-only `DATABASE_URL` in Vercel and locally in the ignored `.env.local`. Never use a `NEXT_PUBLIC_` variable. The checked-in `.env.example` contains variable names only.
+2. Set server-only pooled `DATABASE_URL` in Vercel and locally in the ignored `.env.local`. Set the direct connection as `DATABASE_URL_UNPOOLED` for migrations. Never use a `NEXT_PUBLIC_` variable. The checked-in `.env.example` contains variable names only.
 3. Apply `db/migrations/001_journeys.sql` once using a migration-capable database role, or run:
 
    ```sh
    node --env-file-if-exists=.env.local --experimental-strip-types scripts/migrate-journeys.ts
    ```
 
-4. The runtime database role needs SELECT, INSERT, UPDATE and DELETE on `heat_planner_journeys`. No runtime DDL, local filesystem database or in-memory fallback is used. Missing configuration or database failure returns 503; no successful server save is fabricated.
+4. The migration script prefers `DATABASE_URL_UNPOOLED`; an existing direct `DATABASE_URL` remains supported, while pooled migration URLs are rejected. Validate migrations on an isolated Neon branch before applying to the app branch. The runtime database role needs SELECT, INSERT, UPDATE and DELETE on `heat_planner_journeys`. No runtime DDL, local filesystem database or in-memory fallback is used. Missing configuration or database failure returns 503; no successful server save is fabricated.
 
 Each row contains the assessment and complete journey document. PostgreSQL `json` deliberately preserves property order because existing immutable snapshot guards compare JSON serialization. Changing this column to `jsonb` would reorder keys and break those guards. Database revision checks make updates atomic across concurrent Vercel invocations. A bounded retry rereads and revalidates after a conflicting write. Deletion cannot be undone by an in-flight stale writer.
 

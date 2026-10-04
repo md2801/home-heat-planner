@@ -150,3 +150,6 @@ next-env.d.ts
 .vercel/
 test-results/
 playwright-report/
+
+# Local Neon project and branch selection
+.neon
