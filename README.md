@@ -2,7 +2,13 @@
 
 **Understand why your bedroom overheats, reduce unnecessary cooling demand, and prepare a practical plan for hotter days.**
 
-Home Heat Planner is a web app for homeowners in Greater Sydney, built for the Junction Climate Hack-tion 2026 under the Resilient Cities and Buildings track. The prototype focuses on one bedroom at a time.
+**Live Web App:** [home-heat-planner.vercel.app](https://home-heat-planner.vercel.app/)
+
+**Demo Video:** [Watch the 2-minute demo](https://youtu.be/TMwqq4ahnBs)
+
+Home Heat Planner is a web app for homeowners in Greater Sydney, built for Junction Climate Hack-tion 2026's **Build for 2035** challenge under the **Resilient Cities & Buildings** track. The prototype focuses on one bedroom at a time.
+
+Aligned with the COP31 Resilient Cities & Buildings priority, it helps households understand why rooms overheat, make practical heat-resilience improvements, prepare for extreme heat and reduce unnecessary cooling-energy demand.
 
 It starts with the details you know about your room, explains what may be contributing to overheating, and helps you investigate shading, insulation, ventilation or an AC replacement. Where the required energy readings, assumptions and quote details are available, it calculates cooling costs and a bounded financial comparison. Your room plan combines reviewed Heatwave-Ready guidance for the next hot day with your selected longer-term investigation. You can save its checklist and return to review progress, spending and comfort.
 
@@ -283,6 +289,8 @@ The educational library is available at `/knowledge-base`, including before an a
 ## Development and architecture
 
 The app uses **Next.js App Router, React, TypeScript and Three.js**. Feature styling uses CSS modules alongside the shared styles. Development and production builds use Webpack.
+
+OpenAI Codex was used as an AI coding/development tool during the hackathon for coding assistance, implementation, debugging, testing, and repository-level development workflows. This development-tool disclosure is separate from the application's runtime AI features.
 
 ```text
 src/app/               Pages and API routes
