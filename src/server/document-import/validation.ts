@@ -4,7 +4,7 @@ import { DocumentImportError, type DocumentUpload } from "./upload.ts";
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const compact = (v: string) => v.replace(/\s+/g, " ").trim();
 function numericEvidence(value: number, text: string): boolean {
-  return [...text.matchAll(/(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?/g)].some(match => Number(match[0].replaceAll(",", "")) === value);
+  return [...text.matchAll(/[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?/g)].some(match => Number(match[0].replaceAll(",", "")) === value);
 }
 function dateEvidence(value: string, text: string): boolean {
   if (text.includes(value)) return true;
@@ -50,13 +50,13 @@ export function validateDocumentExtraction(raw: unknown, document: DocumentUploa
     const sourceValue = typeof proposed.value === "number" ? numericEvidence(proposed.value, excerpt) : ["periodStart", "periodEnd", "quoteDate"].includes(field) ? dateEvidence(proposed.value, excerpt) : compact(excerpt).includes(compact(proposed.value));
     const basisSupported = proposed.calculationBasis === null || compact(excerpt).includes(compact(proposed.calculationBasis));
     const unitSupported = proposed.unit === null || unitEvidence(proposed.unit, excerpt);
-    const cooling = !["existingKwh", "proposedKwh"].includes(field) || /\bcooling\b/i.test(excerpt) && !/\bheating\b|\bcapacity\b|input\s*power/i.test(excerpt);
+    const cooling = !["existingKwh", "proposedKwh"].includes(field) || /\bcooling\b/i.test(excerpt) && /\bAverage\b/i.test(excerpt) && proposed.calculationBasis !== null && /\bAverage\b/i.test(proposed.calculationBasis) && !/\bheating\b|\bcapacity\b|input\s*power|\b(?:hot|cold)\s+(?:climate|zone)\b/i.test(excerpt);
     if (!sourceValue || !basisSupported || !unitSupported || !cooling) return { ...proposed, value: null, unit: null, calculationBasis: null };
     return proposed;
   });
   const tariff = fields.find(f => f.field === "tariffType");
   const allText = document.pageTexts.filter(Boolean).join(" ");
-  if (kind === "electricity-bill" && /time[ -]of[ -]use|\bpeak\b|\bshoulder\b|controlled[ -]load/i.test(`${tariff?.value ?? ""} ${allText}`)) {
+  if (kind === "electricity-bill" && /time[ -]of[ -]use|\bpeak\b|\bshoulder\b|controlled[ -]load/i.test(`${tariff?.value ?? ""} ${allText} ${fields.map(f => f.sourceExcerpt ?? "").join(" ")}`)) {
     const rate = fields.find(f => f.field === "usageRateAud")!;
     rate.value = null; rate.unit = null; rate.calculationBasis = null;
   }
