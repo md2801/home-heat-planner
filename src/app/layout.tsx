@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/layout/app-shell";
+import { AccountProvider } from "@/features/account/account-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return <html lang="en-AU"><body><AppShell>{children}</AppShell></body></html>;
+  return <html lang="en-AU"><body><AccountProvider><AppShell>{children}</AppShell></AccountProvider></body></html>;
 }

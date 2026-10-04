@@ -11,6 +11,8 @@
 .navLinks a:hover { background: #fffdf7; color: var(--color-forest); }
 .navigation .planLink { min-height: 46px; padding: 0 19px; border: 1px solid #cad3c5; border-radius: 9px; font-weight: 600; background: #fffdf7; color: var(--color-forest); }
 .planLink svg { width: 18px; height: 18px; }
+.navigation .accountLink { color: var(--color-forest); padding-inline: 6px; font-weight: 600; }
+.navigation .accountLink[aria-current="page"] { text-decoration: underline; text-underline-offset: 5px; }
 .planLink span { margin-left: 8px; font-size: 19px; font-weight: 400; }
 .navigation .planLink:hover { background: #e8eee4; border-color: #9aac9c; }
 .header a:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 4px; }

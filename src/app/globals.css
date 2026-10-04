@@ -25,3 +25,5 @@ body { margin: 0; background: var(--color-cream); color: var(--color-ink); font-
 * { box-sizing: border-box; }
 ::selection { background: var(--color-eucalyptus); }
 :focus-visible { outline: 3px solid var(--color-cooling); outline-offset: 4px; }
+.account-save-status { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; padding: 9px 20px; background: var(--color-eucalyptus); color: var(--color-forest); font-size: 12px; line-height: 1.5; }
+.account-save-status button, .account-save-status a { border: 0; background: transparent; color: inherit; font: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }

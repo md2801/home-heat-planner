@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
+import { accountStore } from "@/features/account/account-store";
 import styles from "./journey-header.module.css";
 
 export function JourneyHeader() {
   const pathname = usePathname();
+  const account = useSyncExternalStore(accountStore.subscribe, accountStore.getSnapshot, accountStore.getServerSnapshot);
   const planActive = pathname === "/cooling-plan";
   return <header className={styles.header}>
     <Link href="/" className={styles.brand} aria-label="Home Heat Planner home">
@@ -23,6 +26,7 @@ export function JourneyHeader() {
         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 3.5h12v13l-6-3-6 3v-13Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
         My Plan <span aria-hidden="true">↗</span>
       </Link>
+      <Link href={account.user ? "/account" : "/sign-in"} className={styles.accountLink} aria-current={pathname === "/account" || pathname === "/sign-in" ? "page" : undefined}>{account.user ? "My account" : "Sign in"}</Link>
     </nav>
   </header>;
 }

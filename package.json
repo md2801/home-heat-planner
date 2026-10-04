@@ -13,7 +13,8 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "test:document-import-ui": "playwright test --config playwright.document-import.config.ts"
+    "test:document-import-ui": "playwright test --config playwright.document-import.config.ts",
+    "test:auth-ui": "playwright test --config playwright.auth.config.ts"
   },
   "dependencies": {
     "@neondatabase/auth": "^0.5.0-beta",
