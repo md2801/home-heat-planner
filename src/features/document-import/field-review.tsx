@@ -22,7 +22,7 @@ export function FieldReview({ item, onChange, locked }: { item: ReviewedDocument
     try { onChange(operation()); setEditing(false); setError(null); }
     catch (failure) { setError(failure instanceof Error ? failure.message : "Check this value before saving."); }
   };
-  function edit() { setRaw(String(item.value ?? "")); setUnit(item.unit ?? ""); setBasis(item.calculationBasis ?? ""); setError(null); setEditing(true); }
+  function edit() { setRaw(String(item.value ?? "")); setUnit(item.unit ?? ""); setBasis(item.calculationBasis ?? ""); setError(null); setEditing(true); onChange({ ...item, decision: "pending", reviewedAt: null }); }
   return <section className={styles.field} aria-labelledby={`title-${field}`} data-field={field}>
     <div className={styles.fieldHeading}><h3 id={`title-${field}`}>{label}</h3><span className={styles.decision}>{item.decision === "pending" ? "Review needed" : item.decision === "accepted" ? "Confirmed" : item.decision === "corrected" ? "Corrected by you" : "Kept unknown"}</span></div>
     {editing ? <form onSubmit={event => { event.preventDefault(); update(() => correctDocumentField(item, raw, numeric ? unit || null : null, basis, new Date().toISOString())); }} className={styles.editForm}>
