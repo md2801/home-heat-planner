@@ -3,8 +3,8 @@ import { neon } from "@neondatabase/serverless";
 
 const connection = process.env.DATABASE_URL;
 if (!connection) throw new Error("Set the server-only DATABASE_URL before applying the journey migration.");
-const sql = neon(connection, { fetchOptions: { signal: AbortSignal.timeout(15000) } });
 try {
+  const sql = neon(connection, { fetchOptions: { signal: AbortSignal.timeout(15000) } });
   await sql.query(await readFile(new URL("../db/migrations/001_journeys.sql", import.meta.url), "utf8"));
   console.log("Journey migration applied.");
 } catch {

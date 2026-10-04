@@ -227,7 +227,9 @@ On Vercel, optional assistance defaults off unless `AI_DISTRIBUTED_LIMITS_CONFIR
 
 ## Saving and privacy
 
-The prototype uses browser storage, with no account or server database for assessments, plans or check-ins. Return using the **same browser profile and site origin** to reopen your progress; changing devices, browsers or localhost ports does not share that storage.
+Optional anonymous server persistence is available through `/api/assessments`, backed by Neon Postgres with separate unguessable assessment access tokens. The frontend continues to use browser storage until connected to those endpoints. See [setup, endpoint contracts and examples](docs/contracts/journey-persistence.md). Server saving requires `DATABASE_URL` and the checked-in database migration; it never falls back to process memory or local disk.
+
+The current frontend saves assessments, plans and check-ins in browser storage without an account. Return using the **same browser profile and site origin** to reopen that progress; changing devices, browsers or localhost ports does not share browser storage. Server copies are created only when a client calls the configured persistence API.
 
 Assessment and comparison drafts save automatically. Plans and check-ins have explicit **Save my plan** and **Save update** actions. Relevant input edits invalidate stale selections and preserve earlier saved snapshots in history; navigating between comparison steps does not change the financial inputs.
 

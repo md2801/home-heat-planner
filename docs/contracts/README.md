@@ -32,7 +32,7 @@ Fact<T>: unknown status/reason or known status/value/provenance. Provenance: kin
 
 ## Plan and check-in persistence
 
-PlanSaveRequest `{assessmentId,plan:CoolingPlanDraft}` and CheckInSaveRequest `{assessmentId,checkIn:FollowUpCheckIn}` use actual snapshots, checklist/date, provenance, association and save timestamps. SaveResponse `{saved,scope:"browser"|"server"}` makes scope explicit. These are adapter contracts, **not implemented server endpoints**. Current repositories save locally and validate plan/assessment association. No backend success is fabricated.
+PlanSaveRequest `{assessmentId,plan:CoolingPlanDraft}` and CheckInSaveRequest `{assessmentId,checkIn:FollowUpCheckIn}` use actual snapshots, checklist/date, provenance, association and save timestamps. SaveResponse `{saved,scope:"browser"|"server"}` makes scope explicit. The anonymous [server persistence endpoints](journey-persistence.md) now implement these DTOs using durable Neon Postgres and per-assessment Bearer tokens. Current frontend repositories still save locally; server integration does not change them. No backend success is fabricated.
 
 Follow-up states: not-started, started, completed, stuck, deferred. Optional completed observations: cost AUD, completion local YYYY-MM-DD, hours/day, kWh, tariff, measurement period/scope/weather description, comfort rating 1–5 and time. Barriers: cost, permission, installation, time, uncertainty, did-not-help. Baseline comfort is retained in the saved plan. Missing values stay unknown; interpretation observational.
 
