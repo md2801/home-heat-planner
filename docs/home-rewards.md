@@ -16,6 +16,8 @@ Give a homeowner one useful next action and a visible record of following throug
 
 Approval cannot establish photo authenticity, ownership, continuing habits, professional installation quality or causal savings/temperature changes. These prototype coins have no cash value or AUD conversion. Exact normalised-image reuse is checked within an account; this is a basic replay control, not fraud-proof verification.
 
+An explicitly requested starter credit can be recorded as a one-off positive ledger award by an operator using the database. Lock the wallet and update its balance in the same transaction as the ledger insert, with a stable unique reference to prevent duplicate credits. Give it a clear starter-credit title; do not create a task approval or photo evidence. Other accounts continue to start with zero coins. Coin history labels positive entries “Coins added” so manual credits are not described as completed tasks.
+
 ## Privacy and limits
 
 Photos are resized/re-encoded to strip metadata, processed in memory, sent to OpenAI with `store:false`, and not stored by the app. The database keeps normalised-image hashes, task/result metadata and timestamps. Provider retention follows [OpenAI's data controls](https://developers.openai.com/api/docs/guides/your-data). Users consent before submitting and should exclude people, addresses and identifying details.
