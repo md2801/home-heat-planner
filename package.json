@@ -12,6 +12,8 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
+    "setup:auth": "node --experimental-strip-types scripts/setup-auth.ts",
+    "check:auth": "node --experimental-strip-types scripts/check-auth.ts",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:document-import-ui": "playwright test --config playwright.document-import.config.ts",
     "test:auth-ui": "playwright test --config playwright.auth.config.ts"
