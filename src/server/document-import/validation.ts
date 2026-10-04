@@ -15,9 +15,8 @@ function quantityEvidence(value: number, unit: string, text: string): boolean {
     if (!unit.startsWith("c")) patterns.push(`${currency}\\s*${quantity}\\s*${denominator}`);
   } else if (unit.startsWith("kWh")) {
     const annual = unit !== "kWh";
-    const energyUnit = annual ? "kWh\\s*(?:/|per)\\s*(?:year|annum)\\b" : "kWh\\b(?!\\s*(?:/|per)\\s*(?:year|annum)\\b)";
+    const energyUnit = annual ? "kWh\\s*(?:/|per)\\s*(?:year|annum)\\b" : "kWh\\b(?!\\s*(?:/|per)\\s*[a-z])";
     patterns.push(`${quantity}\\s*${energyUnit}`, `${energyUnit}${separator}${quantity}`);
-    if (annual) patterns.push(`annual\\s+cooling\\s+energy[^\\d]{0,50}${quantity}\\s*kWh\\b`);
   } else {
     const [code, period] = unit.split("/");
     const currency = code === "$" ? "\\$" : `\\b${code}\\b`;

@@ -30,6 +30,9 @@ test("bare printed cooling kWh does not acquire an annual or climate basis", () 
   const result = validateDocumentExtraction({ fields: [field("proposedKwh", 600, "kWh", text)] }, document(text), "ac-label", "proposed");
   assert.equal(result.fields[1]?.value, 600); assert.equal(result.fields[1]?.unit, "kWh"); assert.equal(result.fields[1]?.calculationBasis, null);
   assert.equal(validateDocumentExtraction({ fields: [field("proposedKwh", 600, "kWh/year", text)] }, document(text), "ac-label", "proposed").fields[1]?.value, null);
+  for (const excerpt of ["Annual cooling energy 600 kWh/day", "Cooling energy 600 kWh per month"]) {
+    for (const unit of ["kWh", "kWh/year"]) assert.equal(validateDocumentExtraction({ fields: [field("proposedKwh", 600, unit, excerpt)] }, document(excerpt), "ac-label", "proposed").fields[1]?.value, null);
+  }
 });
 
 test("unknown values cannot carry an invented climate or recurrence basis", () => {
