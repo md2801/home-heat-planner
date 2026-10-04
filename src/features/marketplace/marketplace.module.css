@@ -66,6 +66,8 @@
 .redeemedTag { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 6px; align-items: center; font-size: 11px; background: var(--color-forest); color: white; padding: 6px 10px; border-radius: 5px; }
 .redeemedTag svg { width: 14px; height: 14px; }
 .rewardBody { padding: 22px; display: flex; flex-direction: column; flex: 1; }
+.retailer { color: #697767; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+.retailerLink { display: inline-flex; align-items: center; gap: 14px; color: var(--color-forest); min-height: 36px; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
 .reward h3 { font-size: 20px; font-weight: 500; letter-spacing: -.04em; line-height: 1.3; margin: 0 0 10px; }
 .rewardBody > p { color: var(--color-muted); font-size: 13px; line-height: 1.6; margin: 0 0 23px; }
 .rewardFooter { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: auto; padding-top: 18px; border-top: 1px solid #ebe7df; }

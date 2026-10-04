@@ -40,6 +40,7 @@ function RewardDetail({ reward, snapshot, service, onClose }: { reward: Marketpl
       <span className={styles.eyebrow}>{prototype ? "Explore a demo reward" : "A little something for your home"}</span>
       <h2 id="reward-title">{reward.name}</h2>
       <p id="reward-description">{reward.detail}</p>
+      <a className={styles.retailerLink} href={reward.url} target="_blank" rel="noopener noreferrer">View product at {reward.retailer} <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>
       <dl className={styles.summary}>
         <div><dt>Points required</dt><dd>{points(reward.points)} <span>pts</span></dd></div>
         <div><dt>{prototype ? "Your demo balance" : "Your balance"}</dt><dd>{points(snapshot.balance)} <span>pts</span></dd></div>
@@ -50,7 +51,7 @@ function RewardDetail({ reward, snapshot, service, onClose }: { reward: Marketpl
       </div>
       {error && <p role="alert" className={styles.insufficient}>{error}</p>}
       <div className={styles.detailActions}>{availability.redeemed ? <button className={styles.primary} onClick={() => dialog.current?.close()}>Back to rewards <MarketplaceIcon name="arrow" /></button> : <button className={styles.primary} disabled={!availability.canRedeem || pending} onClick={redeem}>{pending ? "Redeeming…" : prototype ? "Redeem in demo" : "Redeem reward"}<MarketplaceIcon name="arrow" /></button>}</div>
-      {prototype && <p className={styles.disclosure}>Illustrative reward and imagery. Points have no cash value; no product, credit, booking or delivery is issued.</p>}
+      {prototype && <p className={styles.disclosure}>Illustrative imagery. Demo points have no cash value; no product is ordered or delivered. No retailer partnership is implied.</p>}
     </div>
   </dialog>;
 }
@@ -88,7 +89,7 @@ export function MarketplacePage({ service = demoMarketplaceService }: { service?
         <small>{prototype ? "Sample points · resets on refresh" : "Available from your rewards account"}</small>
       </aside>
     </section>
-    {prototype && <p className={styles.prototypeNote}><span>Demo preview</span> Try the rewards experience with sample points. Offers are illustrative; no real products, partners or credits.</p>}
+    {prototype && <p className={styles.prototypeNote}><span>Demo preview</span> Explore real product references with sample points. Redemptions are a demo; no retailer partnership, purchase or delivery.</p>}
     <section id="reward-catalogue" className={styles.catalogue} aria-labelledby="catalogue-title">
       <div className={styles.sectionHeading}><div><span className={styles.eyebrow}>Small comforts. Everyday possibilities.</span><h2 id="catalogue-title">Find your next useful thing.</h2></div><label className={styles.search}><MarketplaceIcon name="search" /><span className="sr-only">Search rewards</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search rewards…" /></label></div>
       <div className={styles.filters} role="group" aria-label="Reward categories">{rewardCategories.map(value => <button key={value} aria-pressed={category === value} onClick={() => setCategory(value)}><MarketplaceIcon name={categoryIcons[value]} />{value === "All" ? "All rewards" : value}<span>{snapshot.catalogue.filter(reward => value === "All" || reward.category === value).length}</span></button>)}</div>
@@ -97,7 +98,7 @@ export function MarketplacePage({ service = demoMarketplaceService }: { service?
         const availability = rewardAvailability(snapshot, reward);
         return <li key={reward.id}><article className={styles.reward}>
           <div className={styles.rewardImage}><RewardVisual reward={reward} /><span className={styles.imageCategory}>{reward.category}</span>{availability.redeemed && <span className={styles.redeemedTag}><MarketplaceIcon name="check" /> Redeemed</span>}</div>
-          <div className={styles.rewardBody}><h3>{reward.name}</h3><p>{reward.description}</p><div className={styles.rewardFooter}><div><strong>{points(reward.points)} <span>points</span></strong><small className={availability.canRedeem || availability.redeemed ? styles.available : styles.shortfall}>{availability.redeemed ? "Redeemed this session" : availability.shortfall ? `${points(availability.shortfall)} more points to go` : <><MarketplaceIcon name="check" /> Ready to redeem</>}</small></div><button className={styles.viewReward} onClick={() => setSelected(reward)} aria-label={`View reward: ${reward.name}`}>View reward <MarketplaceIcon name="arrow" /></button></div></div>
+          <div className={styles.rewardBody}><span className={styles.retailer}>{reward.retailer}</span><h3>{reward.name}</h3><p>{reward.description}</p><div className={styles.rewardFooter}><div><strong>{points(reward.points)} <span>points</span></strong><small className={availability.canRedeem || availability.redeemed ? styles.available : styles.shortfall}>{availability.redeemed ? "Redeemed this session" : availability.shortfall ? `${points(availability.shortfall)} more points to go` : <><MarketplaceIcon name="check" /> Ready to redeem</>}</small></div><button className={styles.viewReward} onClick={() => setSelected(reward)} aria-label={`View reward: ${reward.name}`}>View reward <MarketplaceIcon name="arrow" /></button></div></div>
         </article></li>;
       })}</ul>
       {!rewards.length && <div className={styles.noResults}><MarketplaceIcon name="search" /><h3>No rewards match just yet.</h3><p>Try a different search or open up your filters.</p><button className={styles.secondary} onClick={resetFilters}>Show all rewards</button></div>}
