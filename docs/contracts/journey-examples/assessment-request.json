@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "assessment": {
+    "answers": {
+      "heatTiming": {
+        "status": "known",
+        "value": [
+          "afternoon"
+        ],
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: heatTiming"
+        }
+      },
+      "aboveRoom": {
+        "status": "known",
+        "value": "roof",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: aboveRoom"
+        }
+      },
+      "windowCount": {
+        "status": "known",
+        "value": 2,
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: windowCount"
+        }
+      },
+      "window1Orientation": {
+        "status": "known",
+        "value": "west",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: window1Orientation"
+        }
+      },
+      "window2Orientation": {
+        "status": "unknown",
+        "reason": "User selected Not sure"
+      },
+      "windowOrientation": {
+        "status": "unknown",
+        "reason": "User selected Not sure"
+      },
+      "internalCoverings": {
+        "status": "known",
+        "value": [
+          "curtains",
+          "blinds"
+        ],
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: internalCoverings"
+        }
+      },
+      "externalShading": {
+        "status": "known",
+        "value": "some",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: externalShading"
+        }
+      },
+      "cooling": {
+        "status": "known",
+        "value": [
+          "none"
+        ],
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: cooling"
+        }
+      },
+      "insulation": {
+        "status": "unknown",
+        "reason": "User selected Not sure"
+      }
+    },
+    "sceneDetails": {
+      "scene": {
+        "version": 1,
+        "above": "roof",
+        "bed": "present",
+        "windows": [
+          {
+            "direction": "west",
+            "covering": "curtains",
+            "shade": "none"
+          },
+          {
+            "direction": "unknown",
+            "covering": "blinds",
+            "shade": "awning"
+          }
+        ],
+        "equipment": []
+      },
+      "basis": {
+        "aboveRoom": "\"roof\"",
+        "windowCount": "2",
+        "windowOrientation": "null",
+        "externalShading": "\"some\"",
+        "internalCoverings": "[\"blinds\",\"curtains\"]",
+        "cooling": "[\"none\"]"
+      }
+    },
+    "review": {
+      "room": {
+        "signature": "[[[\"aboveRoom\",{\"status\":\"known\",\"value\":\"roof\",\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: aboveRoom\"}}],[\"cooling\",{\"status\":\"known\",\"value\":[\"none\"],\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: cooling\"}}],[\"externalShading\",{\"status\":\"known\",\"value\":\"some\",\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: externalShading\"}}],[\"heatTiming\",{\"status\":\"known\",\"value\":[\"afternoon\"],\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: heatTiming\"}}],[\"insulation\",{\"status\":\"unknown\",\"reason\":\"User selected Not sure\"}],[\"internalCoverings\",{\"status\":\"known\",\"value\":[\"curtains\",\"blinds\"],\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: internalCoverings\"}}],[\"window1Orientation\",{\"status\":\"known\",\"value\":\"west\",\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: window1Orientation\"}}],[\"window2Orientation\",{\"status\":\"unknown\",\"reason\":\"User selected Not sure\"}],[\"windowCount\",{\"status\":\"known\",\"value\":2,\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: windowCount\"}}],[\"windowOrientation\",{\"status\":\"unknown\",\"reason\":\"User selected Not sure\"}]],{\"version\":1,\"above\":\"roof\",\"bed\":\"present\",\"windows\":[{\"direction\":\"west\",\"covering\":\"curtains\",\"shade\":\"none\"},{\"direction\":\"unknown\",\"covering\":\"blinds\",\"shade\":\"awning\"}],\"equipment\":[]}]",
+        "recordedAt": "2026-10-04T00:00:00.000Z"
+      }
+    }
+  }
+}

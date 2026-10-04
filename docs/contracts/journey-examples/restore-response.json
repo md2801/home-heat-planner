@@ -1,0 +1,492 @@
+{
+  "assessmentId": "11111111-1111-4111-8111-111111111111",
+  "assessment": {
+    "answers": {
+      "heatTiming": {
+        "status": "known",
+        "value": [
+          "afternoon"
+        ],
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: heatTiming"
+        }
+      },
+      "aboveRoom": {
+        "status": "known",
+        "value": "roof",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: aboveRoom"
+        }
+      },
+      "windowCount": {
+        "status": "known",
+        "value": 2,
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: windowCount"
+        }
+      },
+      "window1Orientation": {
+        "status": "known",
+        "value": "west",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: window1Orientation"
+        }
+      },
+      "window2Orientation": {
+        "status": "unknown",
+        "reason": "User selected Not sure"
+      },
+      "windowOrientation": {
+        "status": "unknown",
+        "reason": "User selected Not sure"
+      },
+      "internalCoverings": {
+        "status": "known",
+        "value": [
+          "curtains",
+          "blinds"
+        ],
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: internalCoverings"
+        }
+      },
+      "externalShading": {
+        "status": "known",
+        "value": "some",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: externalShading"
+        }
+      },
+      "cooling": {
+        "status": "known",
+        "value": [
+          "none"
+        ],
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:00:00.000Z",
+          "sourceIds": [],
+          "scope": "Bedroom assessment: cooling"
+        }
+      },
+      "insulation": {
+        "status": "unknown",
+        "reason": "User selected Not sure"
+      }
+    },
+    "sceneDetails": {
+      "scene": {
+        "version": 1,
+        "above": "roof",
+        "bed": "present",
+        "windows": [
+          {
+            "direction": "west",
+            "covering": "curtains",
+            "shade": "none"
+          },
+          {
+            "direction": "unknown",
+            "covering": "blinds",
+            "shade": "awning"
+          }
+        ],
+        "equipment": []
+      },
+      "basis": {
+        "aboveRoom": "\"roof\"",
+        "windowCount": "2",
+        "windowOrientation": "null",
+        "externalShading": "\"some\"",
+        "internalCoverings": "[\"blinds\",\"curtains\"]",
+        "cooling": "[\"none\"]"
+      }
+    },
+    "review": {
+      "room": {
+        "signature": "[[[\"aboveRoom\",{\"status\":\"known\",\"value\":\"roof\",\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: aboveRoom\"}}],[\"cooling\",{\"status\":\"known\",\"value\":[\"none\"],\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: cooling\"}}],[\"externalShading\",{\"status\":\"known\",\"value\":\"some\",\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: externalShading\"}}],[\"heatTiming\",{\"status\":\"known\",\"value\":[\"afternoon\"],\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: heatTiming\"}}],[\"insulation\",{\"status\":\"unknown\",\"reason\":\"User selected Not sure\"}],[\"internalCoverings\",{\"status\":\"known\",\"value\":[\"curtains\",\"blinds\"],\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: internalCoverings\"}}],[\"window1Orientation\",{\"status\":\"known\",\"value\":\"west\",\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: window1Orientation\"}}],[\"window2Orientation\",{\"status\":\"unknown\",\"reason\":\"User selected Not sure\"}],[\"windowCount\",{\"status\":\"known\",\"value\":2,\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Bedroom assessment: windowCount\"}}],[\"windowOrientation\",{\"status\":\"unknown\",\"reason\":\"User selected Not sure\"}]],{\"version\":1,\"above\":\"roof\",\"bed\":\"present\",\"windows\":[{\"direction\":\"west\",\"covering\":\"curtains\",\"shade\":\"none\"},{\"direction\":\"unknown\",\"covering\":\"blinds\",\"shade\":\"awning\"}],\"equipment\":[]}]",
+        "recordedAt": "2026-10-04T00:00:00.000Z"
+      }
+    }
+  },
+  "selection": {
+    "selectedOption": {
+      "actionId": "ceiling-insulation",
+      "assessmentSignature": "[[[\"heatTiming\",[\"afternoon\"]],[\"aboveRoom\",\"roof\"],[\"windowOrientation\",null],[\"externalShading\",\"some\"],[\"insulation\",null],[\"cooling\",[\"none\"]],[\"windowsOpen\",null],[\"ventilationConstraints\",null],[\"externalChangesPermitted\",null],[\"willingToObtainQuotes\",null],[\"budgetAud\",null],[\"servesOnlyRoom\",null],[\"energyBasis\",null],[\"coolingKwh\",null],[\"energyScope\",null],[\"periodStart\",null],[\"periodEnd\",null],[\"averageElectricalInputKw\",null],[\"hoursPerDay\",null],[\"coolingDays\",null],[\"periodDescription\",null],[\"flatTariffAudPerKwh\",null],[\"windowCount\",2],[\"window1Orientation\",\"west\"],[\"window2Orientation\",null],[\"window3Orientation\",null],[\"window4Orientation\",null],[\"fanType\",null],[\"portableFanPosition\",null],[\"acType\",null],[\"acWall\",null]],null,null,[{\"direction\":\"west\",\"covering\":\"curtains\",\"shade\":\"none\"},{\"direction\":\"unknown\",\"covering\":\"blinds\",\"shade\":\"awning\"}]]",
+      "recordedAt": "2026-10-04T00:00:00.000Z"
+    }
+  },
+  "plan": {
+    "schemaVersion": 1,
+    "id": "cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z",
+    "selectedActionId": "ceiling-insulation",
+    "selectedActionLabel": "Ceiling insulation review",
+    "selectionSignature": "{\"actionId\":\"ceiling-insulation\",\"assessmentSignature\":\"[[[\\\"heatTiming\\\",[\\\"afternoon\\\"]],[\\\"aboveRoom\\\",\\\"roof\\\"],[\\\"windowOrientation\\\",null],[\\\"externalShading\\\",\\\"some\\\"],[\\\"insulation\\\",null],[\\\"cooling\\\",[\\\"none\\\"]],[\\\"windowsOpen\\\",null],[\\\"ventilationConstraints\\\",null],[\\\"externalChangesPermitted\\\",null],[\\\"willingToObtainQuotes\\\",null],[\\\"budgetAud\\\",null],[\\\"servesOnlyRoom\\\",null],[\\\"energyBasis\\\",null],[\\\"coolingKwh\\\",null],[\\\"energyScope\\\",null],[\\\"periodStart\\\",null],[\\\"periodEnd\\\",null],[\\\"averageElectricalInputKw\\\",null],[\\\"hoursPerDay\\\",null],[\\\"coolingDays\\\",null],[\\\"periodDescription\\\",null],[\\\"flatTariffAudPerKwh\\\",null],[\\\"windowCount\\\",2],[\\\"window1Orientation\\\",\\\"west\\\"],[\\\"window2Orientation\\\",null],[\\\"window3Orientation\\\",null],[\\\"window4Orientation\\\",null],[\\\"fanType\\\",null],[\\\"portableFanPosition\\\",null],[\\\"acType\\\",null],[\\\"acWall\\\",null]],null,null,[{\\\"direction\\\":\\\"west\\\",\\\"covering\\\":\\\"curtains\\\",\\\"shade\\\":\\\"none\\\"},{\\\"direction\\\":\\\"unknown\\\",\\\"covering\\\":\\\"blinds\\\",\\\"shade\\\":\\\"awning\\\"}]]\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\"}",
+    "comparisonSnapshot": {
+      "status": "known",
+      "value": {
+        "optionId": "ceiling-insulation",
+        "baseline": {
+          "status": "insufficient-evidence",
+          "amountAud": {
+            "status": "unknown",
+            "reason": "Cooling baseline inputs are incomplete"
+          },
+          "currency": "AUD",
+          "period": {
+            "status": "unknown",
+            "reason": "No supported annual comparison period"
+          },
+          "methodVersion": "qualitative-options-v1",
+          "inputProvenance": [],
+          "assumptions": [],
+          "sourceIds": [],
+          "limitations": [
+            "Cooling baseline inputs are incomplete"
+          ]
+        },
+        "proposed": {
+          "status": "insufficient-evidence",
+          "amountAud": {
+            "status": "unknown",
+            "reason": "No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings."
+          },
+          "currency": "AUD",
+          "period": {
+            "status": "unknown",
+            "reason": "No supported annual comparison period"
+          },
+          "methodVersion": "qualitative-options-v1",
+          "inputProvenance": [],
+          "assumptions": [],
+          "sourceIds": [],
+          "limitations": [
+            "No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings."
+          ]
+        },
+        "annualNetSavings": {
+          "status": "insufficient-evidence",
+          "amountAud": {
+            "status": "unknown",
+            "reason": "No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings."
+          },
+          "currency": "AUD",
+          "period": {
+            "status": "unknown",
+            "reason": "No supported annual comparison period"
+          },
+          "methodVersion": "qualitative-options-v1",
+          "inputProvenance": [],
+          "assumptions": [],
+          "sourceIds": [],
+          "limitations": [
+            "No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings."
+          ]
+        },
+        "simplePaybackYears": {
+          "status": "unknown",
+          "reason": "Both valid upfront cost and positive supported annual net savings are required"
+        },
+        "assumptions": []
+      },
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:00:00.000Z",
+        "sourceIds": [],
+        "scope": "Selected comparison snapshot; enclosed financial provenance and unknowns are preserved"
+      }
+    },
+    "checklist": [
+      {
+        "id": "records",
+        "description": "Check the insulation records. Insulation is not known. Check building records or ask a qualified professional; do not assume it is absent.",
+        "completed": false
+      },
+      {
+        "id": "access",
+        "description": "Confirm access and permission. Confirm ownership and shared-building approvals. Do not enter a roof space yourself.",
+        "completed": false
+      },
+      {
+        "id": "review",
+        "description": "Arrange a professional review. Ask about suitability, existing construction and safety before considering any installation.",
+        "completed": false
+      },
+      {
+        "id": "quote",
+        "description": "Get a scoped quote. Ask a qualified provider for inclusions, installed cost and any recurring costs. No price is assumed.",
+        "completed": false
+      },
+      {
+        "id": "record",
+        "description": "Keep records of your next step. If you later proceed, keep the installed cost and completion records for your check-in. Nothing is marked installed here.",
+        "completed": false
+      }
+    ],
+    "checkInDate": {
+      "status": "known",
+      "value": "2026-10-18",
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:01:00.000Z",
+        "sourceIds": [],
+        "scope": "Chosen plan check-in date"
+      }
+    },
+    "status": "planned",
+    "createdAt": "2026-10-04T00:00:00.000Z",
+    "updatedAt": "2026-10-04T00:01:00.000Z",
+    "savedAt": {
+      "status": "known",
+      "value": "2026-10-04T00:01:00.000Z",
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:01:00.000Z",
+        "sourceIds": [],
+        "scope": "Plan saved in this browser"
+      }
+    },
+    "checkInChoice": {
+      "status": "known",
+      "value": "custom",
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:01:00.000Z",
+        "sourceIds": [],
+        "scope": "Chosen plan check-in interval"
+      }
+    },
+    "financialStatus": "insufficient-evidence",
+    "upfrontCostAud": {
+      "status": "unknown",
+      "reason": "No installed quote or sourced cost range"
+    },
+    "evidence": [
+      {
+        "id": "yourhome-insulation",
+        "title": "YourHome · Insulation",
+        "url": "https://www.yourhome.gov.au/passive-design/insulation",
+        "excerpt": "Insulation reduces heat flow and is essential for keeping your home warm in winter and cool in summer.",
+        "reviewedAt": "2026-10-02",
+        "contentVersion": "qualitative-review-1"
+      }
+    ],
+    "catalogueVersion": "qualitative-options-v1",
+    "checklistVersion": "investigation-checklist-v1",
+    "baselineComfortRating": {
+      "status": "unknown",
+      "reason": "Baseline comfort not recorded"
+    },
+    "baselineComfortTime": {
+      "status": "unknown",
+      "reason": "Baseline time not recorded"
+    }
+  },
+  "followUp": {
+    "schemaVersion": 1,
+    "id": "check-in:cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z",
+    "planId": "cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z",
+    "actionId": "ceiling-insulation",
+    "actionLabel": "Ceiling insulation review",
+    "planSignature": "[\"cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z\",\"{\\\"actionId\\\":\\\"ceiling-insulation\\\",\\\"assessmentSignature\\\":\\\"[[[\\\\\\\"heatTiming\\\\\\\",[\\\\\\\"afternoon\\\\\\\"]],[\\\\\\\"aboveRoom\\\\\\\",\\\\\\\"roof\\\\\\\"],[\\\\\\\"windowOrientation\\\\\\\",null],[\\\\\\\"externalShading\\\\\\\",\\\\\\\"some\\\\\\\"],[\\\\\\\"insulation\\\\\\\",null],[\\\\\\\"cooling\\\\\\\",[\\\\\\\"none\\\\\\\"]],[\\\\\\\"windowsOpen\\\\\\\",null],[\\\\\\\"ventilationConstraints\\\\\\\",null],[\\\\\\\"externalChangesPermitted\\\\\\\",null],[\\\\\\\"willingToObtainQuotes\\\\\\\",null],[\\\\\\\"budgetAud\\\\\\\",null],[\\\\\\\"servesOnlyRoom\\\\\\\",null],[\\\\\\\"energyBasis\\\\\\\",null],[\\\\\\\"coolingKwh\\\\\\\",null],[\\\\\\\"energyScope\\\\\\\",null],[\\\\\\\"periodStart\\\\\\\",null],[\\\\\\\"periodEnd\\\\\\\",null],[\\\\\\\"averageElectricalInputKw\\\\\\\",null],[\\\\\\\"hoursPerDay\\\\\\\",null],[\\\\\\\"coolingDays\\\\\\\",null],[\\\\\\\"periodDescription\\\\\\\",null],[\\\\\\\"flatTariffAudPerKwh\\\\\\\",null],[\\\\\\\"windowCount\\\\\\\",2],[\\\\\\\"window1Orientation\\\\\\\",\\\\\\\"west\\\\\\\"],[\\\\\\\"window2Orientation\\\\\\\",null],[\\\\\\\"window3Orientation\\\\\\\",null],[\\\\\\\"window4Orientation\\\\\\\",null],[\\\\\\\"fanType\\\\\\\",null],[\\\\\\\"portableFanPosition\\\\\\\",null],[\\\\\\\"acType\\\\\\\",null],[\\\\\\\"acWall\\\\\\\",null]],null,null,[{\\\\\\\"direction\\\\\\\":\\\\\\\"west\\\\\\\",\\\\\\\"covering\\\\\\\":\\\\\\\"curtains\\\\\\\",\\\\\\\"shade\\\\\\\":\\\\\\\"none\\\\\\\"},{\\\\\\\"direction\\\\\\\":\\\\\\\"unknown\\\\\\\",\\\\\\\"covering\\\\\\\":\\\\\\\"blinds\\\\\\\",\\\\\\\"shade\\\\\\\":\\\\\\\"awning\\\\\\\"}]]\\\",\\\"recordedAt\\\":\\\"2026-10-04T00:00:00.000Z\\\"}\",{\"status\":\"known\",\"value\":{\"optionId\":\"ceiling-insulation\",\"baseline\":{\"status\":\"insufficient-evidence\",\"amountAud\":{\"status\":\"unknown\",\"reason\":\"Cooling baseline inputs are incomplete\"},\"currency\":\"AUD\",\"period\":{\"status\":\"unknown\",\"reason\":\"No supported annual comparison period\"},\"methodVersion\":\"qualitative-options-v1\",\"inputProvenance\":[],\"assumptions\":[],\"sourceIds\":[],\"limitations\":[\"Cooling baseline inputs are incomplete\"]},\"proposed\":{\"status\":\"insufficient-evidence\",\"amountAud\":{\"status\":\"unknown\",\"reason\":\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"},\"currency\":\"AUD\",\"period\":{\"status\":\"unknown\",\"reason\":\"No supported annual comparison period\"},\"methodVersion\":\"qualitative-options-v1\",\"inputProvenance\":[],\"assumptions\":[],\"sourceIds\":[],\"limitations\":[\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"]},\"annualNetSavings\":{\"status\":\"insufficient-evidence\",\"amountAud\":{\"status\":\"unknown\",\"reason\":\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"},\"currency\":\"AUD\",\"period\":{\"status\":\"unknown\",\"reason\":\"No supported annual comparison period\"},\"methodVersion\":\"qualitative-options-v1\",\"inputProvenance\":[],\"assumptions\":[],\"sourceIds\":[],\"limitations\":[\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"]},\"simplePaybackYears\":{\"status\":\"unknown\",\"reason\":\"Both valid upfront cost and positive supported annual net savings are required\"},\"assumptions\":[]},\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Selected comparison snapshot; enclosed financial provenance and unknowns are preserved\"}},{\"status\":\"unknown\",\"reason\":\"No installed quote or sourced cost range\"}]",
+    "status": {
+      "status": "known",
+      "value": "completed",
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:02:00.000Z",
+        "sourceIds": [],
+        "scope": "Cooling plan check-in: status"
+      }
+    },
+    "actualCostAud": {
+      "status": "known",
+      "value": 0,
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:02:00.000Z",
+        "sourceIds": [],
+        "scope": "Cooling plan check-in: actualCostAud"
+      }
+    },
+    "currentHoursPerDay": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "comfortRating": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "note": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "earlierHoursPerDay": {
+      "status": "unknown",
+      "reason": "Earlier numeric cooling hours were not supplied"
+    },
+    "earlierComfort": {
+      "status": "unknown",
+      "reason": "Baseline comfort not recorded"
+    },
+    "earlierComfortTime": {
+      "status": "unknown",
+      "reason": "Baseline time not recorded"
+    },
+    "completionDate": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "barrier": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "comfortTime": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "laterCoolingKwh": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "laterTariff": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "usagePeriod": {
+      "status": "unknown",
+      "reason": "Not provided"
+    },
+    "comparableUsageConfirmed": {
+      "status": "unknown",
+      "reason": "Comparable actual usage not confirmed"
+    },
+    "createdAt": "2026-10-04T00:01:00.000Z",
+    "updatedAt": "2026-10-04T00:02:00.000Z",
+    "savedAt": {
+      "status": "known",
+      "value": "2026-10-04T00:02:00.000Z",
+      "provenance": {
+        "kind": "user-reported",
+        "recordedAt": "2026-10-04T00:02:00.000Z",
+        "sourceIds": [],
+        "scope": "Cooling plan check-in: savedAt"
+      }
+    },
+    "interpretation": "observational"
+  },
+  "checkIns": [
+    {
+      "schemaVersion": 1,
+      "id": "check-in:cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z",
+      "planId": "cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z",
+      "actionId": "ceiling-insulation",
+      "actionLabel": "Ceiling insulation review",
+      "planSignature": "[\"cooling-plan:ceiling-insulation:2026-10-04T00:00:00.000Z\",\"{\\\"actionId\\\":\\\"ceiling-insulation\\\",\\\"assessmentSignature\\\":\\\"[[[\\\\\\\"heatTiming\\\\\\\",[\\\\\\\"afternoon\\\\\\\"]],[\\\\\\\"aboveRoom\\\\\\\",\\\\\\\"roof\\\\\\\"],[\\\\\\\"windowOrientation\\\\\\\",null],[\\\\\\\"externalShading\\\\\\\",\\\\\\\"some\\\\\\\"],[\\\\\\\"insulation\\\\\\\",null],[\\\\\\\"cooling\\\\\\\",[\\\\\\\"none\\\\\\\"]],[\\\\\\\"windowsOpen\\\\\\\",null],[\\\\\\\"ventilationConstraints\\\\\\\",null],[\\\\\\\"externalChangesPermitted\\\\\\\",null],[\\\\\\\"willingToObtainQuotes\\\\\\\",null],[\\\\\\\"budgetAud\\\\\\\",null],[\\\\\\\"servesOnlyRoom\\\\\\\",null],[\\\\\\\"energyBasis\\\\\\\",null],[\\\\\\\"coolingKwh\\\\\\\",null],[\\\\\\\"energyScope\\\\\\\",null],[\\\\\\\"periodStart\\\\\\\",null],[\\\\\\\"periodEnd\\\\\\\",null],[\\\\\\\"averageElectricalInputKw\\\\\\\",null],[\\\\\\\"hoursPerDay\\\\\\\",null],[\\\\\\\"coolingDays\\\\\\\",null],[\\\\\\\"periodDescription\\\\\\\",null],[\\\\\\\"flatTariffAudPerKwh\\\\\\\",null],[\\\\\\\"windowCount\\\\\\\",2],[\\\\\\\"window1Orientation\\\\\\\",\\\\\\\"west\\\\\\\"],[\\\\\\\"window2Orientation\\\\\\\",null],[\\\\\\\"window3Orientation\\\\\\\",null],[\\\\\\\"window4Orientation\\\\\\\",null],[\\\\\\\"fanType\\\\\\\",null],[\\\\\\\"portableFanPosition\\\\\\\",null],[\\\\\\\"acType\\\\\\\",null],[\\\\\\\"acWall\\\\\\\",null]],null,null,[{\\\\\\\"direction\\\\\\\":\\\\\\\"west\\\\\\\",\\\\\\\"covering\\\\\\\":\\\\\\\"curtains\\\\\\\",\\\\\\\"shade\\\\\\\":\\\\\\\"none\\\\\\\"},{\\\\\\\"direction\\\\\\\":\\\\\\\"unknown\\\\\\\",\\\\\\\"covering\\\\\\\":\\\\\\\"blinds\\\\\\\",\\\\\\\"shade\\\\\\\":\\\\\\\"awning\\\\\\\"}]]\\\",\\\"recordedAt\\\":\\\"2026-10-04T00:00:00.000Z\\\"}\",{\"status\":\"known\",\"value\":{\"optionId\":\"ceiling-insulation\",\"baseline\":{\"status\":\"insufficient-evidence\",\"amountAud\":{\"status\":\"unknown\",\"reason\":\"Cooling baseline inputs are incomplete\"},\"currency\":\"AUD\",\"period\":{\"status\":\"unknown\",\"reason\":\"No supported annual comparison period\"},\"methodVersion\":\"qualitative-options-v1\",\"inputProvenance\":[],\"assumptions\":[],\"sourceIds\":[],\"limitations\":[\"Cooling baseline inputs are incomplete\"]},\"proposed\":{\"status\":\"insufficient-evidence\",\"amountAud\":{\"status\":\"unknown\",\"reason\":\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"},\"currency\":\"AUD\",\"period\":{\"status\":\"unknown\",\"reason\":\"No supported annual comparison period\"},\"methodVersion\":\"qualitative-options-v1\",\"inputProvenance\":[],\"assumptions\":[],\"sourceIds\":[],\"limitations\":[\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"]},\"annualNetSavings\":{\"status\":\"insufficient-evidence\",\"amountAud\":{\"status\":\"unknown\",\"reason\":\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"},\"currency\":\"AUD\",\"period\":{\"status\":\"unknown\",\"reason\":\"No supported annual comparison period\"},\"methodVersion\":\"qualitative-options-v1\",\"inputProvenance\":[],\"assumptions\":[],\"sourceIds\":[],\"limitations\":[\"No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.\"]},\"simplePaybackYears\":{\"status\":\"unknown\",\"reason\":\"Both valid upfront cost and positive supported annual net savings are required\"},\"assumptions\":[]},\"provenance\":{\"kind\":\"user-reported\",\"recordedAt\":\"2026-10-04T00:00:00.000Z\",\"sourceIds\":[],\"scope\":\"Selected comparison snapshot; enclosed financial provenance and unknowns are preserved\"}},{\"status\":\"unknown\",\"reason\":\"No installed quote or sourced cost range\"}]",
+      "status": {
+        "status": "known",
+        "value": "completed",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:02:00.000Z",
+          "sourceIds": [],
+          "scope": "Cooling plan check-in: status"
+        }
+      },
+      "actualCostAud": {
+        "status": "known",
+        "value": 0,
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:02:00.000Z",
+          "sourceIds": [],
+          "scope": "Cooling plan check-in: actualCostAud"
+        }
+      },
+      "currentHoursPerDay": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "comfortRating": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "note": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "earlierHoursPerDay": {
+        "status": "unknown",
+        "reason": "Earlier numeric cooling hours were not supplied"
+      },
+      "earlierComfort": {
+        "status": "unknown",
+        "reason": "Baseline comfort not recorded"
+      },
+      "earlierComfortTime": {
+        "status": "unknown",
+        "reason": "Baseline time not recorded"
+      },
+      "completionDate": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "barrier": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "comfortTime": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "laterCoolingKwh": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "laterTariff": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "usagePeriod": {
+        "status": "unknown",
+        "reason": "Not provided"
+      },
+      "comparableUsageConfirmed": {
+        "status": "unknown",
+        "reason": "Comparable actual usage not confirmed"
+      },
+      "createdAt": "2026-10-04T00:01:00.000Z",
+      "updatedAt": "2026-10-04T00:02:00.000Z",
+      "savedAt": {
+        "status": "known",
+        "value": "2026-10-04T00:02:00.000Z",
+        "provenance": {
+          "kind": "user-reported",
+          "recordedAt": "2026-10-04T00:02:00.000Z",
+          "sourceIds": [],
+          "scope": "Cooling plan check-in: savedAt"
+        }
+      },
+      "interpretation": "observational"
+    }
+  ],
+  "history": []
+}
