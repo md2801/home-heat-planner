@@ -1,4 +1,4 @@
-export const rewardCategories = ["All", "Home comfort", "Energy", "Services", "Everyday essentials"] as const;
+export const rewardCategories = ["All", "Home comfort", "Energy"] as const;
 export type RewardCategory = Exclude<(typeof rewardCategories)[number], "All">;
 export interface MarketplaceReward {
   id: string;
@@ -7,6 +7,8 @@ export interface MarketplaceReward {
   detail: string;
   category: RewardCategory;
   points: number;
+  retailer: string;
+  url: string;
 }
 export interface RewardActivity {
   id: string;
@@ -14,6 +16,7 @@ export interface RewardActivity {
   rewardName: string;
   points: number;
   redeemedAt: string;
+  code?: string;
 }
 export interface MarketplaceSnapshot {
   balance: number;

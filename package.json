@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "setup:auth": "node --experimental-strip-types scripts/setup-auth.ts",
     "check:auth": "node --experimental-strip-types scripts/check-auth.ts",
+    "migrate:rewards": "node --env-file=.env.local --experimental-strip-types scripts/migrate-rewards.ts",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:document-import-ui": "playwright test --config playwright.document-import.config.ts",
     "test:auth-ui": "playwright test --config playwright.auth.config.ts"
@@ -24,6 +25,7 @@
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "sharp": "0.35.5",
     "three": "^0.180.0",
     "unpdf": "1.8.1"
   },
