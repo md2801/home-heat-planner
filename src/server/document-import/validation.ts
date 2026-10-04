@@ -61,9 +61,9 @@ export function validateDocumentExtraction(raw: unknown, document: DocumentUploa
     const page = proposed.sourcePage;
     const text = page ? document.pageTexts[page - 1] : null;
     if (!excerpt || !page || text && !evidenceMatches(text, excerpt)) return unknownDocumentField(field);
-    if (proposed.value === null) return proposed;
-    const sourceValue = typeof proposed.value === "number" ? proposed.unit !== null && quantityEvidence(proposed.value, proposed.unit, excerpt) : ["periodStart", "periodEnd", "quoteDate"].includes(field) ? dateEvidence(proposed.value, excerpt) : compact(excerpt).includes(compact(proposed.value));
     const basisSupported = proposed.calculationBasis === null || compact(excerpt).includes(compact(proposed.calculationBasis));
+    if (proposed.value === null) return basisSupported ? proposed : { ...proposed, calculationBasis: null };
+    const sourceValue = typeof proposed.value === "number" ? proposed.unit !== null && quantityEvidence(proposed.value, proposed.unit, excerpt) : ["periodStart", "periodEnd", "quoteDate"].includes(field) ? dateEvidence(proposed.value, excerpt) : compact(excerpt).includes(compact(proposed.value));
     const cooling = !["existingKwh", "proposedKwh"].includes(field) || /\bcooling\b/i.test(excerpt) && !/\bheating\b|\bcapacity\b|input\s*power|whole[ -](?:home|property)|\bhousehold\b|\bbilling\b/i.test(excerpt);
     if (!sourceValue || !basisSupported || !cooling) return { ...proposed, value: null, unit: null, calculationBasis: null };
     return proposed;

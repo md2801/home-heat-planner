@@ -31,6 +31,13 @@ test("bare printed cooling kWh does not acquire an annual or climate basis", () 
   assert.equal(result.fields[1]?.value, 600); assert.equal(result.fields[1]?.unit, "kWh"); assert.equal(result.fields[1]?.calculationBasis, null);
   assert.equal(validateDocumentExtraction({ fields: [field("proposedKwh", 600, "kWh/year", text)] }, document(text), "ac-label", "proposed").fields[1]?.value, null);
 });
+
+test("unknown values cannot carry an invented climate or recurrence basis", () => {
+  const text = "Cooling energy unclear. Cold climate.";
+  const result = validateDocumentExtraction({ fields: [field("existingKwh", null, null, text, "Average climate")] }, document(text), "ac-label", "existing");
+  assert.equal(result.fields[1]?.value, null); assert.equal(result.fields[1]?.calculationBasis, null);
+  assert.equal(result.fields[1]?.sourceExcerpt, text);
+});
 test("missing fields stay unknown; zero and monthly recurring charges are not inferred or annualised", () => {
   const text = "Maintenance AUD 10 per month. Installation AUD 0.";
   const result = validateDocumentExtraction({ fields: [field("proposedRecurring", 10, "AUD/month", text, "per month"), field("installedCost", 0, "AUD", text)] }, document(text), "installation-quote", "proposed");
