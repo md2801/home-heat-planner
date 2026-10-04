@@ -64,7 +64,7 @@ export function validateDocumentExtraction(raw: unknown, document: DocumentUploa
     if (proposed.value === null) return proposed;
     const sourceValue = typeof proposed.value === "number" ? proposed.unit !== null && quantityEvidence(proposed.value, proposed.unit, excerpt) : ["periodStart", "periodEnd", "quoteDate"].includes(field) ? dateEvidence(proposed.value, excerpt) : compact(excerpt).includes(compact(proposed.value));
     const basisSupported = proposed.calculationBasis === null || compact(excerpt).includes(compact(proposed.calculationBasis));
-    const cooling = !["existingKwh", "proposedKwh"].includes(field) || /\bcooling\b/i.test(excerpt) && /\bAverage\b/i.test(excerpt) && proposed.calculationBasis !== null && /\bAverage\b/i.test(proposed.calculationBasis) && !/\bheating\b|\bcapacity\b|input\s*power|\b(?:hot|cold)\s+(?:climate|zone)\b/i.test(excerpt);
+    const cooling = !["existingKwh", "proposedKwh"].includes(field) || /\bcooling\b/i.test(excerpt) && !/\bheating\b|\bcapacity\b|input\s*power|whole[ -](?:home|property)|\bhousehold\b|\bbilling\b/i.test(excerpt);
     if (!sourceValue || !basisSupported || !cooling) return { ...proposed, value: null, unit: null, calculationBasis: null };
     return proposed;
   });

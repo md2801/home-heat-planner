@@ -21,6 +21,15 @@ test("whole-home consumption cannot populate an AC or bedroom cooling field", ()
   const text = "Whole-home electricity usage 650 kWh";
   assert.throws(() => validateDocumentExtraction({ fields: [field("existingKwh", 650, "kWh", text)] }, document(text), "electricity-bill", "existing"));
   assert.equal(validateDocumentExtraction({ fields: [field("existingKwh", 650, "kWh", text)] }, document(text), "ac-label", "existing").fields[1]?.value, null);
+  const cooling = "Whole-home cooling energy 650 kWh";
+  assert.equal(validateDocumentExtraction({ fields: [field("existingKwh", 650, "kWh", cooling)] }, document(cooling), "ac-label", "existing").fields[1]?.value, null);
+});
+
+test("bare printed cooling kWh does not acquire an annual or climate basis", () => {
+  const text = "Cooling energy 600 kWh";
+  const result = validateDocumentExtraction({ fields: [field("proposedKwh", 600, "kWh", text)] }, document(text), "ac-label", "proposed");
+  assert.equal(result.fields[1]?.value, 600); assert.equal(result.fields[1]?.unit, "kWh"); assert.equal(result.fields[1]?.calculationBasis, null);
+  assert.equal(validateDocumentExtraction({ fields: [field("proposedKwh", 600, "kWh/year", text)] }, document(text), "ac-label", "proposed").fields[1]?.value, null);
 });
 test("missing fields stay unknown; zero and monthly recurring charges are not inferred or annualised", () => {
   const text = "Maintenance AUD 10 per month. Installation AUD 0.";
