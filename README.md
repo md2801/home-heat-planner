@@ -1,24 +1,147 @@
 # Home Heat Planner
 
-**Explore more → Home resilience** opens a public preparation guide at `/explore`, with five topics: heatwaves, floods, storms, bushfires and earthquakes. Browse or search short practical guides, filter by everyday preparation, planning or professional help, and expand each card for steps, suitability checks and official Australian sources. Existing energy-saving guidance remains available under **Explore more → Simple techniques**. The resilience library is educational; it does not assess a property's hazard risk or provide live emergency warnings. It does not change the room assessment or its financial calculations.
+**A more comfortable home. Less wasted energy. A practical plan for a changing climate.**
 
-**Understand why your bedroom overheats, reduce unnecessary cooling demand, and prepare a practical plan for hotter days.**
+[**Try the live app**](https://home-heat-planner.vercel.app/) · [**Watch the 2-minute demo**](https://youtu.be/TMwqq4ahnBs) · [**Full app walkthrough**](docs/app-walkthrough.md)
 
-**Live Web App:** [home-heat-planner.vercel.app](https://home-heat-planner.vercel.app/)
+Home Heat Planner helps households understand why a room overheats, find practical ways to reduce cooling demand, and turn advice into action. It brings together an interactive room assessment, energy-bill assistance, everyday efficiency guides and preparations for extreme weather.
 
-**Demo Video:** [Watch the 2-minute demo](https://youtu.be/TMwqq4ahnBs)
+Built for Junction Climate Hack-tion 2026's **Build for 2035** challenge, under the **Resilient Cities & Buildings** track, the prototype starts with one bedroom in a Greater Sydney home. Its guide libraries also cover broader household energy use and home resilience using Australian sources.
 
-Home Heat Planner is a web app for homeowners in Greater Sydney, built for Junction Climate Hack-tion 2026's **Build for 2035** challenge under the **Resilient Cities & Buildings** track. The prototype focuses on one bedroom at a time.
+You can start with the room details you know, upload a bill to the Energy Assistant, or browse the guides. **An account is optional. The manual room journey and guide libraries work without an AI API key.**
 
-Aligned with the COP31 Resilient Cities & Buildings priority, it helps households understand why rooms overheat, make practical heat-resilience improvements, prepare for extreme heat and reduce unnecessary cooling-energy demand.
+## How this contributes to COP31's goals
 
-It starts with the details you know about your room, explains what may be contributing to overheating, and helps you investigate shading, insulation, ventilation or an AC replacement. Where the required energy readings, assumptions and quote details are available, it calculates cooling costs and a bounded financial comparison. Your room plan combines reviewed Heatwave-Ready guidance for the next hot day with your selected longer-term investigation. You can save its checklist and return to review progress, spending and comfort.
+The COP31 Presidency's announced Resilient Cities target is to reduce **energy consumption intensity in the building sector by at least 25% by 2035**. This is an energy-intensity target, rather than a flat reduction in total energy use. [Source: GlobalABC's report on the COP31 Presidency's targets, June 2026](https://globalabc.org/news/bonn-2026-buildings-electrification-cop31).
 
-**An account is optional. The full manual journey works without an AI API key.** Sign in with Google or email/password to save your own room assessment, plan and check-ins across devices. Existing browser work can be imported explicitly into a new account. See [account setup and verification](docs/account-sign-in.md).
+Home Heat Planner addresses the household decisions behind that ambition: understanding energy use, keeping unwanted heat out, using existing equipment thoughtfully and preparing before extreme weather arrives.
 
-## Start the app locally
+| App capability | What it helps a household do | Intended contribution |
+| --- | --- | --- |
+| Room assessment and tailored improvements | Identify relevant shading, insulation, ventilation and equipment checks | Reduce avoidable cooling demand while considering comfort |
+| Energy Assistant and transparent cost tools | Understand a bill, compare supported costs and decide what to investigate | Make energy use and the financial reasons for efficiency easier to understand |
+| Simple techniques library | Try practical habits and improvements using what the household already has | Make energy-saving actions accessible before a larger purchase |
+| Heatwave-Ready plans and Home resilience guides | Prepare a room, household essentials and a plan for extreme conditions | Support adaptation to heatwaves, floods, storms and bushfires |
+| Saved plans, follow-ups and task rewards | Break an improvement into steps and return to record progress | Encourage follow-through beyond reading advice |
 
-Requirements: **Node.js 22.18 or newer** and **npm**.
+The climate story has two parts: **mitigation**, by helping people reduce unnecessary energy demand, and **adaptation**, by helping them prepare their homes and routines. Lower electricity demand can reduce associated emissions, depending on the energy supply. The prototype does not calculate household carbon reductions or claim a measured contribution to the 25% target; its current contribution is decision support and preparation. See [Your Home's guidance on reducing household energy demand](https://www.yourhome.gov.au/live-adapt/zero-carbon).
+
+## What you can do in the app
+
+### 1. Build a picture of your room
+
+The **room assessment** asks one question at a time about when the bedroom feels hottest, its floor and roof context, windows and their directions, shade, insulation and cooling equipment. Questions adapt to previous answers: individual windows get direction questions, and equipment questions appear when that equipment is reported. You can choose **Not sure**, see **Why this matters**, or reset the questionnaire.
+
+A live **3D room** changes alongside the answers, making the relationship between windows, sun-facing walls and equipment easier to understand. Rotate, zoom, switch to 2D or refine the diagram before continuing. Furniture, dimensions and airflow animations are illustrative; they are not a measured building model or a physical simulation.
+
+### 2. Understand the heat and find relevant improvements
+
+**What's heating your room?** connects your reported details to possible contributors, such as unshaded windows or missing insulation. Each explanation shows the facts behind it and what still needs checking.
+
+The **room improvements** page turns that context into practical next actions. Reviewed starting points are available immediately. Optional **Personalise my recommendations** searches selected Australian government sources and returns structured cards with relevant benefits, steps, checks and links to the Simple techniques library.
+
+Recommendations follow the room's reported equipment and constraints. If you have not reported AC, the personalised recommendations cannot mention AC or suggest replacing it. Fan advice likewise requires a reported fan. This keeps the starting point focused on the home and opportunities the user actually has.
+
+### 3. Understand costs before making a decision
+
+The app offers different tools for different levels of information:
+
+| Tool | What it explains |
+| --- | --- |
+| **Current cooling cost** | The cost of a cooling-specific energy measurement over its stated period, or an explicit power-and-usage what-if estimate |
+| **Window shading scenario** | For eligible rooms with bedroom-only AC, how assumed shading changes affect modelled electricity use and cost over a selected period |
+| **Comparable AC replacement** | For eligible systems, an annual energy-label cost comparison and simple payback when the required label details, suitability checks and installed quote are supplied |
+
+Every number keeps its units, inputs and assumptions visible. Users can skip unknown energy details and still receive guidance. A whole-home bill is never treated as a measured bedroom cooling bill.
+
+The shading scenario uses an uncalibrated room model and explicitly accepted synthetic weather and room assumptions. It is a way to explore possibilities, not a prediction of personal savings. Insulation and ventilation advice remains qualitative in the main comparison. The separate experimental **24-hour cooling scenario** lets users explore those changes with explicit assumptions.
+
+### 4. Make sense of an electricity bill
+
+The **Energy Assistant** supports general household-energy questions and guided bill analysis. Upload a digital PDF bill, review and correct the extracted details, then answer up to five household questions. The assistant explains relevant usage, tariffs, charges and credits, and suggests practical next steps with relevant guide links.
+
+Supported bill totals and dates feed calculations such as average daily imported electricity. The assistant does not invent an appliance breakdown or allocate whole-home electricity to a bedroom. Multiple tariffs remain separate.
+
+Bill analysis accepts selectable-text PDFs up to **4 MB and 12 pages**; it does not include OCR for scanned bills. The full extracted text, confirmed figures and household answers are sent to OpenAI for analysis. The active bill and chat reset when you leave, refresh or start a new chat; they are not saved with your room plan.
+
+### 5. Find simple ways to use less energy
+
+**Explore more → Simple techniques** is a public library of **14 practical guides**. Search or filter by focus and effort to find actions such as closing curtains before direct sun, adding external shade, using cooler outdoor air when appropriate, checking insulation, using fans in occupied rooms, choosing LEDs or shifting heat-producing chores.
+
+Each illustrated guide explains why the action may help, how to try it, what to check and where the guidance comes from. The library works without AI. Relevant entries also inform personalised recommendations, so users can move from a suggested action to a practical guide.
+
+### 6. Prepare your home for extreme conditions
+
+**Explore more → Home resilience** contains **15 preparation guides** across heatwaves, floods, storms, bushfires and earthquakes. Cards show when to prepare, three practical steps, items to have ready or questions for a professional, a useful outcome and a safety check.
+
+Examples include planning a flood evacuation route, preparing belongings for higher storage, securing loose outdoor items before a storm, making a bushfire leave plan and arranging professional building checks. Sources include NSW Health, Your Home, NSW SES, Victoria SES, NSW Rural Fire Service and Geoscience Australia.
+
+This extends the app from everyday efficiency to household resilience. It provides preparation guidance, not live warnings or property-specific risk assessments. Earthquakes are included as a broader home-resilience topic; they are geological hazards, not caused by climate change.
+
+### 7. Turn advice into a plan and follow through
+
+**My room plan** combines a selected investigation, a practical checklist, supporting assumptions and relevant **Heatwave-Ready** guidance for before a hot day, during peak heat and, where appropriate, when it is cooler outside.
+
+Save a plan, choose a check-in date and download a calendar event. At follow-up, record progress, barriers, actual spending and observations about energy use or comfort. History helps users review what they tried and decide on the next step. Observations are not treated as proof that an action caused a saving.
+
+Guest progress stays in the same browser and site origin. Optional Google or email/password sign-in saves a private journey across devices through Neon. Existing guest work can be explicitly imported into an empty account journey. Calendar events are downloaded for the user to import; the app does not send reminder messages.
+
+### 8. Get encouragement to complete practical actions
+
+**Home Rewards** connects eligible saved assessments to supported tasks. Signed-in users can submit task photos, receive an automated review and earn fixed app-defined coins for accepted submissions. A private history records approvals and the wallet balance.
+
+The **marketplace** offers real retailer links and clearly labelled demo coupon redemptions. **Coupons are demonstrations: no retailer accepts the generated codes, and no real discount or order is issued.** Photo approval checks visible task criteria; it does not certify an installation or measure energy or emissions savings.
+
+## The main journey
+
+```text
+Describe your room → Review its details and cooling cost → Understand possible heat contributors
+                  → Explore relevant improvements → Save a plan → Return for a check-in
+```
+
+The Energy Assistant and both guide libraries are also independent entry points. Users do not need to complete an assessment to read a bill or browse preparations.
+
+For a demo, follow one room through to a saved plan, then show the Energy Assistant, Simple techniques and Home resilience to explain how the app connects understanding, everyday action and preparation. The [full walkthrough](docs/app-walkthrough.md) covers individual controls, optional comparisons and additional tools.
+
+## How it works technically
+
+The app uses **Next.js App Router, React, strict TypeScript, CSS modules and Three.js**, with Vercel hosting, Neon Auth and Postgres for optional accounts and persistence. Server-side PDF extraction uses `unpdf`. Runtime AI calls use OpenAI's Responses API with `gpt-6-luna` and validated structured responses.
+
+| Responsibility | Implementation |
+| --- | --- |
+| Questions, heat contributors and eligibility | Typed room facts and deterministic rules |
+| Financial and scenario results | Calculation code validates inputs and applies documented methods |
+| Language assistance | AI helps with question selection, diagram proposals, bill explanations and sourced recommendations |
+| Generated UI | The model returns constrained data; the app validates it and renders its own components |
+| Guidance libraries | Reviewed catalogues checked into the repository; no runtime AI required |
+| Progress | Guest browser storage or an authenticated, private Neon journey |
+
+**AI helps explain and organise information; code produces the numerical results.** Proposed document or diagram details require review, and generated guidance cannot override eligibility rules. The manual planner remains available if optional provider calls fail.
+
+For example:
+
+```text
+Measured cooling cost = cooling-specific kWh × flat electricity rate
+What-if cooling cost = electrical input kW × hours per cooling day × cooling days × rate
+```
+
+AC label comparisons, shading scenarios and the thermal experiment have distinct methods and limitations. See the [financial method](docs/financial-method.md), [shading scenario](docs/contracts/shading-scenario.md) and [thermal scenario](docs/contracts/thermal-scenario.md) documentation.
+
+```text
+src/app/        Pages and API routes
+src/features/   Feature UI and reviewed guide catalogues
+src/domain/     Typed room facts, plans and provenance
+src/lib/        Calculations and persistence utilities
+src/services/   Planner adapters and API clients
+src/contracts/  Request/response schemas and validation
+src/server/     Server-only providers and request guards
+db/             Database migrations
+docs/           Walkthrough, product spec and method contracts
+```
+
+## Run it locally
+
+Use **Node.js 22.18 or newer** and **npm**:
 
 ```sh
 git clone https://github.com/md2801/home-heat-planner.git
@@ -27,312 +150,54 @@ npm ci
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Use the URL printed in the terminal if another process is already using that port. To choose a port explicitly:
+Open [localhost:3000](http://localhost:3000), or the address printed by the terminal. To choose another port, run `npm run dev -- --port 3001`. The manual planner, local plan saving and guide libraries work without external credentials.
 
-```sh
-npm run dev -- --port 3001
-```
+Optional capabilities use server-side configuration in an ignored `.env.local` file or the hosting environment:
 
-No provider setup is needed to answer questions, review guidance, calculate from your own inputs, save a plan or record a check-in. Optional AI features are described below.
-
-To enable **Google and email/password sign-in after cloning or pulling**, run:
-
-```sh
-npm run setup:auth
-npm run check:auth
-npm run dev
-```
-
-Stop any running development server first. `setup:auth` creates or fills missing auth settings in ignored `.env.local`, using this project's public development Auth endpoint and a new private local cookie secret. Existing settings are preserved. Git does **not** transfer `.env.local` to another computer. The checker prints setting checks and provider availability, never credential values.
-
-Private account saving additionally needs `DATABASE_URL` for the matching Neon branch. Obtain that connection through your team's secure configuration channel and set it in `.env.local`. For an isolated environment, use your branch's Auth URL and database connection together. Hosted apps need auth settings in their hosting environment and a redeploy; this local setup command does not configure a deployed server. See [account setup and 503 troubleshooting](docs/account-sign-in.md#fresh-checkout-and-503-troubleshooting).
-
-## A full walkthrough
-
-```text
-Home → Room assessment → Room & cooling cost review → Heat contributors
-     → Room improvements → Saved room plan → Follow-up
-```
-
-### 1. Start with your bedroom
-
-The home page introduces the app and shows an illustrative bedroom cooling story. Choose **Start my assessment** to begin. The example room is a demonstration, not a model of your home. Below it, a three-step walkthrough explains the journey, with introductions and direct links to the Energy Assistant, room planning, Simple techniques, Home resilience and Rewards. A climate section explains the purpose of reducing energy demand, and FAQs cover starting points, accounts, estimates, bill processing and guidance scope.
-
-### 2. Answer questions about your room
-
-The assessment presents one question at a time and builds a live 3D room preview as you answer. It asks about:
-
-- When the room feels hottest, its floor, and what is directly above it.
-- The number of windows, their compass-facing walls and external shade.
-- Whether ceiling or roof insulation is known to be present.
-- Fans and air conditioning, including equipment type and relevant placement details.
-
-The questionnaire adapts to your answers. One to four windows each get their own direction question; an unknown count or more than four uses a room-wide direction question. Fan questions appear when you report a fan, and wall placement appears for wall-mounted or window-mounted ACs. The preview supports up to four windows.
-
-Choose **Not sure** when a detail is unknown. **Why this matters** explains how an answer is used. Once the core questions are complete, **See my assessment** lets you continue; optional questions can refine cooling use, budget, permissions, window coverings, opening constraints, location and comfort.
-
-If you want to describe the problem in your own words, optional question assistance can suggest a relevant question from the app's defined list. It does not automatically turn your description into confirmed room facts.
-
-Answers save in the same browser. **Reset questionnaire** asks for confirmation before clearing that browser's assessment, diagram, plans and check-ins.
-
-### 3. Review your room and current cooling cost
-
-The room review shows your reported details alongside the diagram. Correct answers before confirming the review, or use **Refine your room diagram** to edit window details, coverings, shade and equipment. An optional description-based diagram proposal must be reviewed and confirmed before it updates your answers.
-
-The cost section offers three paths:
-
-| Path | What you provide | What the app shows |
-| --- | --- | --- |
-| Cooling-specific measurement | Total cooling kWh, start/end dates, measurement scope and a flat electricity rate | Electricity cost for that measured period, once bedroom-only scope is confirmed |
-| What-if estimate | Assumed average electrical input, operating hours per cooling day, cooling days, period and a flat rate | A cost conditional on your stated equipment-use assumptions |
-| Skip / unknown | No reliable energy information | Room guidance without an invented cooling bill |
-
-A whole-home electricity bill does not identify bedroom cooling consumption. For a measurement, enter the **total kWh over the whole stated period**, not an hourly or daily average. For an estimate, electrical input power is different from an AC's advertised cooling capacity.
-
-Expand **See calculation** to inspect the arithmetic, units, period and input provenance. Continue with **See what's heating your room** to confirm the reported profile and open the assessment.
-
-### 4. Understand possible heat contributors
-
-The heat contributors page explains what is worth investigating based on your answers. Examples include sun through unshaded windows, roof/ceiling heat transfer where insulation is absent or unknown, and practical limits on opening windows.
-
-Each explanation identifies the facts it uses, what remains uncertain, relevant guidance and a next check. **Why these?** explains the selection. These are plausible contributors, not a measured diagnosis of your building.
-
-You can refine your answers or continue to room improvements.
-
-### 5. Explore room improvements
-
-Improvement cards lead with your reported room context, a practical next action, checks to make and source links. Depending on eligibility, you may see window shading, ceiling insulation, window-opening or comparable AC replacement investigations. The app can show fewer options when the evidence or permissions do not support them.
-
-Choose **Personalise my recommendations** for an optional internet search of Australian government guidance. The model selects relevant practical techniques and investigations and writes concise cards with room context, possible benefits, next actions and checks. Simple techniques appear first; the main generated grid shows the returned subset rather than a fixed list. Rooms without equipment or upgrade investigations can still receive practical guidance. A loading skeleton appears while the search runs, and reviewed starting points remain available if it fails.
-
-Equipment constraints are enforced in both prompts and server/browser validation: if AC is not explicitly reported, recommendations cannot mention it or suggest AC replacement. Fan advice requires a reported fan. Sources are searched through Your Home and energy.gov.au, with Energy Rating included when AC is reported. Financial calculations remain deterministic and separate from generated guidance.
-
-Use **Set a budget** or **Change budget** to refine your spending limit. A budget alone does not establish an installation price or savings. Choosing an investigation selects a next step; it does not commit you to purchasing or installing anything.
-
-Optional sections provide more detail:
-
-- **What could window shade save?** For eligible shading investigations with bedroom-only AC, a three-step scenario compares the same room before and after shading. Enter window area, direction and glazing, choose shading assumptions, and review your cooling schedule and tariff. Explicitly opt into synthetic hot-day weather and editable example room assumptions, then confirm the assumptions to see selected-period costs and electricity differences. Results, assumptions and optional scoped installed cost carry into your saved plan; edits invalidate the prior result. There is no automatic annualisation or payback. Rooms without AC receive qualitative guidance without an invented avoided AC bill. See the [shading scenario contract](docs/contracts/shading-scenario.md).
-- **Compare costs and savings:** the guided AC replacement comparison described below.
-- **Understand your cooling costs:** your baseline, inputs to confirm and, when supported figures exist, a spending explanation.
-- **Explore a cooling scenario:** the separate experimental temperature and cost tool.
-
-Select an investigation, then choose **Continue to my plan**.
-
-#### The guided AC comparison
-
-For an eligible AC replacement investigation, **Compare costs and savings** opens four focused steps:
-
-1. **Your current AC:** indoor/outdoor model numbers, cooling capacity, yearly label cooling energy and a label link.
-2. **The replacement:** the equivalent details for the proposed system, with help finding the right energy-label figures.
-3. **Rate & quote:** your flat electricity usage rate, installed price, quote provider/inclusions/date and any extra yearly costs.
-4. **Your comparison:** the two systems side by side, required comparability confirmations and supported results.
-
-Details and your current step save automatically. Use **Finish later** to return when you have the remaining information. Blank values remain unknown; zero recurring costs must be entered explicitly when applicable.
-
-The method compares two distinct, equal-capacity, comparable **non-ducted single-split AC systems** using current Zoned Energy Rating Labels for a confirmed **Average climate zone**. It also requires installer confirmation of sizing and comparable features, bedroom-only system scope, installation permission, dated references and a scoped quote. Optional sourced service-life information helps assess payback.
-
-When those checks are complete, the app shows annual label electricity costs, annual net savings, installed price and simple payback where calculable. Negative savings appear as a higher annual cost. Missing details produce an explanation of what still needs checking.
-
-This is a comparison under standard annual label conditions, **not a prediction of your household's actual savings**. Labels and quotes are transcribed by you and are not independently verified. See the [financial method](docs/financial-method.md) for applicability and limitations.
-
-### 6. Save a room plan
-
-Your selected investigation becomes **My room plan**, with a room view, plan summary, practical checklist and supporting assumptions/evidence. Checklist items help you gather information, confirm constraints or arrange the next step; checking them does not prove that installation has occurred.
-
-The **Heatwave-Ready** section groups a few reviewed actions into **Before the hot day**, **During peak heat** and, where supported, **When it’s cooler outside**. Selection is deterministic and uses existing room/equipment eligibility and knowledge-base entries, without a provider call. Curtains and equipment advice require reported coverings/equipment; shading preparation requires an eligible shading investigation. Window-opening advice requires reported opening ability and an explicit no-known-limits answer; reported or unknown constraints omit it. Outdoor temperature, air quality, humidity and security must still be checked each time. With missing facts, only a general reviewed action about avoiding extra indoor heat appears.
-
-These are preparation guides, not weather forecasts or heat-health assessments. They predict no personal savings or temperature reduction. Guidance is derived from the retained assessment when reopening the plan, rather than stored as a new snapshot or tracked with separate completion boxes. The existing longer-term checklist, plan history, check-in and calendar export are unchanged; follow-up notes can record hot-day actions tried.
-
-Choose a check-in in **7 days**, **14 days**, or on a custom date. You can also save without a date. Choose **Save my plan** to preserve the plan and its financial/evidence snapshot in this browser.
-
-With a saved plan and check-in date, **Add to calendar** downloads an `.ics` event that you can import into your calendar. The app itself does not send email, SMS or push reminders. Changing the date in the app does not update an event already imported into a calendar.
-
-### 7. Return and record what happened
-
-Open your saved plan and continue to check-in. Record **Not started**, **Started**, **Completed**, **I'm stuck**, or **Deferred**.
-
-If you are stuck, record a barrier such as cost, permissions, installation, time or uncertainty and review a smaller next step. For completed work, you can record the completion details, actual spending, cooling use and comfort, with optional energy readings and period information. Choose **Save update** to save the check-in.
-
-Before/after usage is shown only when both records and comparable-use confirmation are supplied. Comfort ratings use a 1–5 scale and need comparable conditions and times of day. Weather, behaviour and other changes can affect the result, so these observations do not prove the selected action caused a saving or comfort improvement.
-
-Material changes to your room or comparison inputs require reviewing the selection and saving a revised plan. Earlier saved plan snapshots and check-ins remain available in history until the assessment is reset.
-
-## Simple techniques knowledge base
-
-Open **Simple techniques** in the navigation or **Browse simple techniques** on the cooling options page. The `/knowledge-base` library contains 14 researched techniques for a room or house:
-
-- Close curtains before direct sun arrives; add external shade; grow suitable shading plants.
-- Use cooler outdoor air, seal unwanted gaps and check insulation with qualified help.
-- Use fans for occupied spaces, cool rooms in use, choose a comfortable thermostat setting and clean AC filters.
-- Choose LEDs, switch off unnecessary electronics, air-dry laundry and shift heat-producing chores away from peak heat.
-
-Search the library or filter by focus and effort. Each entry explains its energy-saving mechanism and expands into practical steps, suitability checks and links to Australian government guidance. Entries were reviewed on **3 October 2026**; the date records our review, not the source's publication date.
-
-The catalogue is checked into `src/features/knowledge-base/catalogue.ts` and renders without a provider request. Live recommendation research receives relevant entries with their steps, checks and source links. It can generate up to four practical technique cards independently of upgrade investigations, plus up to three matching guide links per investigation. The app validates IDs against the room and equipment reports and owns the library links. Reviewed resources remain distinct from freshly searched sources and do not establish personal savings, emissions or temperature predictions. Review linked sources when updating entries.
-
-## Energy Assistant
-
-Open **Energy Assistant →** in the header, or visit `/energy-assistant`. Choose **Analyse my electricity bill** or **Ask an energy question**. The general assistant answers qualitative household-energy questions; bill analysis is its first specialised capability.
-
-Upload a digital electricity bill with selectable text (PDF only, up to 4 MB / 12 pages). Server-side `unpdf` extracts embedded text, then the existing OpenAI credential is used with `gpt-6-luna` to extract supported values and short bill excerpts. No OCR is included: scans, damaged or password-protected PDFs fail gracefully. Review the important values, correct any errors, then confirm. Missing fields stay unknown and zero stays zero. Recognisable partial bills proceed to review; missing figures remain unknown. For itemised bills, the app can add a complete set of supported import rows in code, excluding solar exports, and show the calculation for confirmation. Imported kWh plus usable billing days or dates are required for the daily average. Multiple tariffs remain separate, with no averaging. Retry a failed upload; corrections are available after extraction.
-
-Answer up to five contextual questions about occupancy, major loads and relevant usage. The assistant branches on your reported equipment, allows unsure/skip, and summarises confirmed imported electricity, billing days and deterministic kWh/day. If only dates are available, the displayed calculation counts both endpoints; check your bill's convention. Imported bill electricity remains unallocated to appliances and rooms. There are no arbitrary high/low benchmarks, personal savings, payback or equipment consumption estimates. A second structured LLM call reads the **full bill text**, confirmed figures, corrections and household answers. It explains relevant charges, tariffs, meter notes, credits and uncertainties, then suggests up to three practical actions with relevant reviewed technique links. Bill observations retain source excerpts. Confirmed figures and deterministic starting points remain usable if this explanation fails, with a retry button.
-
-This page keeps ten recent chat messages and the active bill/household answers in component memory only. **New chat**, refreshing or leaving resets them. It doesn't write bills or chat to localStorage or a database, or intentionally persist original PDFs or extracted text. Bill text and general questions are sent to OpenAI with `store:false`; provider processing/retention policies still apply. Use redacted bills where possible. No new API key or environment variable is required; the existing hosted usage-control guard still applies. Without provider access, the original planner remains available; general chat offers retry and the sourced library. See the [Energy Assistant contract](docs/contracts/energy-assistant.md).
-
-## Independent document review
-
-Visit `/document-import` to read an electricity bill, AC energy label or installation quote from PDF, JPG or PNG (up to 4 MB / 12 PDF pages). The page shows proposed values alongside their page/excerpt, printed unit and climate/period basis. Confirm, correct or reject every field before finishing; missing or ambiguous values stay unknown. You can download the reviewed JSON and reopen edits.
-
-The feature stays separate from assessment screens and never writes to their storage. Printed cents, monthly charges and label climates remain raw proposals; no conversion, cooling-consumption allocation, savings or payback calculation occurs. Files are processed in memory using the existing `OPEN_AI_KEY`, OpenAI structured extraction and `store:false`; provider retention policies still apply. Failure offers retry without altering an assessment. See the [API examples, limits, fixtures and review contract](docs/contracts/document-import.md).
-
-## What the 3D room represents
-
-The diagram gives your answers a visual reference: window directions, roof context, coverings and cooling equipment. You can rotate it, zoom, reset the view and switch to 2D. Equipment and window labels follow your reported details.
-
-Furniture, finishes, dimensions and exact spacing are illustrative. The optional airflow animation is a visual preview, not a physical airflow or temperature simulation. The diagram does not establish consumption, installation suitability or savings.
-
-## Experimental 24-hour cooling scenario
-
-Open the simulator from **Explore a cooling scenario**, or visit `/thermal-scenario`.
-
-Enter explicit room, heat-transfer, ventilation, AC and tariff assumptions plus 24 hourly outdoor-temperature and solar-gain pairs. Alternatively, choose **Load a synthetic example** to explore clearly labelled demonstration data. Try assumed changes to shading, insulation or night ventilation and choose **Compare this day**.
-
-The tool compares a simplified single-room heat balance. Temperature curves use AC-off runs; separate AC-on runs calculate cooling electricity and cost for the supplied conditions. Inputs are page-local, reset when you leave, and do not become confirmed room facts or supported annual savings.
-
-It is an uncalibrated what-if model, not a weather forecast or validated building prediction. It does not model detailed airflow, humidity or neighbouring rooms, and it does not calculate annual savings or payback. See the [thermal scenario documentation](docs/contracts/thermal-scenario.md).
-
-## Where the advice and numbers come from
-
-| Part of the app | How it works |
+| Capability | Configuration |
 | --- | --- |
-| Questions and eligibility | Defined question branches and deterministic rules use your reported facts and constraints |
-| Contributor explanations | Conservative rules connect those facts to reviewed guidance and visible unknowns |
-| Improvement cards | Reviewed guidance is available immediately; optional sourced web search adds qualitative explanations |
-| Current cooling cost | Code multiplies measured cooling energy by the tariff, or uses your explicit power/time scenario |
-| AC financial comparison | Code applies the documented label method to validated inputs and confirmations |
-| 3D diagram | Rendering code builds an illustrative scene; optional AI proposes details for your confirmation |
-| Follow-up | Your saved, self-reported observations are compared only when the required context is supplied |
+| AI assistance, bill analysis and task photo review | `OPEN_AI_KEY`; rewards also accepts `OPENAI_API_KEY` |
+| Account sign-in | `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET` |
+| Private account saving and rewards wallet | `DATABASE_URL` for the matching Neon branch; a direct `DATABASE_URL_UNPOOLED` for migrations |
+| Hosted AI usage controls | `AI_DISTRIBUTED_LIMITS_CONFIRMED=true` only after external/account-wide limits and abuse controls are configured; this flag does not implement them |
 
-The cooling-cost equations are:
+For this project's local sign-in setup, stop the dev server, run `npm run setup:auth` and `npm run check:auth`, then restart it. The setup helper fills missing local auth settings; it does not supply your database connection, apply migrations or configure Vercel. See [account setup](docs/account-sign-in.md) and [Home Rewards setup](docs/home-rewards.md) for database and deployment requirements. Never commit secrets or put provider/database credentials in `NEXT_PUBLIC_*` variables.
 
-```text
-Measured-period cost = total cooling kWh × AUD/kWh
+The app sends submitted assistance text, extracted bill contents or task photos to OpenAI when those features are used. Calls use `store: false`, but provider processing and retention policies still apply. The app does not intentionally persist bill PDFs or extracted bill text. Account journeys and reward records have separate persistence. Feature contracts describe the exact data sent and retained.
 
-What-if period cost = average electrical input kW × hours/cooling day
-                      × cooling days × AUD/kWh
-
-AC annual net savings = (current label kWh/year − replacement label kWh/year)
-                        × AUD/kWh + current extra yearly costs
-                        − replacement extra yearly costs
-
-Simple payback years = installed replacement price ÷ positive annual net savings
-```
-
-The calculators support a flat usage rate and exclude fixed supply charges and time-of-use pricing. A short measured period is not automatically annualised. General shading, insulation and ventilation guidance does not supply personal saving percentages. The guided shading calculator uses a documented but uncalibrated room model with explicit synthetic-weather assumptions; it produces selected-period what-if results, separate from supported annual AC label comparisons. Insulation and ventilation remain unquantified in the main options. The standalone thermal experiment is also separate.
-
-The environmental aim is to help people investigate reducing cooling energy demand while considering comfort. Actual benefits depend on the building, equipment and operation. The prototype does **not** calculate carbon emissions or claim verified environmental savings.
-
-## Optional AI setup and data handling
-
-The server reads **`OPEN_AI_KEY`** for optional OpenAI features. Configure it through your local server environment or an ignored `.env.local` file, then restart the development server. Prefer this variable name for all features; reward photo assessment also accepts `OPENAI_API_KEY`. Never put a provider key in a `NEXT_PUBLIC_*` variable or commit it to Git.
-
-### Task coins and approvals
-
-Open `/rewards` to see suitable recommended tasks, submit photos, track automated approvals and view coin history. The marketplace uses the same private saved balance and offers real retailer links with clearly labelled demo coupons. No retailer accepts the generated codes and no real discount or order is issued.
-
-Apply the private wallet tables/functions with `npm run migrate:rewards` using a direct database connection. This is already applied to the shared project database; run it for a different database or branch. Photo assessment requires server-only `OPEN_AI_KEY`; without a key it stays unavailable and never awards coins. See [Home Rewards](docs/home-rewards.md) for limits, privacy, API contracts and `npm run test:rewards-ui` setup.
-
-| Feature | AI's role | Information sent |
-| --- | --- | --- |
-| Question assistance | Select a relevant allowed question (`gpt-6-luna`) | The submitted problem description and allowed questions |
-| Room proposal | Suggest a structured diagram for review (`gpt-6-luna`) | The submitted room description and current diagram details |
-| Financial explanation | Choose the reading order of app-owned explanation cards (`gpt-6-luna`) | Recomputed summaries, limitations and checks, not raw complaints, location or quote identities |
-| Online guidance | Search allowed government sources (`gpt-6-luna`), then format concise cards (`gpt-6-luna`) | Room categories, unknowns and eligible option IDs; not location, free-text answers, energy use, budgets or quote/model identities |
-| Task proof assessment | Check visible task criteria (`gpt-6-luna`); the app fixes coin amounts | Resized task photos, optional notes and the task guide, after consent |
-
-**AI does not calculate financial results, choose an installation for you or turn missing information into facts.** Diagram proposals require confirmation, and web guidance cannot override eligibility or calculation rules. Provider failures retain the manual flow. Calls use validated structured outputs, server-side credentials and `store: false`.
-
-Descriptions submitted to assistance are sent to OpenAI; leave out addresses and personal details. The app's provider diagnostics exclude credentials, prompts, generated text and raw error messages.
-
-Local endpoints have request limits, timeouts and, where applicable, short-lived caches. Intake also uses `AI_MAX_REQUESTS` and `AI_MAX_SPEND_USD` as conservative process-local guards, not actual billing measurement. Limits reset when the process restarts and are not distributed spend controls. See [API contracts and limits](docs/contracts/README.md).
-
-On Vercel, optional assistance defaults off unless `AI_DISTRIBUTED_LIMITS_CONFIRMED=true`. That flag declares external/account-wide limits and abuse controls have been configured; it does not implement them. Keep it unset until those controls exist. Voice input and room-photo assessment are not implemented; task proof photos are supported through Home Rewards.
-
-## Saving and privacy
-
-Optional anonymous server persistence is available through `/api/assessments`, backed by Neon Postgres with separate unguessable assessment access tokens. The frontend continues to use browser storage until connected to those endpoints. See [setup, endpoint contracts and examples](docs/contracts/journey-persistence.md). Server saving requires `DATABASE_URL` and the checked-in database migration; it never falls back to process memory or local disk.
-
-The development checkout is now connected to the live `home-heat-planner` Neon project in AWS Sydney. Project agent skills and OAuth MCP configuration are installed. See the [cloud database and tooling change summary](docs/neon-setup.md) for resources, verification, preserved configuration and Vercel activation.
-
-The current frontend saves assessments, plans and check-ins in browser storage without an account. Return using the **same browser profile and site origin** to reopen that progress; changing devices, browsers or localhost ports does not share browser storage. Server copies are created only when a client calls the configured persistence API.
-
-Assessment and comparison drafts save automatically. Plans and check-ins have explicit **Save my plan** and **Save update** actions. Relevant input edits invalidate stale selections and preserve earlier saved snapshots in history; navigating between comparison steps does not change the financial inputs.
-
-If browser saving is blocked, the app shows a notice and keeps working in the current tab, but a refresh may lose progress. Resetting the questionnaire clears the saved assessment, diagram, plans and history for that browser origin. Calendar files contain a generic check-in and return link, rather than private room or financial details.
-
-## Routes
-
-The educational library is available at `/knowledge-base`, including before an assessment is completed.
-
-| Route | Screen |
-| --- | --- |
-| `/` | Introduction and illustrative cooling story |
-| `/assessment` | Adaptive questionnaire and live room preview |
-| `/room-baseline` | Room review, diagram editor and cooling-cost baseline |
-| `/heat-contributors` | Possible contributors, evidence and investigations |
-| `/cooling-options` | Improvement cards, optional search and guided AC comparison |
-| `/cooling-plan` | Checklist, saved plan and calendar check-in |
-| `/follow-up` | Progress, barriers, completion, usage, comfort and history |
-| `/energy-assistant` | General household-energy chat and confirmed digital-PDF bill analysis |
-| `/document-import` | Independent PDF/JPG/PNG extraction and per-field review |
-| `/thermal-scenario` | Optional experimental 24-hour temperature/cost comparison |
-
-## Development and architecture
-
-The app uses **Next.js App Router, React, TypeScript and Three.js**. Feature styling uses CSS modules alongside the shared styles. Development and production builds use Webpack.
-
-OpenAI Codex was used as an AI coding/development tool during the hackathon for coding assistance, implementation, debugging, testing, and repository-level development workflows. This development-tool disclosure is separate from the application's runtime AI features.
-
-```text
-src/app/               Pages and API routes
-src/features/          Assessment, diagrams, guidance, comparison, plans and follow-up UI
-src/domain/            Typed facts, plans, provenance and material input signatures
-src/lib/               Calculations and browser persistence utilities
-src/services/          Planner adapters and provider request clients
-src/contracts/         Request/response types, schemas and validation
-src/server/            Server-only OpenAI integration and request guards
-docs/                  Product requirements, build spec, designs and method contracts
-```
-
-UI components, pure business/calculation models, persistence and provider calls are kept separate. The current planner client uses a local typed adapter; `/api/planner` exposes the same deterministic logic through an HTTP boundary. Optional provider calls use `/api/intake`, `/api/room-scene`, `/api/financial-brief` and `/api/cooling-research`. Transport inputs exclude the assessment question cursor, completion flag, saved history and storage keys. The comparison draft's optional step metadata does not affect calculations.
-
-Run the project checks:
+Project checks and production commands:
 
 ```sh
 npm test
 npm run typecheck
 npm run lint
 npm run build
-```
-
-Serve a production build locally:
-
-```sh
-npm run build
 npm start
 ```
 
-Vercel is the intended hosting target: use the Next.js preset and `npm run build`, and configure any optional provider credentials in the hosting environment. The manual app can run without credentials. This README does not imply that a deployment is currently live.
+## Routes and further reading
 
-## Further reading
+| Routes | Purpose |
+| --- | --- |
+| `/` | App introduction, feature tour and starting points |
+| `/assessment`, `/room-baseline` | Room questions, visual review and cooling cost |
+| `/heat-contributors`, `/cooling-options` | Possible causes, improvements and optional comparisons |
+| `/cooling-plan`, `/follow-up` | Saved plan, check-in and history |
+| `/energy-assistant` | Household-energy chat and reviewed PDF bill analysis |
+| `/knowledge-base`, `/explore` | Simple techniques and home-resilience guides |
+| `/rewards`, `/marketplace` | Task approvals, coins and demo redemptions |
+| `/sign-in`, `/sign-up`, `/account` | Optional identity and private saved journey |
+| `/document-import` | Independent bill, label or quote extraction with per-field review and JSON export |
+| `/thermal-scenario` | Experimental 24-hour temperature and electricity comparison |
 
-- [Product requirements](docs/PRD.md): audience, scope, evidence rules and acceptance criteria.
-- [Build specification](docs/BUILD_SPEC.md): architecture and authorised feature/presentation extensions.
-- [Approved designs](docs/design/): the seven original screen references.
-- [Financial method](docs/financial-method.md): AC comparison inputs, applicability and equations.
-- [API and persistence contracts](docs/contracts/README.md): validation, units, provider limits and examples.
-- [Guidance UI contract](docs/contracts/cooling-research-ui.md): how searched guidance becomes concise improvement cards.
-- [Room scene contract](docs/contracts/room-scene.md): diagram proposals, confirmation and limitations.
-- [Thermal scenario contract](docs/contracts/thermal-scenario.md): experimental model and checks.
-- [Document import contract](docs/contracts/document-import.md): temporary extraction, original units, review and examples.
+- [Full app walkthrough](docs/app-walkthrough.md): detailed user journey and optional tools.
+- [Product requirements](docs/PRD.md) and [build specification](docs/BUILD_SPEC.md): product intent, evidence rules and architecture.
+- [API and persistence contracts](docs/contracts/README.md): developer details, validation and provider limits.
+- [Energy Assistant](docs/contracts/energy-assistant.md) and [guidance UI](docs/contracts/cooling-research-ui.md): bill processing and structured recommendations.
+- [Account sign-in](docs/account-sign-in.md) and [Home Rewards](docs/home-rewards.md): storage, setup and limits.
+- [Document import](docs/contracts/document-import.md) and [room scene](docs/contracts/room-scene.md): reviewed proposals and illustrative diagrams.
+- [Approved designs](docs/design/): the original seven-screen references.
+
+## Development disclosure
+
+OpenAI Codex was used as an AI coding/development tool during the hackathon for coding assistance, implementation, debugging, testing, and repository-level development workflows. This development-tool disclosure is separate from the application's runtime AI features.
