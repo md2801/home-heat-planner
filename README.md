@@ -6,7 +6,7 @@ Home Heat Planner is a web app for homeowners in Greater Sydney, built for the J
 
 It starts with the details you know about your room, explains what may be contributing to overheating, and helps you investigate shading, insulation, ventilation or an AC replacement. Where the required energy readings, assumptions and quote details are available, it calculates cooling costs and a bounded financial comparison. Your room plan combines reviewed Heatwave-Ready guidance for the next hot day with your selected longer-term investigation. You can save its checklist and return to review progress, spending and comfort.
 
-**No account is required. The full manual journey works without an AI API key.**
+**An account is optional. The full manual journey works without an AI API key.** Sign in with Google or email/password to save your own room assessment, plan and check-ins across devices. Existing browser work can be imported explicitly into a new account. See [account setup and verification](docs/account-sign-in.md).
 
 ## Start the app locally
 

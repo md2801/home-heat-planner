@@ -1,5 +1,7 @@
 # Home Heat Planner Product Requirements Document
 
+Account update, 4 October 2026: the user requested Google SSO and email/password sign-in with private saved data for each homeowner. One account owns one current bedroom journey and its existing history. Anonymous assessment remains available; importing browser work is explicit. See [account sign-in](account-sign-in.md). This supersedes the earlier exclusion of accounts.
+
 Status: Draft for hackathon implementation  
 Date: 1 October 2026  
 Primary track: Resilient Cities and Buildings  

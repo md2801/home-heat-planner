@@ -85,6 +85,8 @@ The application must successfully build using the production build command befor
 
 ### Authentication
 
+Authorised update, 4 October 2026: implement Google SSO and email/password with Neon managed Better Auth. Save one current bedroom journey per server-verified homeowner in the existing Neon database, with browser fallback, account isolation and revision conflict handling. Preserve the anonymous manual journey. See [account sign-in](account-sign-in.md); this supersedes the prototype-only restrictions below.
+
 No user account system is required for the hackathon prototype.
 
 Do not implement authentication unless the project requirements change.
