@@ -3,8 +3,33 @@ import { evidenceMatches } from "../energy-bill-validation.ts";
 import { DocumentImportError, type DocumentUpload } from "./upload.ts";
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const compact = (v: string) => v.replace(/\s+/g, " ").trim();
-function numericEvidence(value: number, text: string): boolean {
-  return [...text.matchAll(/[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?/g)].some(match => Number(match[0].replaceAll(",", "")) === value);
+const quantity = "(?<![\\d.,+-])([+-]?(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?)(?![\\d,]|\\.\\d)";
+const separator = "\\s*[)\\]]?\\s*[:=]?\\s*";
+/** The quantity and its unit must be associated, not merely present somewhere in an excerpt. */
+function quantityEvidence(value: number, unit: string, text: string): boolean {
+  const patterns: string[] = [];
+  if (["c/kWh", "cents/kWh", "AUD/kWh", "$/kWh"].includes(unit)) {
+    const currency = unit.startsWith("c") ? "(?:c|cents)" : unit.startsWith("AUD") ? "AUD" : "\\$";
+    const denominator = "(?:/|per)\\s*kWh\\b";
+    patterns.push(`${quantity}\\s*${currency}\\s*${denominator}`, `${currency}\\s*${denominator}${separator}${quantity}`);
+    if (!unit.startsWith("c")) patterns.push(`${currency}\\s*${quantity}\\s*${denominator}`);
+  } else if (unit.startsWith("kWh")) {
+    const annual = unit !== "kWh";
+    const energyUnit = annual ? "kWh\\s*(?:/|per)\\s*(?:year|annum)\\b" : "kWh\\b(?!\\s*(?:/|per)\\s*(?:year|annum)\\b)";
+    patterns.push(`${quantity}\\s*${energyUnit}`, `${energyUnit}${separator}${quantity}`);
+    if (annual) patterns.push(`annual\\s+cooling\\s+energy[^\\d]{0,50}${quantity}\\s*kWh\\b`);
+  } else {
+    const [code, period] = unit.split("/");
+    const currency = code === "$" ? "\\$" : `\\b${code}\\b`;
+    const amount = `(?:${currency}\\s*${quantity}|${quantity}\\s*${currency})`;
+    if (!period) patterns.push(amount);
+    else {
+      const recurrence = `(?:/|per)\\s*${period}\\b`;
+      const adjective = period === "year" ? "annual(?:ly)?|yearly" : period === "month" ? "monthly" : "per\\s+visit";
+      patterns.push(`${amount}\\s*${recurrence}`, `${currency}\\s*${recurrence}${separator}${quantity}`, `(?:${adjective})[^\\d]{0,50}${amount}`);
+    }
+  }
+  return patterns.some(pattern => [...text.matchAll(new RegExp(pattern, "gi"))].some(match => match.slice(1).some(token => token !== undefined && Number(token.replaceAll(",", "")) === value)));
 }
 function dateEvidence(value: string, text: string): boolean {
   if (text.includes(value)) return true;
@@ -13,16 +38,6 @@ function dateEvidence(value: string, text: string): boolean {
   if (dates.some(m => Number(m[1]) === day && Number(m[2]) === month && Number(m[3]) === year)) return true;
   const names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return new RegExp(`\\b0?${day}\\s+(?:${names[month! - 1]}|${names[month! - 1]?.slice(0, 3)})\\s+${year}\\b`, "i").test(text);
-}
-function unitEvidence(unit: string, text: string): boolean {
-  if (unit === "c/kWh" || unit === "cents/kWh") return /(?:\bc|\bcents)\s*(?:\/|per)\s*kWh\b/i.test(text);
-  if (unit === "AUD/kWh" || unit === "$/kWh") return (unit !== "AUD/kWh" || /\bAUD\b/.test(text)) && /(?:\bAUD|\$)\s*(?:\/|per)\s*kWh\b/i.test(text);
-  if (["kWh/year", "kWh/annum"].includes(unit)) return /kWh\s*(?:\/|per)\s*(?:year|annum)|annual\s+cooling\s+energy[\s\S]*kWh/i.test(text);
-  if (unit === "kWh") return /\bkWh\b/i.test(text);
-  const [currency, period] = unit.split("/");
-  const currencyPresent = currency === "$" ? text.includes("$") : new RegExp(`\\b${currency}\\b`).test(text);
-  if (!period) return currencyPresent;
-  return currencyPresent && (period === "year" ? /\bannual(?:ly)?\b|\bper year\b|\/year\b/i : period === "month" ? /\bmonthly\b|\bper month\b|\/month\b/i : /\bper visit\b|\/visit\b/i).test(text);
 }
 /** Evidence checks constrain proposals, not OCR accuracy; visual excerpts still need human review. */
 export function validateDocumentExtraction(raw: unknown, document: DocumentUpload, kind: DocumentKind, role: AcRole): DocumentImportResult {
@@ -47,11 +62,10 @@ export function validateDocumentExtraction(raw: unknown, document: DocumentUploa
     const text = page ? document.pageTexts[page - 1] : null;
     if (!excerpt || !page || text && !evidenceMatches(text, excerpt)) return unknownDocumentField(field);
     if (proposed.value === null) return proposed;
-    const sourceValue = typeof proposed.value === "number" ? numericEvidence(proposed.value, excerpt) : ["periodStart", "periodEnd", "quoteDate"].includes(field) ? dateEvidence(proposed.value, excerpt) : compact(excerpt).includes(compact(proposed.value));
+    const sourceValue = typeof proposed.value === "number" ? proposed.unit !== null && quantityEvidence(proposed.value, proposed.unit, excerpt) : ["periodStart", "periodEnd", "quoteDate"].includes(field) ? dateEvidence(proposed.value, excerpt) : compact(excerpt).includes(compact(proposed.value));
     const basisSupported = proposed.calculationBasis === null || compact(excerpt).includes(compact(proposed.calculationBasis));
-    const unitSupported = proposed.unit === null || unitEvidence(proposed.unit, excerpt);
     const cooling = !["existingKwh", "proposedKwh"].includes(field) || /\bcooling\b/i.test(excerpt) && /\bAverage\b/i.test(excerpt) && proposed.calculationBasis !== null && /\bAverage\b/i.test(proposed.calculationBasis) && !/\bheating\b|\bcapacity\b|input\s*power|\b(?:hot|cold)\s+(?:climate|zone)\b/i.test(excerpt);
-    if (!sourceValue || !basisSupported || !unitSupported || !cooling) return { ...proposed, value: null, unit: null, calculationBasis: null };
+    if (!sourceValue || !basisSupported || !cooling) return { ...proposed, value: null, unit: null, calculationBasis: null };
     return proposed;
   });
   const tariff = fields.find(f => f.field === "tariffType");

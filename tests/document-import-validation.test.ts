@@ -41,3 +41,17 @@ test("time-of-use rates are never averaged or selected as a single flat rate", (
   const result = validateDocumentExtraction({ fields: [field("tariffType", "Time-of-use", null, text), field("usageRateAud", 35, "c/kWh", text)] }, document(text), "electricity-bill", "existing");
   assert.equal(result.fields[0]?.value, null); assert.equal(result.fields[3]?.value, "Time-of-use");
 });
+
+test("quantities must stay associated with their own units and recurring periods", () => {
+  const bill = "Whole-home consumption 650 kWh. Usage rate 30 c/kWh.";
+  assert.equal(validateDocumentExtraction({ fields: [field("usageRateAud", 650, "c/kWh", bill)] }, document(bill), "electricity-bill", "existing").fields[0]?.value, null);
+  const quote = "Installation AUD 1200. Maintenance AUD 10 per month.";
+  assert.equal(validateDocumentExtraction({ fields: [field("proposedRecurring", 1200, "AUD/month", quote)] }, document(quote), "installation-quote", "existing").fields[4]?.value, null);
+  for (const text of ["Usage rate $0.30/kWh", "Usage rate AUD 0.30 per kWh", "Usage rate (AUD/kWh): 0.30"]) {
+    const unit = text.includes("$") ? "$/kWh" : "AUD/kWh";
+    const rate = validateDocumentExtraction({ fields: [field("usageRateAud", 0.3, unit, text)] }, document(text), "electricity-bill", "existing").fields[0];
+    assert.equal(rate?.value, 0.3); assert.equal(rate?.unit, unit);
+  }
+  const negative = "Upfront cost AUD -1200";
+  assert.equal(validateDocumentExtraction({ fields: [field("installedCost", 1200, "AUD", negative)] }, document(negative), "installation-quote", "existing").fields[0]?.value, null);
+});
