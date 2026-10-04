@@ -1,6 +1,9 @@
 :global(body):has(.page) :global(.app-shell-header) { display: none; }
 :global(.app-shell-main):has(.page) { max-width: none; padding: 0; }
 .page { width: calc(100% - 64px); margin: 0 auto; }
+.rewardsCallout { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 24px; margin-top: 36px; background: var(--color-eucalyptus); border: 1px solid #ccd7c9; border-radius: 8px; }
+.rewardsCallout h2 { margin: 0 0 10px; font-size: 23px; color: var(--color-forest); }
+.rewardsCallout p { margin: 0; max-width: 650px; font-size: 14px; line-height: 1.7; color: var(--color-muted); }
 .layout { display: grid; grid-template-columns: minmax(0, 61.5%) minmax(0, 38.5%); margin-top: 36px; }
 .room { min-width: 0; padding-right: 36px; }
 .progress { display: flex; gap: 26px; align-items: center; font-size: 17px; color: var(--color-muted); }

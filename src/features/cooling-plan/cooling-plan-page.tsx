@@ -70,6 +70,7 @@ export function CoolingPlanPage() {
         </div>
       </section>
     </div>{view.invalidStoredPlan && <p className={styles.notice} role="status">Your selection or answers changed, or the previous plan could not be read. Review and save this current plan.</p>}{notice && <p className={styles.notice} role="status">{notice}</p>}
+    <section className={styles.rewardsCallout}><div><h2>Turn a next step into visible progress</h2><p>Suitable recommended tasks can earn coins after photo approval. Checking a plan step alone does not add coins.</p></div><Link className={styles.secondary} href="/rewards">Submit task photos & earn coins ↗</Link></section>
     <HistoryReview draft={draft} />
     <footer className={styles.footer}><Link href="/cooling-options">← Back</Link><span>Checklist completion records your progress, not an installation outcome.</span></footer>
   </> : <section className={styles.empty}><h1>My room plan</h1><p>Choose a simple action or an investigation to create your next steps.</p><p>If your answers changed, select an option again. Earlier saved estimates remain in your history.</p><HistoryReview draft={draft} /><Link className={styles.primary} href="/cooling-options">Explore room improvements →</Link>{notice && <p role="status">{notice}</p>}</section> : <p role="status" className={styles.notice}>Loading your room plan…</p>}</div>;

@@ -65,6 +65,7 @@ export const accountStore = {
     await this.initialise();
   },
   async retry() { if (sync) await sync.retry(); else { boot = null; await this.initialise(); } },
+  async flush() { await sync?.flush(); return snapshot.phase === "saved"; },
   async resolve(choice: "account" | "device") {
     try { await sync?.resolve(choice); }
     catch { update({ phase: "offline", message: "Could not load the latest version. Your changes remain on this device; retry." }); }
