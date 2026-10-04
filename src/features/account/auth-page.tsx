@@ -53,8 +53,8 @@ export function AuthPage({ initialMode = "sign-in", ssoError = false }: { initia
     if (busy) return; setBusy(true); setMessage(null);
     try {
       const result = await authClient.signIn.social({ provider: "google", callbackURL: `${window.location.origin}/account`, errorCallbackURL: `${window.location.origin}/sign-in?error=sso` });
-      if (result.error) setMessage("Google sign-in couldn’t start. Retry or use your email and password.");
-    } catch { setMessage("Google sign-in couldn’t connect. Retry or use your email and password."); }
+      if (result.error) setMessage(authErrorMessage(result.error, "google"));
+    } catch (error) { setMessage(authErrorMessage(error, "google")); }
     finally { setBusy(false); }
   }
   return <div className={styles.page}><JourneyHeader />

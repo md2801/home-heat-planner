@@ -84,6 +84,19 @@ test("real accounts save, restore on another device, isolate users and preserve 
   await expect(page.getByRole("link", { name: "Open my room plan" })).toBeVisible();
   await page.screenshot({ path: "artifacts/verification/account-saved.png", fullPage: true });
 });
+test("local auth setup failures give the same actionable message for email and Google", async ({ page }) => {
+  await page.route("**/api/auth/sign-in/**", route => route.fulfill({ status: 503, json: { code: "AUTH_NOT_CONFIGURED", message: "Local sign-in needs setup. Run npm run setup:auth, then restart the development server." } }));
+  await page.goto("/sign-in");
+  await page.getByLabel("Email address", { exact: true }).fill("homeowner@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("retained password");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.locator('p[role="alert"]')).toContainText("npm run setup:auth");
+  await expect(page.getByLabel("Email address", { exact: true })).toHaveValue("homeowner@example.com");
+  await page.getByRole("button", { name: "Continue with Google", exact: true }).click();
+  await expect(page.locator('p[role="alert"]')).toContainText("npm run setup:auth");
+  await expect(page.getByRole("button", { name: "Continue with Google", exact: true })).toBeEnabled();
+  await expect(page).toHaveURL(/\/sign-in$/);
+});
 test("Google SSO initiates the real provider flow and direct guest account access is denied", async ({ page }) => {
   expect((await page.request.get("/api/account/journey")).status()).toBe(401);
   await page.goto("/sign-in");
