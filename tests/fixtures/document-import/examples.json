@@ -1,0 +1,252 @@
+[
+  {
+    "file": "electricity-bill.pdf",
+    "mime": "application/pdf",
+    "kind": "electricity-bill",
+    "acRole": "existing",
+    "lines": [
+      "SYNTHETIC ELECTRICITY BILL - test fixture only",
+      "Tariff type: Flat",
+      "Billing period: 01/09/2026 to 30/09/2026",
+      "Electricity usage rate: 30 c/kWh",
+      "Whole-home consumption: 650 kWh",
+      "Daily supply charge: 110 c/day",
+      "Solar feed-in credit: 7 c/kWh",
+      "No actual customer, address or account information."
+    ],
+    "raw": {
+      "fields": [
+        {
+          "field": "usageRateAud",
+          "value": 30,
+          "unit": "c/kWh",
+          "sourcePage": 1,
+          "sourceExcerpt": "Electricity usage rate: 30 c/kWh",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "periodStart",
+          "value": "2026-09-01",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Billing period: 01/09/2026 to 30/09/2026",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "periodEnd",
+          "value": "2026-09-30",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Billing period: 01/09/2026 to 30/09/2026",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "tariffType",
+          "value": "Flat",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Tariff type: Flat",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        }
+      ]
+    },
+    "expected": {
+      "usageRateAud": 30,
+      "periodStart": "2026-09-01",
+      "periodEnd": "2026-09-30",
+      "tariffType": "Flat"
+    }
+  },
+  {
+    "file": "ac-label.png",
+    "mime": "image/png",
+    "kind": "ac-label",
+    "acRole": "existing",
+    "lines": [
+      "SYNTHETIC AC LABEL - test fixture only",
+      "Model identifiers: SYNTH-IN / SYNTH-OUT",
+      "Annual cooling energy: 600 kWh/year (Average climate)",
+      "Annual heating energy: 900 kWh/year",
+      "Cooling capacity: 2.5 kW",
+      "Actual operating hours are not stated."
+    ],
+    "raw": {
+      "fields": [
+        {
+          "field": "existingModel",
+          "value": "SYNTH-IN / SYNTH-OUT",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Model identifiers: SYNTH-IN / SYNTH-OUT",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "existingKwh",
+          "value": 600,
+          "unit": "kWh/year",
+          "sourcePage": 1,
+          "sourceExcerpt": "Annual cooling energy: 600 kWh/year (Average climate)",
+          "needsConfirmation": true,
+          "calculationBasis": "Average climate"
+        }
+      ]
+    },
+    "expected": {
+      "existingModel": "SYNTH-IN / SYNTH-OUT",
+      "existingKwh": 600
+    }
+  },
+  {
+    "file": "installation-quote.jpg",
+    "mime": "image/jpeg",
+    "kind": "installation-quote",
+    "acRole": "proposed",
+    "lines": [
+      "SYNTHETIC INSTALLATION QUOTE - test fixture only",
+      "Currency: AUD",
+      "Quote date: 2026-09-30",
+      "Total installed upfront cost: AUD 1200",
+      "Inclusions: removal, installation and electrical work.",
+      "Maintenance: AUD 10 per month.",
+      "An annual maintenance total is not stated."
+    ],
+    "raw": {
+      "fields": [
+        {
+          "field": "installedCost",
+          "value": 1200,
+          "unit": "AUD",
+          "sourcePage": 1,
+          "sourceExcerpt": "Total installed upfront cost: AUD 1200",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "currency",
+          "value": "AUD",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Currency: AUD",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "quoteScope",
+          "value": "removal, installation and electrical work.",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Inclusions: removal, installation and electrical work.",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "quoteDate",
+          "value": "2026-09-30",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Quote date: 2026-09-30",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "proposedRecurring",
+          "value": 10,
+          "unit": "AUD/month",
+          "sourcePage": 1,
+          "sourceExcerpt": "Maintenance: AUD 10 per month.",
+          "needsConfirmation": true,
+          "calculationBasis": "per month"
+        }
+      ]
+    },
+    "expected": {
+      "installedCost": 1200,
+      "currency": "AUD",
+      "quoteScope": "removal, installation and electrical work.",
+      "quoteDate": "2026-09-30",
+      "proposedRecurring": 10
+    }
+  },
+  {
+    "file": "incomplete-quote.pdf",
+    "mime": "application/pdf",
+    "kind": "installation-quote",
+    "acRole": "proposed",
+    "lines": [
+      "SYNTHETIC PARTIAL QUOTE - test fixture only",
+      "Quote amount: price to be confirmed",
+      "Inclusions: installation only",
+      "No explicit currency, quote date or recurring amount.",
+      "Missing information must stay unknown, not zero."
+    ],
+    "raw": {
+      "fields": [
+        {
+          "field": "quoteScope",
+          "value": "installation only",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Inclusions: installation only",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        }
+      ]
+    },
+    "expected": {
+      "installedCost": null,
+      "currency": null,
+      "quoteScope": "installation only",
+      "quoteDate": null,
+      "proposedRecurring": null
+    }
+  },
+  {
+    "file": "time-of-use.pdf",
+    "mime": "application/pdf",
+    "kind": "electricity-bill",
+    "acRole": "existing",
+    "lines": [
+      "SYNTHETIC TIME-OF-USE BILL - test fixture only",
+      "Tariff type: Time-of-use",
+      "Billing period: 01/09/2026 to 30/09/2026",
+      "Peak usage rate: 35 c/kWh",
+      "Shoulder usage rate: 28 c/kWh",
+      "Off-peak usage rate: 20 c/kWh",
+      "Whole-home consumption: 700 kWh",
+      "An average or single flat usage rate is not stated."
+    ],
+    "raw": {
+      "fields": [
+        {
+          "field": "tariffType",
+          "value": "Time-of-use",
+          "unit": null,
+          "sourcePage": 1,
+          "sourceExcerpt": "Tariff type: Time-of-use",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        },
+        {
+          "field": "usageRateAud",
+          "value": 35,
+          "unit": "c/kWh",
+          "sourcePage": 1,
+          "sourceExcerpt": "Peak usage rate: 35 c/kWh",
+          "needsConfirmation": true,
+          "calculationBasis": null
+        }
+      ]
+    },
+    "expected": {
+      "usageRateAud": null,
+      "periodStart": null,
+      "periodEnd": null,
+      "tariffType": "Time-of-use"
+    }
+  }
+]
