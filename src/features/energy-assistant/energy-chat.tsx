@@ -6,10 +6,16 @@ import { askEnergy, uploadBill } from "@/services/energy-assistant";
 import { billingDays, confirmBill, correctBill, loadChoices, remember, type Household } from "./logic";
 import { answerConversation, questionText, startConversation, type BillConversation } from "./conversation";
 import { BillDetails, EnergyAnalysis } from "./bill-details";
+import { EnergyIcon } from "./energy-icon";
 import styles from "./energy-assistant.module.css";
 type Stage = "start" | "general" | "upload" | "confirm" | "followup" | "final";
 const importantEditKeys: BillKey[] = ["billingDays", "consumptionKwh", "totalAmountAud", "usageRateAud", "supplyDailyAud"];
 const greeting: ChatMessage = { role: "assistant", content: "Hi — what can I help you with today?" };
+const prompts = [
+  { label: "Cool a hot room", question: "How can I keep a hot room more comfortable using what I already have?" },
+  { label: "Reduce standby use", question: "What can I switch off to reduce unnecessary standby electricity use?" },
+  { label: "Everyday energy habits", question: "Which everyday household habits can help me use less electricity?" },
+];
 export function EnergyChat() {
   const [stage, setStage] = useState<Stage>("start"), [messages, setMessages] = useState<ChatMessage[]>([greeting]);
   const [bill, setBill] = useState<Bill>(emptyBill), [corrected, setCorrected] = useState<BillKey[]>([]), [confirmed, setConfirmed] = useState<ConfirmedBill | null>(null);
@@ -17,15 +23,23 @@ export function EnergyChat() {
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [fileName, setFileName] = useState(""), [editing, setEditing] = useState(false);
   const [conversation, setConversation] = useState<BillConversation>({ asked: [], current: null, clarification: null });
   const [pendingChat, setPendingChat] = useState<ChatMessage[] | null>(null);
-  const controller = useRef<AbortController | null>(null), generation = useRef(0), end = useRef<HTMLDivElement>(null);
+  const controller = useRef<AbortController | null>(null), generation = useRef(0);
+  const composer = useRef<HTMLTextAreaElement | null>(null);
+  const chatBody = useRef<HTMLDivElement | null>(null), panelStart = useRef<HTMLDivElement | null>(null);
   useEffect(() => () => { generation.current++; controller.current?.abort(); }, []);
-  useEffect(() => { if (messages.length > 1) end.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, [messages, stage, busy]);
+  useEffect(() => {
+    const body = chatBody.current;
+    if (!body) return;
+    const panel = (stage === "confirm" || stage === "final") ? panelStart.current : null;
+    const top = stage === "start" ? 0 : panel ? panel.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop : body.scrollHeight;
+    body.scrollTo({ top, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  }, [messages, stage, busy, editing]);
   function append(...entries: ChatMessage[]) { setMessages(current => entries.reduce(remember, current)); }
   function reset() {
     generation.current++; controller.current?.abort(); setBusy(false); setError(""); setStage("start"); setMessages([greeting]); setBill(emptyBill()); setCorrected([]); setConfirmed(null); setHousehold({}); setConversation({ asked: [], current: null, clarification: null }); setInput(""); setSelected([]); setFileName(""); setEditing(false); setPendingChat(null);
   }
   function chooseBill() { setStage("upload"); setError(""); setPendingChat(null); append({ role: "user", content: "Analyse my electricity bill" }, { role: "assistant", content: "I can help you understand your electricity use and identify areas worth investigating. Upload a recent electricity bill to get started, then we'll check the details together." }); }
-  function chooseGeneral() { setStage("general"); setError(""); append({ role: "user", content: "Ask an energy question" }, { role: "assistant", content: "Ask me about household electricity use or practical ways to reduce demand. What would you like to understand?" }); }
+  function chooseGeneral() { setStage("general"); setError(""); append({ role: "user", content: "Ask an energy question" }, { role: "assistant", content: "Ask me about household electricity use or practical ways to reduce demand. What would you like to understand?" }); composer.current?.focus(); }
   async function generalChat(history: ChatMessage[]) {
     controller.current?.abort(); const c = new AbortController(); controller.current = c; const id = ++generation.current;
     setBusy(true); setError(""); setPendingChat(history);
@@ -72,18 +86,43 @@ export function EnergyChat() {
   }
   function editFields(keys: BillKey[]) { return <div className={styles.editFields}>{keys.map(key => <label key={key}>{billFields[key].label} {billFields[key].unit && `(${billFields[key].unit})`}<input name={key} type={billFields[key].type === "number" ? "number" : billFields[key].type === "date" ? "date" : "text"} step="any" maxLength={600} defaultValue={bill[key].value ?? ""} /></label>)}</div>; }
   const question = stage === "followup" ? conversation.current : null;
-  return <div className={styles.chat}>
-    <div className={styles.chatBar}><span>HOUSEHOLD ENERGY · A PRACTICAL CONVERSATION</span><button type="button" onClick={reset}>New chat ↺</button></div>
-    <div aria-live="polite" aria-relevant="additions text" className={styles.transcript}>{messages.map((m, index) => <div key={`${index}-${m.content}`} className={m.role === "user" ? styles.user : styles.assistant}><span className={styles.speaker}>{m.role === "user" ? "You" : "Energy Assistant"}</span><p>{m.content}</p></div>)}</div>
-    {stage === "start" && <div className={styles.starters}><button onClick={chooseBill}><strong>Analyse my electricity bill <span>→</span></strong><small>Understand your usage and find areas worth investigating.</small></button><button onClick={chooseGeneral}><strong>Ask an energy question <span>→</span></strong><small>Explore household energy use and practical ways to reduce demand.</small></button></div>}
-    {stage === "upload" && <section className={styles.inlinePanel} aria-label="Electricity bill upload"><label className={styles.upload}>Choose a PDF bill<input type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void upload(file); }} /></label><p>Digital PDFs with selectable text · up to 4 MB and 12 pages. Scans and password-protected files may not be readable.</p>{fileName && <p>Uploaded file: {fileName}. The original isn’t kept for retry; choose it again if needed.</p>}<p className={styles.privacy}>Processed temporarily on the server. Extracted bill text is sent to OpenAI to read the details. The app doesn’t intentionally save your PDF or bill text. Provider processing and retention policies still apply. Use a redacted bill where possible.</p></section>}
+  const billStep = stage === "upload" ? 0 : stage === "confirm" ? 1 : stage === "followup" ? 2 : stage === "final" ? 3 : -1;
+  return <section className={styles.chat} aria-label="Energy Assistant conversation">
+    <div className={styles.chatBar}>
+      <div className={styles.chatIdentity}><span className={styles.avatar}><EnergyIcon name="leaf" /></span><div><strong>Your energy companion</strong><span>Practical guidance for your home</span></div></div>
+      <button type="button" onClick={reset} className={styles.resetButton}><EnergyIcon name="reset" /> New chat</button>
+    </div>
+    {billStep >= 0 && <ol className={styles.billProgress} aria-label="Bill analysis progress">{["Upload", "Review", "Your home", "Next steps"].map((label, index) => <li key={label} aria-current={index === billStep ? "step" : undefined} data-complete={index < billStep}><span>{index < billStep ? <EnergyIcon name="check" /> : index + 1}</span>{label}</li>)}</ol>}
+    <div className={styles.chatBody} ref={chatBody}>
+    {stage === "start" ? <div className={styles.welcome}>
+      <span className={styles.eyebrow}>Let’s make energy feel simpler</span>
+      <h2>Where would you like to start?</h2>
+      <p>Bring a bill, a question, or just a little curiosity.</p>
+    </div> : <div role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions text" className={styles.transcript}>{messages.map((m, index) => <div key={`${index}-${m.content}`} className={m.role === "user" ? styles.user : styles.assistant}>
+      {m.role === "assistant" && <span className={styles.messageAvatar}><EnergyIcon name="leaf" /></span>}
+      <div><span className={styles.speaker}>{m.role === "user" ? "You" : "Energy Assistant"}</span><p>{m.content}</p></div>
+    </div>)}</div>}
+    {stage === "start" && <>
+      <div className={styles.starters}>
+        <button onClick={chooseBill} className={styles.billStarter}><span className={styles.starterIcon}><EnergyIcon name="bill" /></span><strong>Understand my bill</strong><small>Unpack your electricity use and find places to start.</small><span className={styles.starterAction}>Explore a bill <EnergyIcon name="arrow" /></span></button>
+        <button onClick={chooseGeneral} className={styles.questionStarter}><span className={styles.starterIcon}><EnergyIcon name="chat" /></span><strong>Ask an energy question</strong><small>Find practical ideas for a more energy-conscious home.</small><span className={styles.starterAction}>Let’s talk <EnergyIcon name="arrow" /></span></button>
+      </div>
+      <div className={styles.promptIdeas}><span>Or try a question</span><div>{prompts.map(prompt => <button type="button" key={prompt.label} onClick={() => { setInput(prompt.question); composer.current?.focus(); }}>{prompt.label}<span aria-hidden="true">↗</span></button>)}</div></div>
+    </>}
+    {stage === "upload" && <section className={styles.inlinePanel} aria-label="Electricity bill upload">
+      <div className={styles.uploadArea}><span className={styles.uploadIcon}><EnergyIcon name="upload" /></span><h2>A clearer picture starts here.</h2><p>Choose a recent electricity bill to review together.</p><label className={styles.upload}>Choose a PDF bill<input type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void upload(file); }} /></label><small>PDF with selectable text · up to 4 MB and 12 pages</small></div>
+      <p className={styles.privacy}>Scans and password-protected files may not be readable. Extracted bill text is sent to OpenAI to read the details. The app doesn’t intentionally save your PDF or bill text; provider processing and retention policies still apply. Use a redacted bill where possible.</p>
+      {fileName && <p className={styles.fileNote}>Selected: {fileName}. Choose it again if a retry is needed.</p>}
+    </section>}
+    <div ref={panelStart} />
     {stage === "confirm" && <section className={styles.inlinePanel} aria-label="Review bill details">{editing ? <form onSubmit={saveCorrection}><p>Correct what you can verify on the bill. Leave missing values blank. Rates are dollars, not cents.</p>{editFields(importantEditKeys)}<details><summary>Edit dates, retailer, solar or other details</summary>{editFields((Object.keys(billFields) as BillKey[]).filter(k => !importantEditKeys.includes(k)))}</details><button className={styles.primary}>Save corrections</button> <button type="button" onClick={() => { setEditing(false); setError(""); }}>Cancel</button></form> : <><BillDetails bill={bill} correctedFields={corrected} />{bill.billingDays.value === null && billingDays(bill).value !== null && <p>{billingDays(bill).value} days calculated by counting both dates. Confirm that this matches the bill, or enter its billing-day count.</p>}<div className={styles.controls}><button className={styles.primary} onClick={confirm}>Confirm details →</button><button onClick={() => { setEditing(true); setError(""); }}>Correct a value</button></div></>}</section>}
-    {question && <p className={styles.privacy}>Question {conversation.asked.length} of up to 5{conversation.clarification ? " · Checking this answer" : ""}</p>}
+    {question && <p className={styles.questionProgress}>Question {conversation.asked.length} of up to 5{conversation.clarification ? " · Checking this answer" : ""}</p>}
     {question && <div className={styles.choices}>{question === "loads" ? <><div className={styles.loadChoices}>{loadChoices.map(load => <label key={load}><input type="checkbox" checked={selected.includes(load)} onChange={e => setSelected(current => e.target.checked ? [...current, load] : current.filter(x => x !== load))} />{load}</label>)}</div><button className={styles.primary} disabled={!selected.length} onClick={() => answer(selected.join("; "))}>Use these answers</button><button onClick={() => answer("None of these")}>None of these</button></> : question === "occupancy" ? ["One", "Two", "Three", "Four", "Five or more"].map(value => <button key={value} onClick={() => answer(value)}>{value}</button>) : question === "solar" ? ["Yes", "No"].map(value => <button key={value} onClick={() => answer(value)}>{value}</button>) : null}<button onClick={() => answer("Not sure / skipped")}>Not sure / skip</button></div>}
     {stage === "final" && confirmed && <><EnergyAnalysis confirmed={confirmed} household={household} /><div className={styles.controls}><button onClick={() => { setStage("confirm"); setHousehold({}); setEditing(true); }}>Revisit bill details</button><button onClick={reset}>Start another conversation</button></div></>}
-    {busy && <p role="status" className={styles.status}>{stage === "upload" ? "Reading the PDF and checking bill details…" : "Thinking through your question…"}</p>}
+    {busy && <div role="status" className={styles.status}><span className={styles.thinkingDots} aria-hidden="true"><i /><i /><i /></span><span>{stage === "upload" ? "Reading your bill and checking the details…" : "Thinking through your question…"}</span></div>}
     {error && <div role="alert" className={styles.error}><p>{error}</p>{pendingChat && <button disabled={busy} onClick={() => void generalChat(pendingChat)}>Retry answer</button>} <Link href="/knowledge-base">Browse Simple techniques →</Link></div>}
-    {["start", "general", "followup"].includes(stage) && <form onSubmit={submit} className={styles.composer}><label htmlFor="energy-message">{stage === "followup" ? "Your answer" : "Your energy question"}</label><div><textarea id="energy-message" rows={2} maxLength={stage === "followup" ? 1000 : 1800} value={input} disabled={busy} placeholder={stage === "followup" ? "Tell me what you know, or choose Not sure…" : "Ask about energy use in your home…"} onChange={e => setInput(e.target.value)} /><button className={styles.primary} disabled={busy || !input.trim()}>{stage === "followup" ? "Reply →" : "Send →"}</button></div></form>}
-    <div ref={end} /><p className={styles.privacy}>This chat remembers the most recent ten messages and your current bill answers while this page is open. New chat, refreshing or leaving resets it. Nothing is saved to browser storage. General answers may need checking; <Link href="/knowledge-base">review our sourced guides</Link>.</p>
-  </div>;
+    </div>
+    {["start", "general", "followup"].includes(stage) && <form onSubmit={submit} className={styles.composer}><label htmlFor="energy-message">{stage === "followup" ? "Your answer" : "Your energy question"}</label><div><textarea ref={composer} id="energy-message" rows={2} maxLength={stage === "followup" ? 1000 : 1800} value={input} disabled={busy} placeholder={stage === "followup" ? "Tell me what you know, or choose Not sure…" : "What would you like to understand about your home?"} onChange={e => setInput(e.target.value)} /><button className={styles.primary} disabled={busy || !input.trim()}>{stage === "followup" ? "Reply" : "Send"}<EnergyIcon name="arrow" /></button></div></form>}
+    <details className={styles.sessionNote}><summary>Just this conversation <span>Cleared when you leave</span></summary><p>This chat remembers the most recent ten messages and your current bill answers while this page is open. New chat, refreshing or leaving resets it. Nothing is saved to browser storage. General answers may need checking; <Link href="/knowledge-base">review our sourced guides</Link>.</p></details>
+  </section>;
 }
