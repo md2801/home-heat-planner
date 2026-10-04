@@ -3,6 +3,10 @@ import { sources, techniques } from "../features/knowledge-base/catalogue.ts";
 import { openAIDiagnostic, openAIExceptionBoundary, responseOutput } from "./openai-diagnostics.ts";
 import { EnergyError, energyFailure, energyMessages } from "./energy-diagnostics.ts";
 import { normalizeBillText, validateExtractedBill } from "./energy-bill-validation.ts";
+import { evidenceMatches } from "./energy-bill-validation.ts";
+import { energyAdviceSchema, isEnergyAdvice, type EnergyAdvice, type EnergyAnalysisInput } from "../contracts/energy-analysis.ts";
+import { billMeasures, hasLoad, loadChoices } from "../features/energy-assistant/logic.ts";
+import { energyAnalysisPrompt } from "./energy-analysis-prompt.ts";
 const context = { endpoint: "energy-assistant", model: "gpt-6-luna" } as const;
 const clients = new Map<string, { at: number; count: number }>();
 let requests = 0;
@@ -35,6 +39,7 @@ export async function extractBill(text: string, client: string, call: typeof fet
 Use short supporting excerpts (up to 240 characters) copied from the text in its original token order; whitespace/newlines may be normalised, but never rearrange words, join separated numeric fragments, alter punctuation/numbers or invent a label-value relationship. Dates ISO YYYY-MM-DD only when unambiguous (Australian day/month/year); never infer a missing year from today's date. Do not calculate days, sums, costs or averaged rates.
 Consumption hints: electricity/energy/general/anytime/total usage, consumption, kWh; imported grid energy only, not registers, average daily values, household benchmarks, generation or solar exports. If no explicit total import is identifiable, return null rather than sum rows or infer from chart bars. Distinguish current/new charges from previous balance, adjustments, payments and amount due; use amount due only when it explicitly equals current-period charges with no carried balance. For Australian bills monetary values are AUD; otherwise AUD fields null. Parse printed thousands separators/decimal numbers safely; preserve zero.
 Rate hints: usage/energy charge, c/kWh, cents per kWh, $/kWh; daily supply/service charge, c/day, $/day. Return raw printed numeric rates with unit AUD or cents; unit null for unknown. Application converts cents deterministically. Single usageRateAud only for one clear flat rate. Multiple rates never invalidate core fields: usageRateAud remains null and tariffComponents holds distinct supported peak, shoulder, off-peak, controlled-load, anytime or solar-feed-in rows. Do not average them. Return [] if no rows can be identified. Each component needs a supporting excerpt for that row; optional rate, consumption and amount can remain null. Do not duplicate the same row or confuse network/environmental kWh charges with additional imported consumption.
+For itemised bills without an explicit total, retain every import usage row and its printed kWh in tariffComponents. Set importRowsComplete true only when these rows cover ALL imported electricity for the same current billing period with no overlaps, missing rows, uncertain quantities or mixed example bills. Set it false if coverage is uncertain, rows are incomplete, or period allocations overlap. Never include an overall total alongside its breakdown. Keep solar/feed-in rows separate. Use other for ambiguous, network, environmental or adjustment rows; never label those as extra usage. Each excerpt must include that row's printed kWh quantity and its label in the original order. Do not calculate the total yourself: the application may sum supported complete import rows for user review.
 Solar export/feed-in tariff/feed-in credit are optional; solar generation is not exported energy. Credit positive magnitude. Tariff type only if explicit; otherCharges may preserve supported rate/charge text. No names, addresses, account/payment identifiers. Unsupported information remains unknown.`, { billText: normalizeBillText(text) }, billSchema, client, call, true);
   const result = validateExtractedBill(raw, text);
   openAIDiagnostic(context, "success"); return result;
@@ -45,4 +50,14 @@ export async function answerEnergy(input: ChatRequest, client: string, call: typ
     openAIDiagnostic(context, "validation"); throw new Error("I couldn't produce a reliable answer. Try a shorter household-energy question, or browse Simple techniques.");
   }
   openAIDiagnostic(context, "success"); return result.answer;
+}
+
+export async function analyseEnergyBill(input: EnergyAnalysisInput, client: string, call: typeof fetch = fetch): Promise<EnergyAdvice> {
+  const acReported = hasLoad(input.household, loadChoices[0]);
+  const guidance = techniques.filter(technique => acReported || !["cool-used-rooms", "comfortable-setting", "clean-filters"].includes(technique.id));
+  const result = await respond(energyAnalysisPrompt, { billText: input.billText, confirmedBill: input.confirmed.bill, correctedFields: input.confirmed.correctedFields, household: input.household, calculatedMeasures: billMeasures(input.confirmed), acReported, guidance }, energyAdviceSchema(guidance.map(technique => technique.id)), client, call, true);
+  if (!isEnergyAdvice(result)) throw new Error("The bill explanation couldn't be completed. Your confirmed figures are still available.");
+  const prose = [result.summary, ...result.billNotes.flatMap(note => [note.title, note.explanation]), ...result.recommendations.flatMap(item => [item.title, item.reason, item.action, item.check]), ...result.uncertainties].join(" ");
+  if (/[\d$%]|https?:\/\//.test(prose) || (!acReported && /\b(?:AC|air[- ]?con(?:ditioning|ditioner)?)\b/i.test(prose)) || result.billNotes.some(note => !evidenceMatches(input.billText, note.evidence)) || result.recommendations.some(item => item.techniqueId !== null && !guidance.some(technique => technique.id === item.techniqueId))) throw new Error("The bill explanation needs another try. Your confirmed figures are still available.");
+  return result;
 }

@@ -13,6 +13,6 @@ export async function POST(request: Request) {
     const text = await readBillPdf(bytes);
     const client = createHash("sha256").update(process.env.VERCEL ? request.headers.get("x-forwarded-for") ?? "unknown" : "local-demo").digest("hex");
     const bill = await extractBill(text, client);
-    return Response.json({ ok: true, bill }, { headers });
+    return Response.json({ ok: true, bill, billText: text }, { headers });
   } catch (error) { return Response.json({ ok: false, message: error instanceof EnergyError ? error.message : energyMessages.provider }, { status: error instanceof EnergyError ? error.status : 503, headers }); }
 }

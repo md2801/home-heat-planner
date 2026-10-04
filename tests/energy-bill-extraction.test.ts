@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { emptyBill, hasCoreBill, type Bill } from '../src/contracts/energy-assistant.ts';
+import { emptyBill, hasCoreBill, isBill, type Bill } from '../src/contracts/energy-assistant.ts';
+import { billMeasures, confirmBill, correctBill } from '../src/features/energy-assistant/logic.ts';
 import { evidenceMatches, normalizeBillText, validateExtractedBill } from '../src/server/energy-bill-validation.ts';
 import { EnergyError } from '../src/server/energy-diagnostics.ts';
 import { checkPdfText } from '../src/server/energy-pdf.ts';
@@ -56,6 +57,46 @@ test('solar feed-in component remains distinct from imported consumption', () =>
   const t = { kind: 'solar-feed-in', label: 'Feed-in', rateAudPerKwh: 5, rateUnit: 'cents', consumptionKwh: 120, amountAud: -6, evidence: 'Feed-in 120 kWh at 5 c/kWh credit $6.00' };
   const result = validateExtractedBill({ ...raw(core()), tariffComponents: [t] }, text + '\n' + t.evidence);
   assert.equal(result.consumptionKwh.value, 624); assert.equal(result.tariffComponents?.[0]?.rateAudPerKwh, .05);
+});
+const itemisedRows = (): { kind: string; label: string; rateAudPerKwh: number; rateUnit: string; consumptionKwh: number | null; amountAud: number; evidence: string }[] => [
+  { kind: 'peak', label: 'Peak', rateAudPerKwh: 30, rateUnit: 'cents', consumptionKwh: 200, amountAud: 60, evidence: 'Peak 200 kWh at 30 c/kWh $60.00' },
+  { kind: 'off-peak', label: 'Off-peak', rateAudPerKwh: 20, rateUnit: 'cents', consumptionKwh: 80, amountAud: 16, evidence: 'Off-peak 80 kWh at 20 c/kWh $16.00' },
+  { kind: 'solar-feed-in', label: 'Solar', rateAudPerKwh: 5, rateUnit: 'cents', consumptionKwh: 200, amountAud: -10, evidence: 'Solar 200 kWh at 5 c/kWh credit $10.00' },
+];
+function itemised() {
+  const b = core(); b.consumptionKwh = { value: null, evidence: null };
+  const rows = itemisedRows();
+  return { value: { ...raw(b), importRowsComplete: true, tariffComponents: rows }, source: 'Electricity bill\nBilling period 31 days\n' + rows.map(row => row.evidence).join('\n') };
+}
+test('itemised import rows are added in code with provenance, excluding solar and preserving separate rates', () => {
+  const { value, source } = itemised(), bill = validateExtractedBill(value, source);
+  assert.equal(bill.consumptionKwh.value, 280); assert.equal(bill.consumptionKwh.evidence, null);
+  assert.deepEqual(bill.consumptionCalculation, { method: 'sum-import-rows', componentIndexes: [0, 1] });
+  assert.equal(bill.usageRateAud.value, null); assert.ok(isBill(bill));
+  assert.equal(billMeasures(confirmBill(bill)).kwhPerDay, 280 / 31);
+  const corrected = correctBill(bill, { consumptionKwh: '290' });
+  assert.equal(corrected.bill.consumptionCalculation, undefined); assert.deepEqual(corrected.correctedFields, ['consumptionKwh']);
+  assert.equal(isBill({ ...bill, consumptionKwh: { value: 480, evidence: null } }), false);
+  assert.equal(isBill({ ...bill, consumptionCalculation: { method: 'sum-import-rows', componentIndexes: [0, 1, 2] } }), false);
+});
+test('incomplete or ambiguous import rows remain reviewable without inventing a total', () => {
+  for (const kind of ['incomplete', 'duplicate', 'missing', 'other', 'unsupported', 'wrong-number', 'aggregate']) {
+    const { value, source } = itemised();
+    if (kind === 'incomplete') value.importRowsComplete = false;
+    if (kind === 'duplicate') value.tariffComponents.push({ ...value.tariffComponents[0]! });
+    if (kind === 'missing') value.tariffComponents[0]!.consumptionKwh = null;
+    if (kind === 'other') value.tariffComponents[0]!.kind = 'other';
+    if (kind === 'unsupported') value.tariffComponents[0]!.evidence = 'Invented Peak 999 kWh';
+    if (kind === 'wrong-number') value.tariffComponents[0]!.consumptionKwh = 999;
+    if (kind === 'aggregate') value.tariffComponents[0]!.kind = 'anytime';
+    const bill = validateExtractedBill(value, source);
+    assert.equal(bill.consumptionKwh.value, null, kind); assert.equal(bill.consumptionCalculation, undefined, kind);
+  }
+});
+test('an explicit total takes precedence and the provider cannot claim a calculation', () => {
+  const { value, source } = itemised(); value.consumptionKwh = { value: 300, evidence: 'Total import 300 kWh' };
+  assert.equal(validateExtractedBill(value, source + '\nTotal import 300 kWh').consumptionKwh.value, 300);
+  assert.throws(() => validateExtractedBill({ ...value, consumptionCalculation: { method: 'sum-import-rows', componentIndexes: [0, 1] } }, source), stage('BILL_SCHEMA_INVALID'));
 });
 test('empty and scanned-like text report no digital text, not provider failure', () => {
   assert.throws(() => checkPdfText(''), stage('PDF_TEXT_EMPTY')); assert.throws(() => checkPdfText('Logo'), stage('PDF_TEXT_INSUFFICIENT'));

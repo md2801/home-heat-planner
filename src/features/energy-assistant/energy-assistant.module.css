@@ -154,6 +154,17 @@
 .reports { font-size: 13px; line-height: 1.6; }
 .reports dt { color: var(--color-muted); margin-top: 14px; }
 .reports dd { margin: 5px 0; }
+.billNotes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.billNotes section { padding: 17px; border: 1px solid #dce3d5; border-radius: 12px; background: #fbfcf7; }
+.billNotes h4 { margin: 0 0 8px; font-size: 15px; }
+.billNotes p { margin: 0; font-size: 13px; }
+.billNotes blockquote { margin: 8px 0 0; padding-left: 12px; border-left: 2px solid #9cac92; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.analysisLoading { padding: 24px; margin: 24px 0; border-radius: 12px; background: #f0f4ea; }
+.analysisLoading p { color: var(--color-muted); }
+.analysisLoading > span { display: block; height: 12px; margin-top: 12px; border-radius: 5px; background: #dce5d5; animation: thinking 1.3s ease-in-out infinite; }
+.analysisLoading > span:last-child { width: 65%; }
+@media (max-width: 600px) { .billNotes { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .analysisLoading > span { animation: none; } }
 @media (min-width: 1500px) { .workspace { grid-template-columns: minmax(0, 1fr) 340px; gap: 32px; } }
 @media (max-width: 1100px) { .workspace { grid-template-columns: minmax(0, 1fr) 270px; gap: 20px; } .chatBody { padding: 22px; } .starters { gap: 10px; } .starters button { padding: 16px; } .guideCopy { padding: 22px; } .guideCopy h2 { font-size: 25px; } .roomLink { align-self: flex-end; } }
 @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .companion { display: none; } .hero { align-items: flex-start; } .hero p { max-width: 510px; } }

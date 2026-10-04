@@ -21,6 +21,7 @@ export function correctBill(bill: Bill, edits: Partial<Record<BillKey, string>>,
     // Assignment crosses a mapped field type; the complete object is validated below.
     (next[k] as { value: string | number | null; evidence: string | null }).value = value;
     next[k].evidence = null; corrected.add(k);
+    if (k === "consumptionKwh") delete next.consumptionCalculation;
   }
   if (!isBill(next)) throw new Error("Check dates and numbers. Billing days must be a positive whole number; blank means unknown.");
   return { bill: next, correctedFields: [...corrected] };
