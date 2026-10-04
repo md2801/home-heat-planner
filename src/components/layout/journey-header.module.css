@@ -28,3 +28,9 @@
   .navLinks { flex-wrap: wrap; }
 }
 @media (prefers-reduced-motion: reduce) { .navigation a { transition: none; } }
+
+/* Supplementary destinations can wrap without squeezing the brand or My Plan. */
+.navigation { max-width: 100%; min-width: 0; }
+.navLinks { max-width: 100%; }
+@media (max-width: 1150px) { .navigation { width: 100%; justify-content: space-between; gap: 12px; font-size: 14px; } }
+@media (max-width: 600px) { .navigation a { padding-inline: 12px; } .navLinks { width: 100%; border-radius: 12px; } }

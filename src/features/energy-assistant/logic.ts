@@ -18,6 +18,7 @@ export function correctBill(bill: Bill, edits: Partial<Record<BillKey, string>>,
     const raw = edits[k]!.trim();
     const value = raw === "" ? null : billFields[k].type === "number" ? Number(raw) : raw;
     if (value === bill[k].value) continue;
+    if (k === "consumptionKwh") delete next.consumptionBasis;
     // Assignment crosses a mapped field type; the complete object is validated below.
     (next[k] as { value: string | number | null; evidence: string | null }).value = value;
     next[k].evidence = null; corrected.add(k);

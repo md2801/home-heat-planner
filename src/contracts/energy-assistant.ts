@@ -18,7 +18,7 @@ export const billFields = {
 } as const;
 export type BillKey = keyof typeof billFields;
 export type TariffComponent = { kind: "peak" | "shoulder" | "off-peak" | "controlled-load" | "anytime" | "solar-feed-in" | "other"; label: string; rateAudPerKwh: number | null; consumptionKwh: number | null; amountAud: number | null; evidence: string };
-export type Bill = { [K in BillKey]: { value: (typeof billFields)[K]["type"] extends "number" ? number | null : string | null; evidence: string | null } } & { tariffComponents?: TariffComponent[]; consumptionCalculation?: { method: "sum-import-rows"; componentIndexes: number[] } };
+export type Bill = { [K in BillKey]: { value: (typeof billFields)[K]["type"] extends "number" ? number | null : string | null; evidence: string | null } } & { tariffComponents?: TariffComponent[]; /** Reserved legacy key for correction cleanup; never accepted or emitted. */ consumptionBasis?: never; consumptionCalculation?: { method: "sum-import-rows"; componentIndexes: number[] } };
 export type ConfirmedBill = { bill: Bill; correctedFields: BillKey[]; confirmed: true };
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 export type ChatRequest = { mode: "general"; messages: ChatMessage[] };

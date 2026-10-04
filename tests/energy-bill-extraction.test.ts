@@ -1,15 +1,102 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { emptyBill, hasCoreBill, isBill, type Bill } from '../src/contracts/energy-assistant.ts';
 import { billMeasures, confirmBill, correctBill } from '../src/features/energy-assistant/logic.ts';
 import { evidenceMatches, normalizeBillText, validateExtractedBill } from '../src/server/energy-bill-validation.ts';
 import { EnergyError } from '../src/server/energy-diagnostics.ts';
-import { checkPdfText } from '../src/server/energy-pdf.ts';
+import { checkPdfText, readBillPdf } from '../src/server/energy-pdf.ts';
 import { extractBill } from '../src/server/energy-assistant.ts';
 function raw(bill: Bill) { return { ...bill, usageRateAud: { ...bill.usageRateAud, unit: bill.usageRateAud.value === null ? null : 'AUD' }, supplyDailyAud: { ...bill.supplyDailyAud, unit: bill.supplyDailyAud.value === null ? null : 'AUD' }, tariffComponents: [] }; }
 function core() { const b = emptyBill(); b.consumptionKwh = { value: 624, evidence: 'Total electricity usage 624 kWh' }; b.billingDays = { value: 31, evidence: 'Billing period 31 days' }; return b; }
 const text = 'SYNTHETIC Electricity bill\nBilling period 31 days\nTotal electricity usage 624 kWh\nCurrent charges $218.40';
 const stage = (s: string) => (e: unknown) => e instanceof EnergyError && e.stage === s;
+// Sanitised relevant lines from the reported selectable-text Bill 1.pdf; no personal identifiers.
+const splitBill = `Electricity charges are based on an actual meter reading.
+Bill period: 5 March 2023 to 4 April 2023 (31 Days)
+Average daily usage 9.03 kWh
+Usage and supply charges Time of use Units Price Amount
+Peak usage 6am-10pm (Mon-Fri) 200 kWh $0.2500 $50.00
+Off peak usage All other times 80 kWh $0.1500 $12.00
+Supply charge Daily 31 Days $0.9677 $30.00
+Total charges + $92.00
+Solar export Time of use Units Price
+Standard Feed-in Tariff* At all times 200 kWh $0.05 $10.00 cr`;
+function splitCore() {
+  const b = emptyBill(); b.billingDays = { value: 31, evidence: 'Bill period: 5 March 2023 to 4 April 2023 (31 Days)' }; return b;
+}
+function splitRaw() {
+  return { ...raw(splitCore()), importRowsComplete: true, tariffComponents: [
+    { kind: 'peak', label: 'Peak', consumptionKwh: 200, rateAudPerKwh: .25, rateUnit: 'AUD', amountAud: 50, evidence: 'Peak usage 6am-10pm (Mon-Fri) 200 kWh $0.2500 $50.00' },
+    { kind: 'off-peak', label: 'Off-peak', consumptionKwh: 80, rateAudPerKwh: .15, rateUnit: 'AUD', amountAud: 12, evidence: 'Off peak usage All other times 80 kWh $0.1500 $12.00' },
+    { kind: 'solar-feed-in', label: 'Solar', consumptionKwh: 200, rateAudPerKwh: .05, rateUnit: 'AUD', amountAud: -10, evidence: 'Standard Feed-in Tariff* At all times 200 kWh $0.05 $10.00 cr' },
+  ] };
+}
+test('reported Bill 1 split-tariff layout reaches review as 280 kWh over 31 days, excluding solar', () => {
+  const result = validateExtractedBill(splitRaw(), splitBill);
+  assert.equal(result.consumptionKwh.value, 280); assert.equal(result.billingDays.value, 31); assert.ok(hasCoreBill(result));
+  assert.deepEqual(result.consumptionCalculation, { method: 'sum-import-rows', componentIndexes: [0, 1] });
+  assert.equal(result.consumptionKwh.evidence, null);
+  for (const index of result.consumptionCalculation!.componentIndexes) assert.ok(evidenceMatches(splitBill, result.tariffComponents![index]!.evidence));
+  assert.equal(result.provider.value, null); assert.equal(result.supplyDailyAud.value, null);
+});
+test('calculated import provenance survives confirmation and clears when the user corrects consumption', () => {
+  const bill = validateExtractedBill(splitRaw(), splitBill);
+  assert.deepEqual(confirmBill(bill).bill.consumptionCalculation, { method: 'sum-import-rows', componentIndexes: [0, 1] });
+  const corrected = correctBill(bill, { consumptionKwh: '279' });
+  assert.equal(corrected.bill.consumptionCalculation, undefined);
+  assert.equal(corrected.bill.consumptionKwh.evidence, null);
+  assert.deepEqual(corrected.correctedFields, ['consumptionKwh']);
+});
+test('an unsupported model total cannot bypass deterministic supported-row arithmetic', () => {
+  const value = splitRaw(); value.consumptionKwh = { value: 999, evidence: 'Peak usage 6am-10pm (Mon-Fri) 200 kWh $0.2500 $50.00' };
+  assert.equal(validateExtractedBill(value, splitBill).consumptionKwh.value, 280);
+  assert.equal(validateExtractedBill({ ...value, importRowsComplete: false }, splitBill).consumptionKwh.value, null);
+});
+test('messy split-tariff source whitespace preserves supported import and explicit zero', () => {
+  assert.equal(validateExtractedBill(splitRaw(), splitBill.replaceAll(' ', '\t\u00a0').replaceAll('\n', '\r\n')).consumptionKwh.value, 280);
+  const value = splitRaw();
+  value.tariffComponents[0]!.consumptionKwh = 0; value.tariffComponents[0]!.evidence = value.tariffComponents[0]!.evidence.replace('200 kWh', '0 kWh');
+  value.tariffComponents[1]!.consumptionKwh = 0; value.tariffComponents[1]!.evidence = value.tariffComponents[1]!.evidence.replace('80 kWh', '0 kWh');
+  assert.equal(validateExtractedBill(value, splitBill.replace('200 kWh $0.2500', '0 kWh $0.2500').replace('80 kWh', '0 kWh')).consumptionKwh.value, 0);
+});
+for (const kind of ['missing table footer', 'unsupported import row', 'duplicate rows', 'multiple tables', 'export-only table'] as const) test(`${kind} remains reviewable without establishing an imported total`, () => {
+  const value = splitRaw(); let source = splitBill;
+  if (kind === 'missing table footer') { source = source.replace('Total charges + $92.00', 'Unfinished table'); value.importRowsComplete = false; }
+  if (kind === 'unsupported import row') value.tariffComponents.push({ ...value.tariffComponents[0]!, kind: 'shoulder', evidence: 'Invented Shoulder 40 kWh', consumptionKwh: 40 });
+  if (kind === 'duplicate rows') value.tariffComponents.push({ ...value.tariffComponents[0]! });
+  if (kind === 'multiple tables') { source += '\n' + splitBill; value.importRowsComplete = false; }
+  if (kind === 'export-only table') value.tariffComponents = [value.tariffComponents[2]!];
+  const bill = validateExtractedBill(value, source);
+  assert.equal(bill.consumptionKwh.value, null); assert.equal(bill.consumptionCalculation, undefined); assert.ok(isBill(bill));
+});
+test('a complete import table with no supported billing period remains reviewable with unknown daily use', () => {
+  const value = splitRaw(); value.billingDays = { value: null, evidence: null };
+  const bill = validateExtractedBill(value, splitBill);
+  assert.equal(bill.consumptionKwh.value, 280); assert.equal(hasCoreBill(bill), false);
+  assert.equal(billMeasures(confirmBill(bill)).kwhPerDay, null);
+});
+test('split-tariff structured extraction with a null total succeeds through the current service', async () => {
+  process.env.OPEN_AI_KEY = 'synthetic-test-only'; delete process.env.VERCEL;
+  try {
+    const bill = await extractBill(splitBill, 'split-table-regression', async (_url, init) => {
+      const request = JSON.parse(String(init?.body)); assert.equal(request.model, 'gpt-6-luna'); assert.equal(request.store, false);
+      assert.ok(request.text.format.schema.required.includes('importRowsComplete'));
+      return Response.json({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify(splitRaw()) }] }] });
+    });
+    assert.equal(bill.consumptionKwh.value, 280); assert.equal(bill.billingDays.value, 31);
+  } finally { delete process.env.OPEN_AI_KEY; }
+});
+test('existing selectable-text electricity PDF passes; non-electricity PDF cannot support invented core evidence', async () => {
+  const billText = await readBillPdf(new Uint8Array(await readFile(new URL('./fixtures/document-import/electricity-bill.pdf', import.meta.url))));
+  const b = emptyBill();
+  b.consumptionKwh = { value: 650, evidence: 'Whole-home consumption: 650 kWh' };
+  b.periodStart = { value: '2026-09-01', evidence: 'Billing period: 01/09/2026 to 30/09/2026' };
+  b.periodEnd = { value: '2026-09-30', evidence: b.periodStart.evidence };
+  assert.ok(hasCoreBill(validateExtractedBill(raw(b), billText)));
+  const quote = await readBillPdf(new Uint8Array(await readFile(new URL('./fixtures/document-import/incomplete-quote.pdf', import.meta.url))));
+  assert.throws(() => validateExtractedBill(raw(b), quote), stage('BILL_CORE_FIELDS_INSUFFICIENT'));
+});
 test('clean Australian single-rate bill extracts cents and currency without guessing', () => {
   const b = core(); b.totalAmountAud = { value: 218.40, evidence: 'Current charges $218.40' };
   const r = raw(b); r.usageRateAud = { value: 31, evidence: 'General usage 31 c/kWh', unit: 'cents' };

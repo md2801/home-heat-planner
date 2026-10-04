@@ -8,6 +8,9 @@ export function evidenceMatches(text: string, excerpt: string): boolean {
   const compact = (v: string) => normalizeBillText(v).replace(/\s+/g, " ").trim();
   return !!excerpt.trim() && compact(text).includes(compact(excerpt));
 }
+function supportsKwhQuantity(excerpt: string, quantity: number): boolean {
+  return [...excerpt.matchAll(/(?<![\d.,])\b(\d+(?:,\d{3})*(?:\.\d+)?)\s*kWh\b(?!\s*\/)/gi)].some(match => Number(match[1]?.replaceAll(",", "")) === quantity);
+}
 export function validateExtractedBill(raw: unknown, text: string): Bill {
   // This flag describes coverage, not a model-calculated total. Calculation metadata is app-only.
   if (!raw || typeof raw !== "object" || Array.isArray(raw) || "consumptionCalculation" in raw) throw energyFailure("BILL_SCHEMA_INVALID", energyMessages.insufficient);
@@ -21,7 +24,7 @@ export function validateExtractedBill(raw: unknown, text: string): Bill {
   const unsupported: string[] = [], whitespace: string[] = [];
   for (const key of Object.keys(billFields) as BillKey[]) {
     const field = bill[key]; if (field.value === null) continue;
-    if (!field.evidence || !evidenceMatches(text, field.evidence)) { unsupported.push(key); (bill[key] as Bill[BillKey]) = { value: null, evidence: null }; }
+    if (!field.evidence || !evidenceMatches(text, field.evidence) || (key === "consumptionKwh" && typeof field.value === "number" && !supportsKwhQuantity(field.evidence, field.value))) { unsupported.push(key); (bill[key] as Bill[BillKey]) = { value: null, evidence: null }; }
     else if (!text.includes(field.evidence)) whitespace.push(key);
   }
   const tariffs: TariffComponent[] = [];
@@ -39,7 +42,7 @@ export function validateExtractedBill(raw: unknown, text: string): Bill {
     // Require a printed kWh quantity in each row, not a rate, meter reading or daily average.
     const quantitiesSupported = sum?.componentIndexes.every(index => {
       const row = tariffs[index];
-      return !!row && [...row.evidence.matchAll(/(?<![\d.,])\b(\d+(?:,\d{3})*(?:\.\d+)?)\s*kWh\b(?!\s*\/)/gi)].some(match => Number(match[1]?.replaceAll(",", "")) === row.consumptionKwh);
+      return !!row && row.consumptionKwh !== null && supportsKwhQuantity(row.evidence, row.consumptionKwh);
     });
     if (sum && quantitiesSupported) {
       bill.consumptionKwh = { value: sum.total, evidence: null };
