@@ -82,3 +82,7 @@ The room-plan screen derives a small read-only Heatwave-Ready guide from the ret
 ## Energy Assistant
 
 The supplementary household-energy chat and digital-PDF bill workflow have isolated transient contracts. See [Energy Assistant v1](energy-assistant.md) for upload limits, structured extraction, user confirmation, short-term memory, deterministic daily-use calculation, provenance and failure behaviour. Neither operation changes room facts or saved planner state.
+
+## Independent document import
+
+`POST /api/document-import` and `/document-import` extract and review PDF/JPG/PNG electricity bills, cooling labels and installation quotes independently of the assessment. Proposals reuse existing financial field identities while retaining raw printed units, source page/excerpt, unknowns and climate/period basis; every value requires explicit review. No assessment mapping, persistence or financial calculation is introduced. See [Document import v1](document-import.md) for the contract, examples, temporary-processing policy and fixtures.

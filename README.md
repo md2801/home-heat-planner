@@ -159,6 +159,12 @@ Answer up to five contextual questions about occupancy, major loads and relevant
 
 This page keeps ten recent chat messages and the active bill/household answers in component memory only. **New chat**, refreshing or leaving resets them. It doesn't write bills or chat to localStorage or a database, or intentionally persist original PDFs or extracted text. Bill text and general questions are sent to OpenAI with `store:false`; provider processing/retention policies still apply. Use redacted bills where possible. No new API key or environment variable is required; the existing hosted usage-control guard still applies. Without provider access, the original planner remains available; general chat offers retry and the sourced library. See the [Energy Assistant contract](docs/contracts/energy-assistant.md).
 
+## Independent document review
+
+Visit `/document-import` to read an electricity bill, AC energy label or installation quote from PDF, JPG or PNG (up to 4 MB / 12 PDF pages). The page shows proposed values alongside their page/excerpt, printed unit and climate/period basis. Confirm, correct or reject every field before finishing; missing or ambiguous values stay unknown. You can download the reviewed JSON and reopen edits.
+
+The feature stays separate from assessment screens and never writes to their storage. Printed cents, monthly charges and label climates remain raw proposals; no conversion, cooling-consumption allocation, savings or payback calculation occurs. Files are processed in memory using the existing `OPEN_AI_KEY`, OpenAI structured extraction and `store:false`; provider retention policies still apply. Failure offers retry without altering an assessment. See the [API examples, limits, fixtures and review contract](docs/contracts/document-import.md).
+
 ## What the 3D room represents
 
 The diagram gives your answers a visual reference: window directions, roof context, coverings and cooling equipment. You can rotate it, zoom, reset the view and switch to 2D. Equipment and window labels follow your reported details.
@@ -249,6 +255,7 @@ The educational library is available at `/knowledge-base`, including before an a
 | `/cooling-plan` | Checklist, saved plan and calendar check-in |
 | `/follow-up` | Progress, barriers, completion, usage, comfort and history |
 | `/energy-assistant` | General household-energy chat and confirmed digital-PDF bill analysis |
+| `/document-import` | Independent PDF/JPG/PNG extraction and per-field review |
 | `/thermal-scenario` | Optional experimental 24-hour temperature/cost comparison |
 
 ## Development and architecture
@@ -296,3 +303,4 @@ Vercel is the intended hosting target: use the Next.js preset and `npm run build
 - [Guidance UI contract](docs/contracts/cooling-research-ui.md): how searched guidance becomes concise improvement cards.
 - [Room scene contract](docs/contracts/room-scene.md): diagram proposals, confirmation and limitations.
 - [Thermal scenario contract](docs/contracts/thermal-scenario.md): experimental model and checks.
+- [Document import contract](docs/contracts/document-import.md): temporary extraction, original units, review and examples.
