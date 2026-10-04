@@ -27,6 +27,8 @@ test("valid bounded provider output is cached, invalid output and failures fall 
     calls++;
     const body = JSON.parse(String(init?.body));
     assert.equal(body.store, false);
+    assert.equal(body.model, "gpt-6-luna");
+    assert.deepEqual(body.reasoning, { effort: "none" });
     assert.equal(body.max_output_tokens, 200);
     assert.equal(body.text.format.strict, true);
     assert.deepEqual(body.text.format.schema.properties.questionId.enum, ["heatTiming"]);

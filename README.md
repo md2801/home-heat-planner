@@ -202,10 +202,10 @@ The server reads **`OPEN_AI_KEY`** for optional OpenAI features. Configure it th
 
 | Feature | AI's role | Information sent |
 | --- | --- | --- |
-| Question assistance | Select a relevant allowed question (`gpt-4.1-mini`) | The submitted problem description and allowed questions |
+| Question assistance | Select a relevant allowed question (`gpt-6-luna`) | The submitted problem description and allowed questions |
 | Room proposal | Suggest a structured diagram for review (`gpt-6-luna`) | The submitted room description and current diagram details |
 | Financial explanation | Choose the reading order of app-owned explanation cards (`gpt-6-luna`) | Recomputed summaries, limitations and checks, not raw complaints, location or quote identities |
-| Online guidance | Search allowed government sources (`gpt-5.5`), then format concise cards (`gpt-4.1-mini`) | Room categories, unknowns and eligible option IDs; not location, free-text answers, energy use, budgets or quote/model identities |
+| Online guidance | Search allowed government sources (`gpt-6-luna`), then format concise cards (`gpt-6-luna`) | Room categories, unknowns and eligible option IDs; not location, free-text answers, energy use, budgets or quote/model identities |
 
 **AI does not calculate financial results, choose an installation for you or turn missing information into facts.** Diagram proposals require confirmation, and web guidance cannot override eligibility or calculation rules. Provider failures retain the manual flow. Calls use validated structured outputs, server-side credentials and `store: false`.
 

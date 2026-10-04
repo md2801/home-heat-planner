@@ -121,7 +121,7 @@ test("explicit provider search is bounded, cached, and refreshed when room categ
     assert.ok(payload.knowledgeBase.entries.some((item: { id: string }) => item.id === "close-curtains"));
     assert.ok(payload.knowledgeBase.entries.every((item: { sources: {url: string}[]; checks: string[] }) => item.sources.length && item.checks.length));
     if (body.tools) {
-      assert.equal(body.model, "gpt-5.5");
+      assert.equal(body.model, "gpt-6-luna");
       assert.equal(body.tool_choice, "required"); assert.equal(body.max_tool_calls, 2);
       assert.deepEqual(body.tools[0].filters.allowed_domains, ["yourhome.gov.au", "energy.gov.au", "energyrating.gov.au"]);
       assert.deepEqual(body.include, ["web_search_call.action.sources"]);
@@ -129,7 +129,7 @@ test("explicit provider search is bounded, cached, and refreshed when room categ
       const searched = envelope(); searched.output[1]!.content![0]!.text = "Retrieved shading guidance: investigate external shade and confirm permission with a professional.";
       return Response.json(searched);
     }
-    assert.equal(body.model, "gpt-5.5");
+    assert.equal(body.model, "gpt-6-luna");
     assert.deepEqual(body.reasoning, { effort: "low" });
     assert.equal(body.text.format.strict, true);
     assert.deepEqual(body.text.format, researchResponseFormat(input.options.map(option => option.id), recommendationResources(input).byOption, { coolingEquipment: input.room.coolingEquipment, techniqueIds: recommendationResources(input).techniqueIds }, [url]));

@@ -5,8 +5,8 @@ import { recommendationResources, optionTechniqueIds, type ResourceIds } from ".
 import { openAIDiagnostic, openAIExceptionBoundary, responseOutput } from "./openai-diagnostics.ts";
 import { hasReportedAC } from "../features/cooling-options/recommendation-policy.ts";
 
-const context = { endpoint: "cooling-research", model: "gpt-5.5" } as const;
-const formatContext = { endpoint: "cooling-research", model: "gpt-5.5" } as const;
+const context = { endpoint: "cooling-research", model: "gpt-6-luna" } as const;
+const formatContext = { endpoint: "cooling-research", model: "gpt-6-luna" } as const;
 const cache = new Map<string, { at: number; result: Extract<CoolingResearchResult, { ok: true }> }>();
 const clients = new Map<string, { at: number; count: number }>();
 let calls = 0;

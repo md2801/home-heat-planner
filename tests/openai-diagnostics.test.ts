@@ -17,7 +17,7 @@ test("diagnostics log only allowlisted metadata even when errors contain private
   try {
     const privateText = "SYNTHETIC_PRIVATE_ERROR_TEXT";
     openAIDiagnostic({ endpoint: "room-scene", model: "gpt-6-luna" }, "provider-http", new Response(null, { status: 401, headers: { "x-request-id": "req_0123456789abcdef0123456789abcdef" } }), { error: { code: "invalid_api_key", type: "authentication_error", message: privateText, headers: privateText }, prompt: privateText });
-    openAIDiagnostic({ endpoint: "intake", model: "gpt-4.1-mini" }, "network", undefined, { error: { code: privateText, type: privateText }, status: privateText }, { message: privateText, cause: { code: "EACCES", message: privateText } });
+    openAIDiagnostic({ endpoint: "intake", model: "gpt-6-luna" }, "network", undefined, { error: { code: privateText, type: privateText }, status: privateText }, { message: privateText, cause: { code: "EACCES", message: privateText } });
     assert.match(lines[0]!, /invalid_api_key/);
     assert.match(lines[0]!, /req_0123456789abcdef0123456789abcdef/);
     assert.match(lines[1]!, /EACCES/);
