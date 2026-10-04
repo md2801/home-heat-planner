@@ -1,6 +1,11 @@
 :global(.app-shell-main):has(.page) { max-width: 1440px; padding-top: 28px; }
 :global(body):has(.page) :global(.app-shell-header) { max-width: 1440px; }
 .page { padding-bottom: 12px; }
+.earnLink { display: inline-flex; align-items: center; min-height: 44px; margin-right: 24px; font-size: 14px; font-weight: 600; color: var(--color-forest); text-underline-offset: 4px; }
+.couponCode { display: block; padding: 14px 0; font-size: 18px; word-break: break-all; user-select: all; }
+.consent { display: flex; align-items: start; gap: 12px; margin: 20px 0; font-size: 12px; color: var(--color-muted); line-height: 1.7; }
+.consent input { width: 18px; height: 18px; margin-top: 3px; flex-shrink: 0; accent-color: var(--color-forest); }
+.detailActions a { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .page button { font: inherit; cursor: pointer; }
 .page svg { width: 20px; height: 20px; flex-shrink: 0; }
 .pageHeading, .pageHeading p, .pageHeading a { display: flex; align-items: center; }
@@ -133,12 +138,14 @@
 .summary dd span { font-weight: 400; }
 .success { display: flex; gap: 12px; background: var(--color-eucalyptus); padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; color: var(--color-forest-dark); }
 .success > svg { width: 22px; height: 22px; }
+.success > div, .activity li > div { min-width: 0; }
+.activity li small { overflow-wrap: anywhere; }
 .success p { margin: 5px 0 0; }
 .insufficient { background: #f8eedf; border-radius: 7px; padding: 12px 16px; font-size: 12px; line-height: 1.6; color: #78511f; }
 .ready { display: flex; align-items: center; gap: 7px; font-size: 12px; line-height: 1.6; color: var(--color-forest); }
 .ready > svg { width: 17px; height: 17px; }
 .dialogBody > p.disclosure { font-size: 10px; margin: 13px 0 0; text-align: center; line-height: 1.6; }
-.detailActions { margin-top: 20px; }
+.detailActions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
 .primary, .secondary { font: inherit; min-height: 44px; padding: 12px 18px; border: 1px solid var(--color-forest); border-radius: 7px; cursor: pointer; font-size: 13px; }
 .primary { display: flex; align-items: center; justify-content: space-between; gap: 20px; color: white; background: var(--color-forest); width: 100%; }
 .primary:hover:not(:disabled) { background: var(--color-forest-dark); }
