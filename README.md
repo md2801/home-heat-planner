@@ -1,5 +1,7 @@
 # Home Heat Planner
 
+**Explore more → Home resilience** opens a public preparation guide at `/explore`, with five topics: heatwaves, floods, storms, bushfires and earthquakes. Browse or search short practical guides, filter by everyday preparation, planning or professional help, and expand each card for steps, suitability checks and official Australian sources. Existing energy-saving guidance remains available under **Explore more → Simple techniques**. The resilience library is educational; it does not assess a property's hazard risk or provide live emergency warnings. It does not change the room assessment or its financial calculations.
+
 **Understand why your bedroom overheats, reduce unnecessary cooling demand, and prepare a practical plan for hotter days.**
 
 **Live Web App:** [home-heat-planner.vercel.app](https://home-heat-planner.vercel.app/)
@@ -54,7 +56,7 @@ Home → Room assessment → Room & cooling cost review → Heat contributors
 
 ### 1. Start with your bedroom
 
-The home page introduces the app and shows an illustrative bedroom cooling story. Choose **Start my assessment** to begin. The example room is a demonstration, not a model of your home.
+The home page introduces the app and shows an illustrative bedroom cooling story. Choose **Start my assessment** to begin. The example room is a demonstration, not a model of your home. Below it, a three-step walkthrough explains the journey, with introductions and direct links to the Energy Assistant, room planning, Simple techniques, Home resilience and Rewards. A climate section explains the purpose of reducing energy demand, and FAQs cover starting points, accounts, estimates, bill processing and guidance scope.
 
 ### 2. Answer questions about your room
 

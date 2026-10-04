@@ -4,7 +4,7 @@ import { accountStore } from "./account-store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const publicPages = new Set(["/", "/sign-in", "/sign-up", "/reset-password", "/knowledge-base", "/energy-assistant", "/document-import", "/thermal-scenario", "/marketplace", "/rewards"]);
+const publicPages = new Set(["/", "/sign-in", "/sign-up", "/reset-password", "/knowledge-base", "/explore", "/energy-assistant", "/document-import", "/thermal-scenario", "/marketplace", "/rewards"]);
 
 export function AccountProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();

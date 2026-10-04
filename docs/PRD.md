@@ -1,5 +1,7 @@
 # Home Heat Planner Product Requirements Document
 
+Home resilience update, 4 October 2026: the user authorised an Explore more navigation menu and a public `/explore` knowledge hub covering heatwaves, floods, storms, bushfires and earthquakes. Short preparation guides use reviewed Australian official sources and distinguish everyday actions from professional work. Earthquakes are geological hazards within broader resilience, not climate extremes. The existing room assessment remains the core journey; this library adds no property risk assessment, live warnings, savings estimates or changes to cooling recommendation eligibility.
+
 Shading scenario update, 4 October 2026: the user authorised a guided, deterministic external-window-shading what-if comparison linked to recommendations and saved plans. Explicitly chosen synthetic weather and editable room assumptions support selected-period energy/cost scenarios only. They do not establish validated personalised savings, annual savings or payback. See [shading scenario contract](contracts/shading-scenario.md). Insulation and ventilation remain qualitative investigations in the main comparison.
 
 Rewards integration update, 4 October 2026: the user requested persistent earned coins, automated photo approvals and a visible approval history, integrated with the colleague's marketplace. Real retailer links and clearly labelled demo coupons are authorised; no retailer discounts or fulfilment are promised. See [Home Rewards](home-rewards.md).

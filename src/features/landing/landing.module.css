@@ -16,13 +16,13 @@
 .actions p { margin: 0; color: #485864; font-size: 17px; white-space: nowrap; }
 .illustration { position: absolute; top: -25px; left: 36.5%; width: 64%; margin: 0; }
 .illustration svg { display: block; width: 100%; height: auto; }
-.lowerRow { display: grid; grid-template-columns: 51% 1fr; gap: 4%; align-items: center; margin-top: 7px; }
-.benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--color-line); padding-top: 32px; scroll-margin-top: 28px; }
-.benefit { padding: 0 24px 0 0; }
+.lowerRow { margin-top: 20px; }
+.benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--color-line); padding: 28px 0; }
+.benefit { display: grid; grid-template-columns: 45px 1fr; column-gap: 20px; align-content: start; padding: 0 24px 0 0; }
 .benefit + .benefit { border-left: 1px solid var(--color-line); padding-left: 28px; }
-.benefit svg { display: block; width: 45px; height: 45px; margin-bottom: 12px; }
+.benefit svg { display: block; width: 45px; height: 45px; grid-row: span 2; margin-top: 3px; }
 .benefit h2 { margin: 0; font-size: clamp(16px, 1.14vw, 19px); font-weight: 600; line-height: 1.4; letter-spacing: -0.45px; }
-.benefit p { margin: 6px 0 0; font-size: 16px; line-height: 1.45; color: #747a7c; max-width: 190px; }
+.benefit p { margin: 6px 0 0; font-size: 15px; line-height: 1.55; color: #647068; max-width: 290px; }
 .timeline { display: flex; align-items: flex-start; gap: 22px; color: #707a80; padding-top: 15px; font-size: 16px; }
 .timelineTitle { margin-top: -8px; }
 .timelineTrack { position: relative; flex: 1; height: 48px; }

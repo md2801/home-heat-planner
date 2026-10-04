@@ -17,6 +17,22 @@
 .navigation .planLink:hover { background: #e8eee4; border-color: #9aac9c; }
 .header a:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 4px; }
 .navLinks a[aria-current="page"] { background: #fffdf7; color: var(--color-forest); font-weight: 600; }
+.exploreMenu { position: relative; }
+.exploreMenu > summary { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 17px; border-radius: 22px; list-style: none; white-space: nowrap; cursor: pointer; }
+.exploreMenu > summary::-webkit-details-marker { display: none; }
+.exploreMenu > summary svg { width: 14px; height: 14px; transition: transform 150ms ease; }
+.exploreMenu[open] > summary svg { transform: rotate(180deg); }
+.exploreMenu[open] > summary, .exploreMenu[data-active="true"] > summary, .exploreMenu > summary:hover { background: #fffdf7; color: var(--color-forest); }
+.exploreMenu[data-active="true"] > summary { font-weight: 600; }
+.exploreMenu > summary:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 4px; }
+.exploreLinks { position: absolute; top: calc(100% + 12px); left: 0; z-index: 50; width: 316px; max-width: calc(100vw - 40px); padding: 10px; border: 1px solid #dce2d5; border-radius: 16px; background: #fffdf7; box-shadow: 0 14px 35px #1d39281a; }
+.exploreEyebrow { display: block; padding: 9px 10px 12px; color: #697766; font-size: 9px; font-weight: 600; letter-spacing: 1.4px; }
+.navigation .exploreLinks a { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; justify-content: start; min-height: 68px; padding: 10px; border-radius: 10px; gap: 10px; white-space: normal; }
+.navigation .exploreLinks a:hover, .navigation .exploreLinks a[aria-current="page"] { background: #eef2e7; }
+.exploreLinks strong { display: block; font-size: 14px; font-weight: 600; }
+.exploreLinks small { display: block; margin-top: 4px; color: #697766; font-size: 11px; font-weight: 400; line-height: 1.4; }
+.exploreIcon { display: grid; place-items: center; width: 34px; height: 38px; color: var(--color-forest); }
+.exploreIcon svg { width: 24px; height: 24px; }
 .navigation .planLink[aria-current="page"] { background: #e8eee4; border-color: #9aac9c; }
 @media (max-width: 1150px) { .navigation { font-size: 16px; } }
 @media (max-width: 1000px) { .header { flex-wrap: wrap; gap: 14px; } }
@@ -27,7 +43,7 @@
   .navigation { width: 100%; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
   .navLinks { flex-wrap: wrap; }
 }
-@media (prefers-reduced-motion: reduce) { .navigation a { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .navigation a, .exploreMenu > summary svg { transition: none; } }
 
 /* Supplementary destinations can wrap without squeezing the brand or My Plan. */
 .navigation { max-width: 100%; min-width: 0; }

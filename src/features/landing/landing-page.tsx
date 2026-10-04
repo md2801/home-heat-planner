@@ -1,5 +1,6 @@
 import { JourneyHeader } from "@/components/layout/journey-header";
 import { LandingHero } from "./landing-hero";
+import { LandingDiscovery } from "./landing-discovery";
 import styles from "./landing.module.css";
 
 function BenefitIcon({ kind }: { kind: "sun" | "compare" | "leaves" }) {
@@ -31,28 +32,15 @@ export function LandingPage() {
     <LandingHero />
 
     <div className={styles.lowerRow}>
-      <section id="how-it-works" aria-label="How it works" className={styles.benefits}>
+      <section aria-label="Ways to reduce cooling demand" className={styles.benefits}>
         {benefits.map((benefit) => <div key={benefit.icon} className={styles.benefit}>
           <BenefitIcon kind={benefit.icon} />
           <h2>{benefit.title}</h2>
           <p>{benefit.description}</p>
         </div>)}
       </section>
-      <div className={styles.timeline} aria-label="Illustrative sun timeline: morning, midday, afternoon">
-        <span className={styles.timelineTitle}>Sun</span>
-        <div className={styles.timelineTrack} aria-hidden="true">
-          <div className={styles.timelineLine} />
-          <span className={styles.morning}><i />Morning</span>
-          <span className={styles.midday}><i />Midday</span>
-          <span className={styles.afternoon}><i />Afternoon</span>
-          <i className={styles.endDot} />
-        </div>
-      </div>
     </div>
 
-    <details id="help" className={styles.help}>
-      <summary>About your assessment</summary>
-      <p>Start with one bedroom in Greater Sydney. You can leave details you don’t know as unknown. Any later estimates need suitable inputs and evidence; savings and cooling improvements are not guaranteed.</p>
-    </details>
+    <LandingDiscovery />
   </div>;
 }
