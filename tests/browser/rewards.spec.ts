@@ -1,0 +1,138 @@
+import { test, expect, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import sharp from "sharp";
+import { journeyFixture, at } from "../helpers/journey-fixture";
+import { confirmScene } from "../../src/features/room-scene/confirm-scene";
+import { confirmRoomReview } from "../../src/features/room-baseline/model";
+import { toggleSimpleAction } from "../../src/features/cooling-options/simple-actions";
+const password = `Reward-test-${randomUUID()}`;
+const email = `reward-test-${randomUUID()}@example.com`;
+async function signup(page: Page, address: string) {
+  await page.goto("/sign-up");
+  await page.getByLabel("Your name", { exact: true }).fill("Test homeowner");
+  await page.getByLabel("Email address", { exact: true }).fill(address);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Create account", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Your home’s next steps" })).toBeVisible();
+}
+async function photo(colour: string) {
+  return { name: "synthetic-test.jpg", mimeType: "image/jpeg", buffer: await sharp({ create: { width: 500, height: 300, channels: 3, background: colour } }).jpeg().toBuffer() };
+}
+async function submit(page: Page, taskTitle: string, colour: string, notes = "") {
+  const task = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: taskTitle, exact: true }) });
+  await task.getByRole("button", { name: /Submit photo proof|Retry with photos/ }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Task photo", { exact: true }).setInputFiles(await photo(colour));
+  await dialog.getByLabel(/Anything useful/).fill(notes);
+  await dialog.getByRole("checkbox").check();
+  await dialog.getByRole("button", { name: "Submit for approval" }).click();
+  await expect(dialog).toContainText("Checking your photos");
+  return dialog;
+}
+test("guests can browse products and see how approvals earn coins without a sample balance", async ({ page }) => {
+  expect((await page.request.get("/api/rewards")).status()).toBe(401);
+  await page.goto("/marketplace");
+  await expect(page.getByRole("button", { name: /^View reward:/ })).toHaveCount(4);
+  await page.getByRole("searchbox", { name: "Search rewards" }).fill("Holman");
+  await expect(page.getByRole("button", { name: /^View reward:/ })).toHaveCount(1);
+  await page.getByRole("searchbox", { name: "Search rewards" }).fill("");
+  await page.getByRole("checkbox", { name: "Within my balance" }).check();
+  await expect(page.getByRole("heading", { name: "No rewards match just yet." })).toBeVisible();
+  await page.getByRole("button", { name: "Show all rewards" }).click();
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).not.toContainText("1,250");
+  await page.getByRole("button", { name: "View reward: Holman Thermometer and Hygrometer" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Retailers do not accept this code");
+  await expect(page.getByRole("dialog").getByRole("link", { name: /View product at Bunnings/ })).toHaveAttribute("href", "https://www.bunnings.com.au/holman-thermometer-and-hygrometer_p3130792");
+  await expect(page.getByRole("button", { name: "Generate demo coupon" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await page.goto("/rewards");
+  await expect(page.getByRole("heading", { name: "Your approvals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with your home" })).toBeVisible();
+});
+test("photos earn once after approval, retries do not mint coins, and wallet/coupons persist privately", async ({ page, browser }) => {
+  let draft = confirmScene(journeyFixture().draft, { version: 1, above: "roof", bed: "present", windows: [{ direction: "west", covering: "curtains", shade: "none" }], equipment: ["portable-fan"] }, at);
+  draft = confirmRoomReview(draft, at);
+  draft = toggleSimpleAction(toggleSimpleAction(draft, "close-curtains", at), "fans", at);
+  await page.addInitScript(value => { if (!localStorage.getItem("home-heat-planner:assessment:v1")) localStorage.setItem("home-heat-planner:assessment:v1", JSON.stringify(value)); }, draft);
+  await signup(page, email);
+  await page.getByRole("button", { name: "Save browser assessment to my account" }).click();
+  await expect(page.locator(".account-save-status")).toContainText("Saved to your account.");
+  await page.goto("/rewards");
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("0 coins");
+  // Use the actual recommendation titles from the visible catalogue.
+  const curtains = await page.locator('section[id="earn"] h3').filter({ hasText: /curtains/ }).first().innerText();
+  const fan = await page.locator('section[id="earn"] h3').filter({ hasText: /fan/ }).first().innerText();
+  let dialog = await submit(page, curtains, "#abcdef", "test: needs evidence");
+  await expect(dialog).toContainText("More photo evidence needed", { timeout: 20000 });
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("0 coins");
+  await expect(page.locator("#approvals")).toContainText("More photos needed");
+  dialog = await submit(page, curtains, "#aa7711");
+  await expect(dialog).toContainText("Approved. 100 coins added.", { timeout: 20000 });
+  await dialog.getByRole("button", { name: "See my updated coins" }).click();
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("100 coins");
+  await expect(page.locator("#approvals")).toContainText("+100 coins added");
+  await page.reload();
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("100 coins");
+  dialog = await submit(page, fan, "#24584a");
+  await dialog.getByRole("button", { name: "View approvals" }).click();
+  await expect(page.locator("#approvals")).toContainText("Pending assessment", { timeout: 15000 });
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("200 coins", { timeout: 20000 });
+  await page.getByRole("group", { name: "Approval status" }).getByRole("button", { name: "Approved", exact: true }).click();
+  await expect(page.locator("#approvals li")).toHaveCount(2);
+  await page.screenshot({ path: "artifacts/verification/rewards-approved-desktop.png", fullPage: true });
+  const session = await (await page.request.get("/api/auth/get-session")).json();
+  const denied = await page.request.get("/api/rewards", { headers: { "X-Account-User": "another-user" } });
+  expect(denied.status()).toBe(401);
+  const duplicate = await page.request.post("/api/rewards/proof", { headers: { "X-Account-User": session.user.id }, multipart: { taskId: "fans", notes: "", consent: "yes", photo1: await photo("#24584a") } });
+  expect(duplicate.status()).toBe(409);
+  await page.goto("/marketplace");
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("200 coins");
+  await page.getByRole("button", { name: "View reward: Holman Thermometer and Hygrometer" }).click();
+  dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("button", { name: "Generate demo coupon" })).toBeDisabled();
+  await dialog.getByRole("checkbox").check();
+  await dialog.getByRole("button", { name: "Generate demo coupon" }).click();
+  await expect(dialog).toContainText("Your demo coupon");
+  await expect(dialog.locator("code")).toContainText("HHP-DEMO-");
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(page.getByRole("complementary", { name: "Your coin balance" })).toContainText("0 coins");
+  const repeat = await Promise.all([1, 2].map(() => page.request.post("/api/rewards", { headers: { "X-Account-User": session.user.id }, data: { action: "redeem", rewardId: "thermometer", demoConsent: true } })));
+  for (const response of repeat) { expect(response.status()).toBe(200); expect((await response.json()).balance).toBe(0); }
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Your saved coupons" })).toBeVisible();
+  await expect(page.locator('section[aria-labelledby="activity-title"]')).toContainText("HHP-DEMO-");
+  await page.screenshot({ path: "artifacts/verification/marketplace-connected-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({ path: "artifacts/verification/marketplace-connected-mobile.png", fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.goto("/rewards");
+  await expect(page.getByRole("complementary", { name: "Your coin balance" }).locator("p").first()).toHaveText("0 coins");
+  await expect(page.locator("#approvals li")).toHaveCount(3);
+  await page.screenshot({ path: "artifacts/verification/rewards-approved-mobile.png", fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const other = await browser.newContext();
+  try {
+    const otherPage = await other.newPage();
+    await otherPage.goto("/sign-in");
+    await otherPage.getByLabel("Email address", { exact: true }).fill(email);
+    await otherPage.getByLabel("Password", { exact: true }).fill(password);
+    await otherPage.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(otherPage.getByRole("heading", { name: "Your home’s next steps" })).toBeVisible();
+    await otherPage.goto("/rewards");
+    await expect(otherPage.getByRole("complementary", { name: "Your coin balance" })).toContainText("200 coins earned in total");
+    await expect(otherPage.locator("#approvals")).toContainText("Approved");
+    await otherPage.goto("/account");
+    await otherPage.getByRole("button", { name: "Sign out", exact: true }).click();
+    await signup(otherPage, `reward-other-${randomUUID()}@example.com`);
+    await otherPage.goto("/rewards");
+    await expect(otherPage.getByRole("complementary", { name: "Your coin balance" })).toContainText("0 coins");
+    await expect(otherPage.locator("#approvals li")).toHaveCount(0);
+    const otherSession = await (await otherPage.request.get("/api/auth/get-session")).json();
+    const emptyWallet = await (await otherPage.request.get("/api/rewards", { headers: { "X-Account-User": otherSession.user.id } })).json();
+    expect(emptyWallet.balance).toBe(0);
+    expect(emptyWallet.earned).toBe(0);
+    expect(emptyWallet.coupons).toHaveLength(0);
+  } finally { await other.close(); }
+});

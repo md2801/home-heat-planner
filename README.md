@@ -226,7 +226,13 @@ The environmental aim is to help people investigate reducing cooling energy dema
 
 ## Optional AI setup and data handling
 
-The server reads **`OPEN_AI_KEY`** for optional OpenAI features. Configure it through your local server environment or an ignored `.env.local` file, then restart the development server. Use this exact variable name; the app does not read `OPENAI_API_KEY`. Never put a provider key in a `NEXT_PUBLIC_*` variable or commit it to Git.
+The server reads **`OPEN_AI_KEY`** for optional OpenAI features. Configure it through your local server environment or an ignored `.env.local` file, then restart the development server. Prefer this variable name for all features; reward photo assessment also accepts `OPENAI_API_KEY`. Never put a provider key in a `NEXT_PUBLIC_*` variable or commit it to Git.
+
+### Task coins and approvals
+
+Open `/rewards` to see suitable recommended tasks, submit photos, track automated approvals and view coin history. The marketplace uses the same private saved balance and offers real retailer links with clearly labelled demo coupons. No retailer accepts the generated codes and no real discount or order is issued.
+
+Apply the private wallet tables/functions with `npm run migrate:rewards` using a direct database connection. This is already applied to the shared project database; run it for a different database or branch. Photo assessment requires server-only `OPEN_AI_KEY`; without a key it stays unavailable and never awards coins. See [Home Rewards](docs/home-rewards.md) for limits, privacy, API contracts and `npm run test:rewards-ui` setup.
 
 | Feature | AI's role | Information sent |
 | --- | --- | --- |
@@ -234,6 +240,7 @@ The server reads **`OPEN_AI_KEY`** for optional OpenAI features. Configure it th
 | Room proposal | Suggest a structured diagram for review (`gpt-6-luna`) | The submitted room description and current diagram details |
 | Financial explanation | Choose the reading order of app-owned explanation cards (`gpt-6-luna`) | Recomputed summaries, limitations and checks, not raw complaints, location or quote identities |
 | Online guidance | Search allowed government sources (`gpt-6-luna`), then format concise cards (`gpt-6-luna`) | Room categories, unknowns and eligible option IDs; not location, free-text answers, energy use, budgets or quote/model identities |
+| Task proof assessment | Check visible task criteria (`gpt-6-luna`); the app fixes coin amounts | Resized task photos, optional notes and the task guide, after consent |
 
 **AI does not calculate financial results, choose an installation for you or turn missing information into facts.** Diagram proposals require confirmation, and web guidance cannot override eligibility or calculation rules. Provider failures retain the manual flow. Calls use validated structured outputs, server-side credentials and `store: false`.
 
@@ -241,7 +248,7 @@ Descriptions submitted to assistance are sent to OpenAI; leave out addresses and
 
 Local endpoints have request limits, timeouts and, where applicable, short-lived caches. Intake also uses `AI_MAX_REQUESTS` and `AI_MAX_SPEND_USD` as conservative process-local guards, not actual billing measurement. Limits reset when the process restarts and are not distributed spend controls. See [API contracts and limits](docs/contracts/README.md).
 
-On Vercel, optional assistance defaults off unless `AI_DISTRIBUTED_LIMITS_CONFIRMED=true`. That flag declares external/account-wide limits and abuse controls have been configured; it does not implement them. Keep it unset until those controls exist. Voice and photo-based assessment are not implemented.
+On Vercel, optional assistance defaults off unless `AI_DISTRIBUTED_LIMITS_CONFIRMED=true`. That flag declares external/account-wide limits and abuse controls have been configured; it does not implement them. Keep it unset until those controls exist. Voice input and room-photo assessment are not implemented; task proof photos are supported through Home Rewards.
 
 ## Saving and privacy
 

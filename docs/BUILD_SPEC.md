@@ -1,5 +1,7 @@
 # Home Heat Planner — Hackathon Build Specification
 
+Rewards integration update, 4 October 2026: extend the existing marketplace with a private PostgreSQL wallet, atomic awards/redemptions, bounded photo assessment, a task/approval interface and real product links with demo-only coupons. This supersedes the static sample balance described by the earlier marketplace extension. See [Home Rewards](home-rewards.md).
+
 ## 1. Purpose
 
 This document defines how the hackathon prototype of Home Heat Planner will be built.
