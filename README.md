@@ -27,6 +27,18 @@ npm run dev -- --port 3001
 
 No provider setup is needed to answer questions, review guidance, calculate from your own inputs, save a plan or record a check-in. Optional AI features are described below.
 
+To enable **Google and email/password sign-in after cloning or pulling**, run:
+
+```sh
+npm run setup:auth
+npm run check:auth
+npm run dev
+```
+
+Stop any running development server first. `setup:auth` creates or fills missing auth settings in ignored `.env.local`, using this project's public development Auth endpoint and a new private local cookie secret. Existing settings are preserved. Git does **not** transfer `.env.local` to another computer. The checker prints setting checks and provider availability, never credential values.
+
+Private account saving additionally needs `DATABASE_URL` for the matching Neon branch. Obtain that connection through your team's secure configuration channel and set it in `.env.local`. For an isolated environment, use your branch's Auth URL and database connection together. Hosted apps need auth settings in their hosting environment and a redeploy; this local setup command does not configure a deployed server. See [account setup and 503 troubleshooting](docs/account-sign-in.md#fresh-checkout-and-503-troubleshooting).
+
 ## A full walkthrough
 
 ```text

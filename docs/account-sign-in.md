@@ -29,6 +29,38 @@ Live setup uses the existing Sydney project `crimson-voice-67209110`, branch `ma
 
 For deployment, set the four environment variables on the app host, add the application's actual domain to Neon Auth trusted domains, and configure your own Google OAuth application for production. The shared Google credentials are for development. Configure production SMTP in Neon for branded recovery mail. See [Google OAuth setup](https://neon.com/docs/auth/guides/setup-oauth) and [Neon Auth production checklist](https://neon.com/docs/auth/production-checklist). Account UI and reset-token handling are tested; live recovery email delivery and a completed Google login require the owner/provider setup and were not simulated as successful identity verification.
 
+## Fresh checkout and 503 troubleshooting
+
+Git ignores `.env.local`, so pulling the sign-in code does not transfer the server configuration. Both Google and email/password use `/api/auth/[...path]`. Missing `NEON_AUTH_BASE_URL`, missing `NEON_AUTH_COOKIE_SECRET`, a secret shorter than 32 characters, or an invalid Auth URL prevents either flow from starting. This is separate from an incorrect email or password.
+
+Stop the development server, then run from the repository root:
+
+```sh
+npm ci
+npm run setup:auth
+npm run check:auth
+npm run dev
+```
+
+The setup command uses the public development Auth URL in `.env.example` and generates a fresh 32-byte random cookie secret. It creates `.env.local` if missing, fills only missing/blank auth settings, and preserves existing database/provider values, custom Auth URLs, comments and valid secrets. It does not rotate an existing secret, overwrite invalid settings, configure hosting, enable remote Auth, or migrate a database. No secret value is printed. For your own Neon branch, set its Auth URL before running setup.
+
+The Auth endpoint URL is a public service address, **not a credential**; it is safe in `.env.example`. The cookie secret, database connections and provider keys stay in the ignored local file or hosting secrets. Each independent local installation can generate its own cookie secret. Instances of the same hosted app should share a stable configured secret.
+
+`check:auth` loads `.env.local`, respects exported environment overrides, checks the URL/secret and makes a read-only anonymous provider session request with a ten-second timeout. It creates no account and prints no session or credentials. It also identifies a missing `DATABASE_URL`, which is needed for private account saving even though sign-in itself can work without it. Obtain the matching database connection through the team's secure configuration channel.
+
+| Symptom | Check and next step |
+| --- | --- |
+| Both sign-in methods return 503 with `AUTH_NOT_CONFIGURED` | Run local setup and restart; on a hosted app, set the auth URL and cookie secret in host environment variables and redeploy. |
+| Setup reports an existing invalid URL or short secret | Correct the Auth URL, or remove the invalid secret assignment and rerun setup to generate one. Existing settings are preserved on failure. |
+| 503 with `AUTH_UNAVAILABLE` after configuration is valid | Run `check:auth`; check network access and the Neon Auth branch. Server logs contain a bounded `request` diagnostic, without exception text or credentials. |
+| Provider rejects a redirect/origin | Use `http://localhost:<port>` locally; configure the actual hosted domain in Neon Auth's trusted domains. |
+| Sign-in works but `/api/account/journey` returns 503 | Configure the matching database connection and apply migration 002 with a direct connection. |
+| Login returns 401 | Check email/password, or create an account first; this is an authentication failure rather than missing server setup. |
+
+The auth proxy returns a stable error code, an explicit local setup message during development, and bounded owner-facing copy in production. Configuration diagnostics contain only variable names and validation requirements. Network/provider exception text, passwords, cookies and connection strings are never logged by this boundary.
+
+The fresh-checkout fix was verified with a real CLI run in a temporary directory, preserving configuration on repeated setup, invalid-setting checks, both auth proxy routes, and browser coverage for both buttons. On 4 October 2026, 277 unit tests passed (one optional skip), all four auth browser tests passed, and TypeScript, lint and the production build passed. The configured app's read-only provider check also succeeded. No local secret was committed or transferred to another developer.
+
 ## Storage and authorization
 
 `db/migrations/002_account_journeys.sql` adds `heat_planner_account_journeys`, with a text `user_id` primary key, complete journey `draft` as PostgreSQL `json`, integer `revision`, and `updated_at`. The `json` type preserves the existing financial/evidence snapshot property order. Identity is supplied by Neon Auth, so this table does not duplicate user or password records.
