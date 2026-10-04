@@ -6,6 +6,8 @@ import { roomBaseline } from "../room-baseline/model.ts";
 import { replacementComparison, LABEL_METHOD } from "./replacement.ts";
 import { selectedSimpleActions } from "./simple-actions.ts";
 import { materialSignature } from "../../domain/material-signature.ts";
+import { shadingComparison } from "../shading-scenario/integration.ts";
+import type { ShadingScenarioResult } from "../shading-scenario/model.ts";
 
 export const OPTIONS_VERSION = "qualitative-options-v1";
 export type OptionId = NonNullable<AssessmentDraft["selectedOption"]>["actionId"];
@@ -19,6 +21,7 @@ export interface CoolingOption {
   comparison: Comparison;
   budgetStatus: "cost-not-established" | "within-budget" | "above-budget";
   readiness: string;
+  shadingScenario?: ShadingScenarioResult;
 }
 const savingsGap = "No applicable action-specific energy-effect method has been established. A cooling baseline alone does not establish intervention savings.";
 function unavailable(reason: string): FinancialResult {
@@ -49,7 +52,12 @@ export function coolingOptions(draft: AssessmentDraft) {
     const checks = [...contributor.unknowns, ...(id === "external-shading" && permission.status === "unknown" ? ["External-change permission · Not sure"] : []), ...(id === "ceiling-insulation" ? ["Confirm ownership, access and any shared-building permissions before work. Do not enter a roof space yourself."] : []), "Installed cost and scope need a quote; no price is established."];
     const readiness = id === "external-shading" && permission.status === "unknown" ? "Check permission first" : quotes.status === "known" && !quotes.value ? "Review information first · quotes declined" : "Investigation first";
     const recommendation: Recommendation = { id, actionId: id, description: contributor.nextStep, eligibility: "eligible", requiredChecks: checks, factIds: contributor.reasons.filter(r => r.fact.status === "known").map(r => r.fieldId), sourceIds: contributor.sourceIds, comfortTradeOffs: id === "opening-review" ? ["Ventilation depends on cooler outdoor air and safe, suitable outdoor conditions. Keep reported noise, security and air-quality constraints in place."] : [], upfrontCostAud: unknown("No installed quote or sourced cost range"), costScope: unknown("Scope and inclusions not established"), catalogueVersion: OPTIONS_VERSION };
-    options.push({ id, title, description: contributor.summary, status: "insufficient-evidence", contributor, recommendation, comparison: { optionId: id, baseline: baseline.result ?? unavailable("Cooling baseline inputs are incomplete"), proposed: unavailable(savingsGap), annualNetSavings: unavailable(savingsGap), simplePaybackYears: unknown("Both valid upfront cost and positive supported annual net savings are required"), assumptions: [] }, budgetStatus: "cost-not-established", readiness });
+    const shading = id === "external-shading" ? shadingComparison(draft) : null;
+    if (shading) {
+      const cost = shading.upfront;
+      const budget = baseline.profile.budgetAud;
+      options.push({ id, title, description: contributor.summary, status: "what-if", contributor, shadingScenario: shading.result, recommendation: { ...recommendation, upfrontCostAud: cost, costScope: shading.costScope, requiredChecks: [...checks.filter(check => !check.startsWith("Installed cost")), "Check the window measurements and shading design with a provider before spending.", ...(cost.status === "unknown" ? ["Installed cost and scope still need confirmation."] : [])], comfortTradeOffs: [...recommendation.comfortTradeOffs, "The same temperature target is used in both scenarios. Check hours above target; equal comfort is not guaranteed."], catalogueVersion: shading.result.methodVersion }, comparison: shading.comparison, budgetStatus: cost.status === "known" && budget.status === "known" ? cost.value <= (typeof budget.value === "number" ? budget.value : budget.value.max) ? "within-budget" : "above-budget" : "cost-not-established", readiness: "Shading cost scenario ready · review assumptions" });
+    } else options.push({ id, title, description: contributor.summary, status: "insufficient-evidence", contributor, recommendation, comparison: { optionId: id, baseline: baseline.result ?? unavailable("Cooling baseline inputs are incomplete"), proposed: unavailable(savingsGap), annualNetSavings: unavailable(savingsGap), simplePaybackYears: unknown("Both valid upfront cost and positive supported annual net savings are required"), assumptions: [] }, budgetStatus: "cost-not-established", readiness });
   }
   const equipment = baseline.profile.cooling;
   if (equipment.status === "known" && equipment.value.equipment.includes("air-conditioner") && permission.status === "known" && !permission.value) gaps.push("External AC replacement is excluded because you reported that external changes are restricted.");

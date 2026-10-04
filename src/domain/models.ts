@@ -107,6 +107,10 @@ export interface Comparison {
   baseline: FinancialResult;
   proposed: FinancialResult;
   annualNetSavings: FinancialResult;
+  /** Electricity-cost difference over the stated scenario period; never an annualised saving. */
+  periodSavings?: FinancialResult;
+  /** Electricity-use difference over the same period as periodSavings. */
+  energySavingsKwh?: Fact<number>;
   simplePaybackYears: Fact<number | NumericRange>;
   assumptions: Assumption[];
 }

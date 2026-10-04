@@ -7,6 +7,7 @@ import type { CoolingPlanDraft } from "../../domain/cooling-plan.ts";
 import type { FollowUpCheckIn } from "../../domain/follow-up.ts";
 import { isHistory, safeJson, type PlanHistoryEntry } from "../../domain/history.ts";
 import { isAssessmentSceneDetails, type AssessmentSceneDetails } from "../room-scene/assessment-scene.ts";
+import { isSavedShadingScenario, type SavedShadingScenario } from "../shading-scenario/integration.ts";
 
 export interface ReviewConfirmation { signature: string; recordedAt: string }
 export interface AssessmentReview {
@@ -21,6 +22,7 @@ export interface AssessmentDraft {
   sceneDetails?: AssessmentSceneDetails;
   review?: AssessmentReview;
   replacement?: ReplacementInputs;
+  shadingScenario?: SavedShadingScenario;
   coolingPlanDraft?: CoolingPlanDraft;
   followUpCheckIn?: FollowUpCheckIn;
   history?: PlanHistoryEntry[];
@@ -114,6 +116,7 @@ export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
   if (value.review !== undefined && !validReview(value.review)) return false;
   if (value.sceneDetails !== undefined && !isAssessmentSceneDetails(value.sceneDetails)) return false;
   if (value.replacement !== undefined && !isReplacementInputs(value.replacement)) return false;
+  if (value.shadingScenario !== undefined && !isSavedShadingScenario(value.shadingScenario)) return false;
   if (value.history !== undefined && !isHistory(value.history)) return false;
   if (value.coolingPlanDraft !== undefined && !safeJson(value.coolingPlanDraft)) return false;
   if (value.followUpCheckIn !== undefined && !safeJson(value.followUpCheckIn)) return false;

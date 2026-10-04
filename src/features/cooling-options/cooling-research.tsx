@@ -11,6 +11,7 @@ import { recommendationResources } from "../knowledge-base/recommendation-resour
 import { reviewedOn, techniques, sources as librarySources, efforts, type Technique } from "../knowledge-base/catalogue";
 import { hasReportedAC } from "./recommendation-policy";
 import { availableSimpleActions } from "./simple-actions";
+import { formatMoney } from "../room-baseline/model";
 import styles from "./cooling-research.module.css";
 
 type ResearchProps = { draft: AssessmentDraft; selectedId: OptionId | null; onChoose: (id: OptionId) => void; selectedTechniques: string[]; onToggleTechnique: (id: string) => void };
@@ -116,6 +117,11 @@ function ImprovementCard({ option, suggestion, hasAC, selected, onChoose }: { op
     <p className={styles.pathway}>{benefits[option.id].category}</p><h3 id={`research-${option.id}`}>{suggestion?.headline ?? copy.headline}</h3>
     <div className={styles.roomFit}><span>Your room · reported by you</span><p>{suggestion?.whyForRoom ?? (roomFacts || (option.id === "ac-replacement" ? "You reported air conditioning in this bedroom." : option.description))}</p></div>
     {<div className={styles.benefit}><svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M5 12L10 17L19 7" /></svg><p>{suggestion?.potentialBenefit ?? `${benefits[option.id].text}${option.id === "opening-review" && hasAC ? " Close windows while running AC." : ""}`}</p></div>}
+    {option.id === "external-shading" && hasAC && <div className={styles.savingsPreview}>
+      <span className={styles.sourceLabel}>{option.shadingScenario ? "YOUR SHADING SCENARIO · WHAT-IF" : "EXPLORE THE COST DIFFERENCE"}</span>
+      {option.shadingScenario ? <><strong>{formatMoney(Math.abs(option.shadingScenario.savingsAud))} {option.shadingScenario.savingsAud < 0 ? "more" : "less"} over {option.shadingScenario.coolingDays} cooling days</strong><p>{option.shadingScenario.baseline.periodCostAud.toFixed(2)} → {option.shadingScenario.improved.periodCostAud.toFixed(2)} AUD · {option.shadingScenario.periodLabel}</p><small>Synthetic weather and your reviewed assumptions. Actual savings are not established.</small></> : <p>Compare cooling costs before and after shading one window or a group facing the same way.</p>}
+      <a href="#shading-savings">{option.shadingScenario ? "Review my assumptions" : "Try a shading cost scenario"} <span aria-hidden="true">→</span></a>
+    </div>}
     <div className={styles.action}><span className={styles.actionEyebrow}>START HERE</span><h4>{suggestion?.nextAction.label ?? copy.action}</h4><p>{suggestion?.nextAction.detail ?? option.recommendation.description}</p></div>
     {suggestion && <ul className={styles.checks} aria-label={`Checks for ${option.title}`}>{suggestion.checks.map(check => <li key={check}><span aria-hidden="true">○</span>{check}</li>)}</ul>}
     <details className={styles.details}><summary>Details & checks <span aria-hidden="true">⌄</span></summary><p>{option.contributor.explanation}</p><ul>{option.recommendation.requiredChecks.map(check => <li key={check}>{check}</li>)}</ul>{option.recommendation.comfortTradeOffs.map(tradeoff => <p key={tradeoff}>{tradeoff}</p>)}</details>

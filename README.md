@@ -101,8 +101,9 @@ Equipment constraints are enforced in both prompts and server/browser validation
 
 Use **Set a budget** or **Change budget** to refine your spending limit. A budget alone does not establish an installation price or savings. Choosing an investigation selects a next step; it does not commit you to purchasing or installing anything.
 
-Three optional sections provide more detail:
+Optional sections provide more detail:
 
+- **What could window shade save?** For eligible shading investigations with bedroom-only AC, a three-step scenario compares the same room before and after shading. Enter window area, direction and glazing, choose shading assumptions, and review your cooling schedule and tariff. Explicitly opt into synthetic hot-day weather and editable example room assumptions, then confirm the assumptions to see selected-period costs and electricity differences. Results, assumptions and optional scoped installed cost carry into your saved plan; edits invalidate the prior result. There is no automatic annualisation or payback. Rooms without AC receive qualitative guidance without an invented avoided AC bill. See the [shading scenario contract](docs/contracts/shading-scenario.md).
 - **Compare costs and savings:** the guided AC replacement comparison described below.
 - **Understand your cooling costs:** your baseline, inputs to confirm and, when supported figures exist, a spending explanation.
 - **Explore a cooling scenario:** the separate experimental temperature and cost tool.
@@ -220,7 +221,7 @@ AC annual net savings = (current label kWh/year − replacement label kWh/year)
 Simple payback years = installed replacement price ÷ positive annual net savings
 ```
 
-The calculators support a flat usage rate and exclude fixed supply charges and time-of-use pricing. A short measured period is not automatically annualised. General shading, insulation and ventilation guidance does not supply a numerical savings method, so the app does not invent those savings or payback periods. The experimental scenario stays separate from supported comparisons.
+The calculators support a flat usage rate and exclude fixed supply charges and time-of-use pricing. A short measured period is not automatically annualised. General shading, insulation and ventilation guidance does not supply personal saving percentages. The guided shading calculator uses a documented but uncalibrated room model with explicit synthetic-weather assumptions; it produces selected-period what-if results, separate from supported annual AC label comparisons. Insulation and ventilation remain unquantified in the main options. The standalone thermal experiment is also separate.
 
 The environmental aim is to help people investigate reducing cooling energy demand while considering comfort. Actual benefits depend on the building, equipment and operation. The prototype does **not** calculate carbon emissions or claim verified environmental savings.
 

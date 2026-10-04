@@ -5,8 +5,11 @@ export function financialText(value: Fact<number | NumericRange>, kind: "money" 
   return typeof value.value === "number" ? `${format(value.value)}${kind === "years" ? " years" : ""}` : `${format(value.value.min)}–${format(value.value.max)}${kind === "years" ? " years" : ""}`;
 }
 export function financialSummary(comparison: Comparison, upfront: Fact<number | NumericRange>) {
-  const savings = comparison.annualNetSavings.amountAud;
+  const result = comparison.periodSavings ?? comparison.annualNetSavings;
+  const savings = result.amountAud;
   const amount = savings.status === "known" && typeof savings.value === "number" ? savings.value : null;
   const display = savings.status === "known" && amount !== null && amount < 0 ? financialText({ ...savings, value: -amount }) : financialText(savings);
-  return { cost: upfront.status === "unknown" ? "Quote needed" : financialText(upfront), savings: savings.status === "known" ? `${display}/yr${amount !== null && amount < 0 ? " higher cost" : ""}` : "Unavailable", payback: financialText(comparison.simplePaybackYears, "years"), reason: comparison.simplePaybackYears.status === "unknown" ? comparison.simplePaybackYears.reason : "Simple, undiscounted; under displayed annual assumptions" };
+  const period = result.period.status === "known" ? result.period.value : null;
+  const suffix = comparison.periodSavings ? period?.kind === "cooling-schedule" ? ` over ${period.coolingDays} cooling days` : " over the selected period" : "/yr";
+  return { cost: upfront.status === "unknown" ? "Quote needed" : financialText(upfront), savings: savings.status === "known" ? `${display}${suffix}${amount !== null && amount < 0 ? " higher cost" : ""}${comparison.periodSavings ? " · what-if" : ""}` : "Unavailable", payback: financialText(comparison.simplePaybackYears, "years"), reason: comparison.simplePaybackYears.status === "unknown" ? comparison.simplePaybackYears.reason : "Simple, undiscounted; under displayed annual assumptions" };
 }

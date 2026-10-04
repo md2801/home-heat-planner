@@ -3,7 +3,7 @@ import { safeJson } from "../../domain/history.ts";
 import type { JourneyQuery } from "../journey/postgres.ts";
 
 export interface AccountJourney { draft: AssessmentDraft | null; revision: number }
-const draftKeys = new Set(["schemaVersion", "answers", "currentQuestionId", "completed", "sceneDetails", "review", "replacement", "coolingPlanDraft", "followUpCheckIn", "history", "selectedTechniques", "selectedOption"]);
+const draftKeys = new Set(["schemaVersion", "answers", "currentQuestionId", "completed", "sceneDetails", "review", "replacement", "shadingScenario", "coolingPlanDraft", "followUpCheckIn", "history", "selectedTechniques", "selectedOption"]);
 export function validAccountDraft(value: unknown): value is AssessmentDraft {
   return isAssessmentDraft(value) && safeJson(value) && Object.keys(value).every(key => draftKeys.has(key));
 }

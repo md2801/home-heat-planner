@@ -5,7 +5,7 @@ import type { FollowUpCheckIn } from "../domain/follow-up.ts";
 import type { AssessmentAnswers, Comparison, Recommendation, RoomProfile, FinancialResult } from "../domain/models.ts";
 import type { ReplacementInputs } from "../features/cooling-options/replacement.ts";
 /** Transport values are independent of storage keys, database models and UI subscriptions. */
-export interface AssessmentInput { answers: AssessmentAnswers; review?: AssessmentReview; replacement?: ReplacementInputs; sceneDetails?: NonNullable<AssessmentDraft["sceneDetails"]> }
+export interface AssessmentInput { answers: AssessmentAnswers; review?: AssessmentReview; replacement?: ReplacementInputs; sceneDetails?: NonNullable<AssessmentDraft["sceneDetails"]>; shadingScenario?: NonNullable<AssessmentDraft["shadingScenario"]> }
 export interface JourneyInput { schemaVersion: 1; assessment: AssessmentInput }
 export type PlannerOperation = "assess" | "confirm" | "recommend" | "compare";
 export interface PlannerCommand extends JourneyInput { operation: PlannerOperation }
@@ -16,7 +16,7 @@ export interface CheckInSaveRequest { assessmentId: string; checkIn: FollowUpChe
 export interface SaveResponse { saved: boolean; scope: "browser" | "server" }
 export interface PlannerAdapter { execute(command: PlannerCommand): Promise<PlannerResult> }
 export function assessmentInput(draft: AssessmentDraft): AssessmentInput {
-  return { answers: draft.answers, ...(draft.sceneDetails ? { sceneDetails: draft.sceneDetails } : {}), ...(draft.review ? { review: draft.review } : {}), ...(draft.replacement ? { replacement: draft.replacement } : {}) };
+  return { answers: draft.answers, ...(draft.sceneDetails ? { sceneDetails: draft.sceneDetails } : {}), ...(draft.review ? { review: draft.review } : {}), ...(draft.replacement ? { replacement: draft.replacement } : {}), ...(draft.shadingScenario ? { shadingScenario: draft.shadingScenario } : {}) };
 }
 /** UI cursor, selected plan, history and persistence metadata never cross this boundary. */
 export function calculationDraft(input: AssessmentInput): AssessmentDraft {

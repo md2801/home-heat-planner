@@ -13,7 +13,7 @@ export function financial(v: unknown): boolean {
 export function recommendation(v: unknown): boolean {
   return record(v) && ["id", "actionId", "description", "catalogueVersion"].every(key => typeof v[key] === "string") && ["eligible", "ineligible", "needs-information"].includes(String(v.eligibility)) && ["requiredChecks", "factIds", "sourceIds", "comfortTradeOffs"].every(key => strings(v[key])) && fact(v.upfrontCostAud, numeric) && stringFact(v.costScope);
 }
-export function comparison(v: unknown): boolean { return record(v) && typeof v.optionId === "string" && financial(v.baseline) && financial(v.proposed) && financial(v.annualNetSavings) && fact(v.simplePaybackYears, n => numeric(n) && (typeof n !== "number" || n > 0)) && assumptions(v.assumptions); }
+export function comparison(v: unknown): boolean { return record(v) && typeof v.optionId === "string" && financial(v.baseline) && financial(v.proposed) && financial(v.annualNetSavings) && (v.periodSavings === undefined || financial(v.periodSavings)) && (v.energySavingsKwh === undefined || fact(v.energySavingsKwh, n => typeof n === "number" && Number.isFinite(n))) && fact(v.simplePaybackYears, n => numeric(n) && (typeof n !== "number" || n > 0)) && assumptions(v.assumptions); }
 export function profile(v: unknown): boolean {
   if (!record(v) || typeof v.id !== "string") return false;
   const p = v;
