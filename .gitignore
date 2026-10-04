@@ -148,3 +148,5 @@ next-env.d.ts
 
 # Local Vercel project link and build output
 .vercel/
+test-results/
+playwright-report/
