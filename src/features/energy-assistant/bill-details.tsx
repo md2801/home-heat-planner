@@ -1,0 +1,25 @@
+import { billFields, type Bill, type BillKey, type ConfirmedBill } from "@/contracts/energy-assistant";
+import { billMeasures, isUnknownAnswer, opportunities, questionTitles, type Household } from "./logic";
+import { sources } from "@/features/knowledge-base/catalogue";
+import Link from "next/link";
+import styles from "./energy-assistant.module.css";
+const importantFields: BillKey[] = ["periodStart", "periodEnd", "billingDays", "consumptionKwh", "totalAmountAud", "usageRateAud", "supplyDailyAud"];
+export function BillDetails({ bill, correctedFields = [], reviewed = false }: { bill: Bill; correctedFields?: BillKey[]; reviewed?: boolean }) {
+  const rows = (keys: BillKey[]) => <dl className={styles.facts}>{keys.map(k => <div key={k}><dt>{billFields[k].label}</dt><dd>{bill[k].value === null ? "Not found on this bill" : `${bill[k].value} ${billFields[k].unit}`}<small>{bill[k].value === null ? "Not supplied" : correctedFields.includes(k) ? "Reported by you" : reviewed ? "Extracted from bill · confirmed by you" : "Extracted from bill · please check"}</small>{bill[k].evidence && <details><summary>Bill excerpt</summary><p>{bill[k].evidence}</p></details>}</dd></div>)}</dl>;
+  return <>{rows(importantFields)}<details><summary>Retailer, solar, tariffs and other details</summary>{rows((Object.keys(billFields) as BillKey[]).filter(k => !importantFields.includes(k)))}{(bill.tariffComponents?.length ?? 0) > 0 && <><p>Tariff rows are kept separately; no average usage rate is calculated.</p><dl className={styles.facts}>{bill.tariffComponents?.map((t, index) => <div key={`${t.kind}-${index}`}><dt>{t.label}</dt><dd>{t.rateAudPerKwh === null ? "Rate unknown" : `${t.rateAudPerKwh} AUD/kWh`}{t.consumptionKwh !== null && <small>{t.consumptionKwh} kWh · bill row, not appliance use</small>}{t.amountAud !== null && <small>{t.amountAud} AUD</small>}<details><summary>Bill excerpt</summary><p>{t.evidence}</p></details></dd></div>)}</dl></>}</details></>;
+}
+export function EnergyAnalysis({ confirmed, household }: { confirmed: ConfirmedBill; household: Household }) {
+  const result = billMeasures(confirmed), actions = opportunities(household);
+  return <article className={styles.analysis} aria-labelledby="analysis-title">
+    <span className={styles.eyebrow}>YOUR BILL · WHOLE PROPERTY</span><h2 id="analysis-title">Here’s what we can understand.</h2>
+    <p className={styles.measure}>{confirmed.bill.consumptionKwh.value ?? "Unknown"} kWh {result.days === null ? "· period unknown" : `over ${result.days} days`}</p>
+    <p>{result.kwhPerDay === null ? "I need total electricity imported and billing days to calculate daily use." : `≈ ${result.kwhPerDay.toFixed(1)} kWh/day, calculated from your confirmed bill details.`}</p>
+    <small>{result.daysBasis}. This is a factual measure, without a high or low usage classification.</small>
+    <h3>Where to start investigating</h3><p>This order reflects useful next checks, not a ranking of appliance electricity consumption.</p>
+    {actions.length ? <ol className={styles.actions}>{actions.map(a => <li key={a.title}><h4>{a.title} · {a.priority}</h4><p>{a.why}</p><p><strong>Reported:</strong> {a.reported}</p><p><strong>Unknown:</strong> {a.unknown}</p><p><strong>Next step:</strong> {a.action}</p><a href={sources[a.sourceId].url} target="_blank" rel="noreferrer">{sources[a.sourceId].title} ↗</a>{a.heatLink && <p>Reducing heat entering the home can reduce cooling demand. <Link href="/assessment">Investigate room heat with Home Heat Planner →</Link></p>}</li>)}</ol> : <p>There isn’t enough specific load information to prioritise an appliance. Start by identifying the major systems in use and collecting their schedules or energy records. <Link href="/knowledge-base">Browse reviewed household guidance →</Link></p>}
+    <details><summary>What we know — confirmed bill details</summary><BillDetails bill={confirmed.bill} correctedFields={confirmed.correctedFields} reviewed /></details>
+    <details><summary>What you told me — household information</summary><dl className={styles.reports}>{Object.entries(household).map(([key, value]) => <div key={key}><dt>{questionTitles[key as keyof Household]}</dt><dd>{isUnknownAnswer(value) ? "Unknown — not established from your answers." : `Reported: ${value}`}</dd></div>)}</dl></details>
+    <h3>What we don’t know</h3><p>The bill does not measure each appliance or bedroom. {result.unallocatedKwh === null ? "Total imported consumption is unknown." : `All ${result.unallocatedKwh} kWh remain unallocated to individual loads.`} No appliance-use estimates, savings, payback or temperature reductions have been calculated. Solar exports, when present, do not establish total electricity used inside the home.</p>
+    <h3>Practical next steps</h3><p>Start with the operating checks above for loads you reported. Record schedules and, where available, equipment energy readings for the same period. Use those records to decide what needs closer investigation before buying replacements.</p>
+  </article>;
+}

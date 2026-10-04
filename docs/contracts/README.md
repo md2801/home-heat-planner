@@ -78,3 +78,7 @@ ReplacementInputs accepts optional step metadata (integer 0–3). Legacy drafts 
 ## Heatwave-Ready presentation
 
 The room-plan screen derives a small read-only Heatwave-Ready guide from the retained assessment and reviewed library. It does not extend PlanSaveRequest, CoolingPlanDraft, checklist IDs or CheckInSaveRequest. Preparation guidance is not an immutable historical snapshot; existing investigation/financial snapshots retain their original meaning. Follow-up notes can record hot-day actions tried. No additional API operation or provider request is introduced.
+
+## Energy Assistant
+
+The supplementary household-energy chat and digital-PDF bill workflow have isolated transient contracts. See [Energy Assistant v1](energy-assistant.md) for upload limits, structured extraction, user confirmation, short-term memory, deterministic daily-use calculation, provenance and failure behaviour. Neither operation changes room facts or saved planner state.

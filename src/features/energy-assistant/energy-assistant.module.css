@@ -1,0 +1,51 @@
+:global(body):has(.page) :global(.app-shell-header) { display:none; }
+:global(.app-shell-main):has(.page) { max-width:none; padding:0; }
+.page { width:min(91.4%,1360px); margin:0 auto; }
+.hero { max-width:860px; margin:48px auto 30px; }
+.eyebrow { color:var(--color-forest); font-size:11px; font-weight:600; letter-spacing:.14em; }
+.hero h1 { font-size:clamp(38px,4vw,58px); font-weight:700; letter-spacing:-.05em; margin:14px 0; line-height:1.1; }
+.hero p { font-size:18px; color:var(--color-muted); max-width:640px; line-height:1.6; }
+.hero a, .chat a { color:var(--color-forest); text-underline-offset:4px; }
+.hero a { font-size:14px; display:inline-block; padding:10px 0; }
+.chat { max-width:860px; margin:0 auto 60px; }
+.chatBar { border-block:1px solid var(--color-line); display:flex; align-items:center; justify-content:space-between; gap:16px; padding:10px 0; font-size:10px; letter-spacing:.1em; color:var(--color-muted); }
+.chat button { min-height:44px; border:1px solid var(--color-line); border-radius:6px; background:var(--color-surface); color:var(--color-forest); padding:10px 16px; cursor:pointer; font:inherit; font-size:14px; letter-spacing:normal; }
+.chat button:hover { background:var(--color-eucalyptus); }
+.chat button:disabled { opacity:.55; cursor:default; }
+.chat button.primary { background:var(--color-forest); color:white; border-color:var(--color-forest); }
+.chatBar button { white-space:nowrap; flex-shrink:0; }
+.chatBar button, .chat button.textButton { background:transparent; border:0; padding-inline:0; }
+.transcript { padding-top:20px; }
+.speaker { color:var(--color-forest); font-size:11px; font-weight:600; }
+.assistant { padding:16px 0; max-width:760px; }
+.assistant p { font-size:18px; line-height:1.65; margin:7px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.user { margin:18px 0 18px auto; padding:12px 18px; border-radius:6px; background:var(--color-eucalyptus); width:fit-content; max-width:85%; }
+.user p { font-size:15px; line-height:1.5; margin:5px 0; overflow-wrap:anywhere; white-space:pre-wrap; }
+.starters { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:12px 0 35px; }
+.starters button { text-align:left; padding:22px; }
+.starters strong { display:block; font-size:17px; font-weight:600; }.starters strong span { float:right; margin-left:12px; }
+.starters small { display:block; color:var(--color-muted); line-height:1.6; margin-top:10px; font-size:14px; }
+.inlinePanel { border-left:2px solid var(--color-forest); margin:10px 0 25px; padding:8px 0 8px 24px; }
+.inlinePanel p, .analysis p { font-size:15px; line-height:1.7; }
+.upload { color:var(--color-forest); font-size:16px; font-weight:600; display:block; }
+.upload input { display:block; margin-top:14px; max-width:100%; font-size:14px; }
+.upload input::file-selector-button { min-height:44px; background:var(--color-forest); color:white; border:0; border-radius:6px; padding:12px 16px; margin-right:12px; cursor:pointer; }
+.chat .privacy { font-size:12px; line-height:1.7; color:var(--color-muted); margin:22px 0; }
+.facts { margin:0 0 20px; }.facts > div { display:grid; grid-template-columns:1fr 1.3fr; gap:20px; border-bottom:1px solid var(--color-line); padding:12px 0; font-size:14px; }
+.facts dt { color:var(--color-muted); }.facts dd { margin:0; overflow-wrap:anywhere; }.facts small { display:block; color:var(--color-muted); font-size:11px; margin-top:5px; }
+.facts details { margin:6px 0; font-size:12px; }.facts details p { font-size:12px; }
+.controls, .choices { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0; }
+.loadChoices { width:100%; display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+.loadChoices label { border:1px solid var(--color-line); border-radius:6px; padding:12px; display:flex; align-items:center; gap:9px; font-size:14px; cursor:pointer; min-height:44px; }
+.loadChoices label:has(input:checked) { background:var(--color-eucalyptus); border-color:var(--color-forest); }
+.editFields { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:20px 0; }
+.editFields label, .composer label { display:block; font-size:13px; color:var(--color-muted); }
+.editFields input { display:block; margin-top:7px; width:100%; padding:12px; font:inherit; font-size:15px; color:var(--color-ink); background:var(--color-surface); border:1px solid var(--color-line); border-radius:6px; min-height:44px; }
+.composer { margin-top:30px; border-top:1px solid var(--color-line); padding-top:20px; }.composer > div { display:flex; align-items:end; gap:12px; margin-top:9px; }
+.composer textarea { resize:vertical; flex:1; min-width:0; border:1px solid var(--color-line); border-radius:6px; background:var(--color-surface); padding:14px; font:inherit; font-size:15px; line-height:1.5; }
+.error { border-left:2px solid var(--color-heat); background:#fff0df; padding:14px 20px; margin:20px 0; font-size:14px; line-height:1.6; }.status { color:var(--color-forest); font-size:14px; padding:15px 0; }
+.analysis { border-top:1px solid var(--color-line); padding:30px 0; }.analysis h2 { font-size:30px; letter-spacing:-.04em; font-weight:600; margin:12px 0 20px; }.analysis .measure { font-size:26px; color:var(--color-forest); letter-spacing:-.03em; margin-bottom:0; }
+.analysis > small { color:var(--color-muted); font-size:12px; line-height:1.7; display:block; }.analysis h3 { font-size:18px; font-weight:600; margin:28px 0 10px; }.analysis h4 { font-size:17px; font-weight:600; margin:0; }
+.actions { padding-left:24px; }.actions li { padding:10px 0 20px 8px; }.actions a { font-size:13px; }.analysis details { margin:18px 0; border-block:1px solid var(--color-line); padding:12px 0; }.analysis summary { color:var(--color-forest); cursor:pointer; min-height:28px; font-size:14px; }
+.reports { font-size:14px; line-height:1.6; }.reports dt { color:var(--color-muted); margin-top:14px; }.reports dd { margin:5px 0; }
+@media(max-width:600px) { .hero { margin:30px auto 20px; }.hero p { font-size:16px; }.chatBar { font-size:9px; }.starters { grid-template-columns:1fr; gap:12px; }.assistant p { font-size:16px; }.inlinePanel { padding-left:14px; }.facts > div { grid-template-columns:1fr 1fr; gap:10px; }.editFields { grid-template-columns:1fr; }.composer > div { align-items:stretch; flex-direction:column; }.user { max-width:95%; }.analysis .measure { font-size:22px; } }

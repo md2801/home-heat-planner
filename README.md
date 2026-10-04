@@ -149,6 +149,16 @@ Search the library or filter by focus and effort. Each entry explains its energy
 
 The catalogue is checked into `src/features/knowledge-base/catalogue.ts` and renders without a provider request. Live recommendation research receives relevant entries with their steps, checks and source links. It can generate up to four practical technique cards independently of upgrade investigations, plus up to three matching guide links per investigation. The app validates IDs against the room and equipment reports and owns the library links. Reviewed resources remain distinct from freshly searched sources and do not establish personal savings, emissions or temperature predictions. Review linked sources when updating entries.
 
+## Energy Assistant
+
+Open **Energy Assistant →** in the header, or visit `/energy-assistant`. Choose **Analyse my electricity bill** or **Ask an energy question**. The general assistant answers qualitative household-energy questions; bill analysis is its first specialised capability.
+
+Upload a digital electricity bill with selectable text (PDF only, up to 4 MB / 12 pages). Server-side `unpdf` extracts embedded text, then the existing OpenAI credential is used with `gpt-6-luna` to extract supported values and short bill excerpts. No OCR is included: scans, damaged or password-protected PDFs fail gracefully. Review the important values, correct any errors, then confirm. Missing fields stay unknown and zero stays zero. Usable extraction requires imported kWh plus explicit billing days or valid start/end dates; optional rates, retailer, supply and solar fields can remain unknown. Multiple tariffs remain separate, with no averaging. Retry a failed upload; corrections are available after extraction.
+
+Answer up to five contextual questions about occupancy, major loads and relevant usage. The assistant branches on your reported equipment, allows unsure/skip, and summarises confirmed imported electricity, billing days and deterministic kWh/day. If only dates are available, the displayed calculation counts both endpoints; check your bill's convention. Imported bill electricity remains unallocated to appliances and rooms. There are no arbitrary high/low benchmarks, personal savings, payback or equipment consumption estimates. Practical checks link to reviewed Australian government guidance; reported cooling can link back to the room assessment.
+
+This page keeps ten recent chat messages and the active bill/household answers in component memory only. **New chat**, refreshing or leaving resets them. It doesn't write bills or chat to localStorage or a database, or intentionally persist original PDFs or extracted text. Bill text and general questions are sent to OpenAI with `store:false`; provider processing/retention policies still apply. Use redacted bills where possible. No new API key or environment variable is required; the existing hosted usage-control guard still applies. Without provider access, the original planner remains available; general chat offers retry and the sourced library. See the [Energy Assistant contract](docs/contracts/energy-assistant.md).
+
 ## What the 3D room represents
 
 The diagram gives your answers a visual reference: window directions, roof context, coverings and cooling equipment. You can rotate it, zoom, reset the view and switch to 2D. Equipment and window labels follow your reported details.
@@ -236,6 +246,7 @@ The educational library is available at `/knowledge-base`, including before an a
 | `/cooling-options` | Improvement cards, optional search and guided AC comparison |
 | `/cooling-plan` | Checklist, saved plan and calendar check-in |
 | `/follow-up` | Progress, barriers, completion, usage, comfort and history |
+| `/energy-assistant` | General household-energy chat and confirmed digital-PDF bill analysis |
 | `/thermal-scenario` | Optional experimental 24-hour temperature/cost comparison |
 
 ## Development and architecture

@@ -15,6 +15,7 @@ export function JourneyHeader() {
     <nav aria-label="Main navigation" className={styles.navigation}>
       <div className={styles.navLinks}>
         <Link href="/knowledge-base" aria-current={pathname === "/knowledge-base" ? "page" : undefined}>Simple techniques</Link>
+        <Link href="/energy-assistant" aria-current={pathname === "/energy-assistant" ? "page" : undefined}>Energy Assistant →</Link>
         <Link href={pathname === "/" ? "#how-it-works" : "/#how-it-works"}>How it works</Link>
         <Link href={pathname === "/" ? "#help" : "/#help"}>Help</Link>
       </div>
