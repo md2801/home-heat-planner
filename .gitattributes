@@ -1,0 +1,2 @@
+# PDF byte offsets must survive Windows checkouts unchanged.
+tests/fixtures/document-import/*.pdf binary
