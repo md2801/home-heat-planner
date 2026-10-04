@@ -1,6 +1,6 @@
 /** Server-only metadata. Never log prompts, output, error messages, headers or credentials. */
 export type OpenAIBoundary = "missing-config" | "hosting-guard" | "local-limit" | "provider-http" | "timeout" | "network" | "response-json" | "incomplete" | "refusal" | "missing-output" | "output-json" | "validation" | "success";
-type Context = { endpoint: "intake" | "room-scene" | "financial-brief" | "cooling-research" | "energy-assistant"; model: "gpt-6-luna" };
+type Context = { endpoint: "intake" | "room-scene" | "financial-brief" | "cooling-research" | "energy-assistant" | "reward-photo"; model: "gpt-6-luna" };
 const errorCodes = new Set(["invalid_api_key", "insufficient_quota", "model_not_found", "invalid_json_schema", "unsupported_value", "unsupported_parameter", "invalid_request_error", "rate_limit_exceeded", "permission_denied", "access_denied", "billing_hard_limit_reached", "organization_restricted"]);
 const errorTypes = new Set(["invalid_request_error", "authentication_error", "permission_error", "rate_limit_error", "server_error", "insufficient_quota"]);
 const statuses = new Set(["completed", "incomplete", "failed", "cancelled", "queued", "in_progress"]);
