@@ -1,0 +1,51 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { emptyAssessment, updateAnswer, answerFor, isAssessmentDraft } from "../src/features/assessment/state.ts";
+import { questions } from "../src/features/assessment/questions.ts";
+import { toggleSimpleAction, selectedSimpleActions } from "../src/features/cooling-options/simple-actions.ts";
+import { selectCoolingOption, coolingOptionsDestination } from "../src/features/cooling-options/model.ts";
+import { coolingPlan, saveCoolingPlan, togglePlanStep, chooseCheckIn } from "../src/features/cooling-plan/model.ts";
+import { followUp } from "../src/features/follow-up/model.ts";
+import { createAssessmentRepository } from "../src/features/assessment/repository.ts";
+import { createCoolingPlanService } from "../src/features/cooling-plan/repository.ts";
+import { createBrowserPersistence } from "../src/lib/persistence/browser-storage.ts";
+const at = "2026-10-04T00:00:00.000Z";
+const later = "2026-10-04T00:01:00.000Z";
+function room() { return updateAnswer(emptyAssessment(), questions.find(q => q.id === "aboveRoom")!, answerFor(questions.find(q => q.id === "aboveRoom")!, "roof", at)); }
+test("action-only plan persists, restores progress, and supports follow-up without fabricated finances", () => {
+  const data = new Map<string,string>();
+  const storage = createBrowserPersistence("simple", isAssessmentDraft, () => ({ getItem: key => data.get(key) ?? null, setItem: (key,value) => { data.set(key,value); }, removeItem: key => { data.delete(key); } }));
+  const repository = createAssessmentRepository(storage);
+  repository.save(toggleSimpleAction(room(), "reduce-indoor-heat", at));
+  assert.equal(coolingOptionsDestination(repository.getSnapshot().draft), "/cooling-plan");
+  const service = createCoolingPlanService(repository);
+  const initial = service.read(at).plan!;
+  assert.equal(initial.selectedActionId, "simple-actions");
+  assert.equal(initial.comparisonSnapshot.status, "unknown");
+  assert.equal(initial.upfrontCostAud.status, "unknown");
+  assert.ok(initial.evidence.length);
+  const saved = saveCoolingPlan(chooseCheckIn(togglePlanStep(initial, initial.checklist[0]!.id, true, later), "7-days", later), later);
+  assert.equal(service.persist(saved), true);
+  const refreshed = createAssessmentRepository(storage); refreshed.hydrate();
+  assert.deepEqual(coolingPlan(refreshed.getSnapshot().draft, later).plan, saved);
+  assert.equal(followUp(refreshed.getSnapshot().draft, later).checkIn?.actionLabel, saved.selectedActionLabel);
+  refreshed.save(toggleSimpleAction(refreshed.getSnapshot().draft, "reduce-indoor-heat", later));
+  assert.equal(coolingPlan(refreshed.getSnapshot().draft, later).plan, null);
+  assert.equal(refreshed.getSnapshot().draft.history?.length, 1);
+});
+test("mixed plan includes simple checklist first and preserves investigation comparison", () => {
+  const draft = toggleSimpleAction(selectCoolingOption(room(), "ceiling-insulation", at), "reduce-indoor-heat", later);
+  const view = coolingPlan(draft, later);
+  assert.equal(view.steps[0]?.id, "technique:reduce-indoor-heat");
+  assert.ok(view.steps.some(step => step.id === "records"));
+  assert.equal(view.plan?.comparisonSnapshot.status, "known");
+});
+test("changed room invalidates selected techniques; unavailable actions cannot be selected", () => {
+  const draft = toggleSimpleAction(room(), "reduce-indoor-heat", at);
+  assert.throws(() => toggleSimpleAction(draft, "clean-filters", at));
+  const q = questions.find(q => q.id === "aboveRoom")!;
+  const changed = updateAnswer(draft, q, answerFor(q, "another-room", later));
+  assert.equal(selectedSimpleActions(changed).length, 0);
+  assert.equal(coolingPlan(changed, later).plan, null);
+  assert.equal(isAssessmentDraft({...draft, selectedTechniques:{...draft.selectedTechniques!, ids:["x","x"]}}), false);
+});

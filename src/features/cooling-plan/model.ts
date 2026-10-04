@@ -5,6 +5,9 @@ import type { AssessmentDraft } from "../assessment/state.ts";
 import { coolingOptions, type CoolingOption } from "../cooling-options/model.ts";
 import { contributorEvidence } from "../heat-contributors/evidence.ts";
 
+import { selectedSimpleActions } from "../cooling-options/simple-actions.ts";
+import { sources, reviewedOn } from "../knowledge-base/catalogue.ts";
+
 export const CHECKLIST_VERSION = "investigation-checklist-v1";
 export interface PlanStep { id: string; title: string; detail: string }
 export function planSteps(option: CoolingOption, draft: AssessmentDraft): PlanStep[] {
@@ -46,13 +49,21 @@ export function localDate(now: string): string {
 export function validCustomDate(value: string, today: string): boolean {
   return validCalendarDate(value) && validCalendarDate(today) && value >= today;
 }
-function selectionSignature(draft: AssessmentDraft): string { return JSON.stringify(draft.selectedOption); }
+function selectionSignature(draft: AssessmentDraft): string { return draft.selectedTechniques?.ids.length ? JSON.stringify([draft.selectedOption, draft.selectedTechniques]) : JSON.stringify(draft.selectedOption); }
+export function simplePlanSteps(draft: AssessmentDraft): PlanStep[] {
+  return selectedSimpleActions(draft).map(t => ({ id: `technique:${t.id}`, title: t.title, detail: [...t.steps, ...t.checks, t.id === "cooler-air" ? "Close windows while refrigerated AC runs." : ""].filter(Boolean).join(" ") }));
+}
 function initialPlan(draft: AssessmentDraft, now: string): CoolingPlanDraft | null {
   const option = coolingOptions(draft).selected;
-  if (!option) return null;
+  const actions = selectedSimpleActions(draft);
+  if (!option && !actions.length) return null;
+  const selectedAt = draft.selectedTechniques?.ids.length ? draft.selectedTechniques.recordedAt : draft.selectedOption!.recordedAt;
+  const actionId = option?.id ?? "simple-actions";
+  const actionLabel = [option?.title, ...actions.map(t => t.title)].filter(Boolean).join(" + ");
+  const actionEvidence = actions.flatMap(t => t.sourceIds.map(id => ({ id: `technique:${id}`, ...sources[id], excerpt: t.benefit, reviewedAt: reviewedOn, contentVersion: "techniques-v1" })));
   const rating = draft.answers.baselineComfortRating;
   const time = draft.answers.baselineComfortTime;
-  return { schemaVersion: 1, id: `cooling-plan:${option.id}:${draft.selectedOption!.recordedAt}`, selectedActionId: option.id, selectedActionLabel: option.title, selectionSignature: selectionSignature(draft), comparisonSnapshot: reported(option.comparison, draft.selectedOption!.recordedAt, "Selected comparison snapshot; enclosed financial provenance and unknowns are preserved"), checklist: planSteps(option, draft).map(step => ({ id: step.id, description: `${step.title}. ${step.detail}`, completed: false })), checkInDate: unknown("No check-in date chosen"), status: "planned", createdAt: now, updatedAt: now, savedAt: unknown("Plan has not been saved"), checkInChoice: unknown("No check-in selected"), financialStatus: option.status, upfrontCostAud: option.recommendation.upfrontCostAud, evidence: contributorEvidence.filter(source => option.recommendation.sourceIds.includes(source.id)), catalogueVersion: option.recommendation.catalogueVersion, checklistVersion: CHECKLIST_VERSION, baselineComfortRating: rating?.status === "known" && typeof rating.value === "number" ? { ...rating, value: rating.value } : unknown("Baseline comfort not recorded"), baselineComfortTime: time?.status === "known" && typeof time.value === "string" ? { ...time, value: time.value } : unknown("Baseline time not recorded") };
+  return { schemaVersion: 1, id: `cooling-plan:${actionId}:${selectedAt}`, selectedActionId: actionId, selectedActionLabel: actionLabel, selectionSignature: selectionSignature(draft), comparisonSnapshot: option ? reported(option.comparison, draft.selectedOption!.recordedAt, "Selected comparison snapshot; enclosed financial provenance and unknowns are preserved") : unknown("Simple actions have no quantified financial comparison"), checklist: [...simplePlanSteps(draft), ...(option ? planSteps(option, draft) : [])].map(step => ({ id: step.id, description: `${step.title}. ${step.detail}`, completed: false })), checkInDate: unknown("No check-in date chosen"), status: "planned", createdAt: now, updatedAt: now, savedAt: unknown("Plan has not been saved"), checkInChoice: unknown("No check-in selected"), financialStatus: option?.status ?? "insufficient-evidence", upfrontCostAud: option?.recommendation.upfrontCostAud ?? unknown("Spending is not established; use existing equipment where suitable"), evidence: [...contributorEvidence.filter(source => option?.recommendation.sourceIds.includes(source.id)), ...actionEvidence].filter((source, i, all) => all.findIndex(item => item.id === source.id) === i), catalogueVersion: option?.recommendation.catalogueVersion ?? "techniques-v1", checklistVersion: CHECKLIST_VERSION, baselineComfortRating: rating?.status === "known" && typeof rating.value === "number" ? { ...rating, value: rating.value } : unknown("Baseline comfort not recorded"), baselineComfortTime: time?.status === "known" && typeof time.value === "string" ? { ...time, value: time.value } : unknown("Baseline time not recorded") };
 }
 const record = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 const timestamp = (value: unknown): value is string => typeof value === "string" && Number.isFinite(Date.parse(value));
@@ -80,7 +91,7 @@ export function coolingPlan(draft: AssessmentDraft, now: string) {
   const stored: unknown = "coolingPlanDraft" in draft ? draft.coolingPlanDraft : undefined;
   const restored = initial && isPlanForSelection(stored, initial) ? stored : null;
   const plan = restored ?? initial;
-  return { option: optionView.selected, plan, steps: optionView.selected ? planSteps(optionView.selected, draft) : [], invalidStoredPlan: stored !== undefined && !!initial && !restored, baseline: optionView.baseline, journey: { ...optionView.journey, plan: plan && plan.savedAt.status === "known" ? reported(plan, plan.savedAt.value, "Saved user cooling plan") : unknown("No saved current plan") } };
+  return { option: optionView.selected, plan, steps: [...simplePlanSteps(draft), ...(optionView.selected ? planSteps(optionView.selected, draft) : [])], invalidStoredPlan: stored !== undefined && !!initial && !restored, baseline: optionView.baseline, journey: { ...optionView.journey, plan: plan && plan.savedAt.status === "known" ? reported(plan, plan.savedAt.value, "Saved user cooling plan") : unknown("No saved current plan") } };
 }
 export function togglePlanStep(plan: CoolingPlanDraft, stepId: string, completed: boolean, now: string): CoolingPlanDraft {
   if (!plan.checklist.some(step => step.id === stepId)) throw new Error("Unknown checklist step");

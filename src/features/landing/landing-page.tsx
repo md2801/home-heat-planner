@@ -1,13 +1,6 @@
-import Link from "next/link";
+import { JourneyHeader } from "@/components/layout/journey-header";
 import { LandingHero } from "./landing-hero";
 import styles from "./landing.module.css";
-
-function LeafMark() {
-  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-    <rect x="2" y="2" width="28" height="28" rx="4" fill="var(--color-heat-light)" stroke="var(--color-forest)" strokeWidth="2" />
-    <path d="M8 25C9 9 19 15 25 7C26 20 19 25 12 23M7 26L21 13M12 21L13 15M16 18L22 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>;
-}
 
 function BenefitIcon({ kind }: { kind: "sun" | "compare" | "leaves" }) {
   return <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -33,15 +26,7 @@ const benefits = [
 
 export function LandingPage() {
   return <div className={styles.page}>
-    <header className={styles.header}>
-      <Link href="/" className={styles.brand}><LeafMark /><span>Home Heat Planner</span></Link>
-      <nav aria-label="Main navigation" className={styles.navigation}>
-        <Link href="/cooling-plan">My Plan</Link>
-        <Link href="/knowledge-base">Simple techniques</Link>
-        <a href="#how-it-works">How it works</a>
-        <a href="#help">Help</a>
-      </nav>
-    </header>
+    <JourneyHeader />
 
     <LandingHero />
 

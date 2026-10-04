@@ -26,6 +26,6 @@ export function HeatwaveReadyGuide({ draft }: { draft: AssessmentDraft }) {
       </li>)}</ul>
     </section>)}</div>
     {guidance.ventilationNote && <p className={styles.sectionIntro}>{guidance.ventilationNote} <Link href="/assessment">Review answers →</Link></p>}
-    <p className={styles.localNote}>Reviewed library guidance · <time dateTime={reviewedOn}>3 October 2026</time>. No personal savings or temperature reduction is predicted. Your longer-term investigation and saved checklist continue below; use your check-in notes to record which hot-day actions you tried.</p>
+    <p className={styles.localNote}>Reviewed library guidance · <time dateTime={reviewedOn}>3 October 2026</time>. No personal savings or temperature reduction is predicted. Your selected action checklist continues below; use your check-in notes to record which hot-day actions you tried.</p>
   </section>;
 }

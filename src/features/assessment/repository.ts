@@ -24,7 +24,7 @@ export function createAssessmentRepository(persistence: Persistence<AssessmentDr
       if (!isAssessmentDraft(draft)) throw new Error("Invalid assessment draft");
       const previous = snapshot.draft;
       const oldPlan = previous.coolingPlanDraft;
-      const materialChange = materialSignature(previous) !== materialSignature(draft) || previous.selectedOption?.recordedAt !== draft.selectedOption?.recordedAt;
+      const materialChange = JSON.stringify(previous.selectedTechniques) !== JSON.stringify(draft.selectedTechniques) || materialSignature(previous) !== materialSignature(draft) || previous.selectedOption?.recordedAt !== draft.selectedOption?.recordedAt;
       if (oldPlan?.savedAt.status === "known" && materialChange) {
         const priorEntry = previous.history?.find(entry => entry.plan.id === oldPlan.id);
         const checkIns = [...(priorEntry?.checkIns ?? []), ...(previous.followUpCheckIn?.savedAt.status === "known" ? [previous.followUpCheckIn] : [])].filter((c, i, all) => all.findIndex(other => other.updatedAt === c.updatedAt) === i).slice(-50);

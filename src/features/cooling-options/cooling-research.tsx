@@ -10,17 +10,18 @@ import { contributorEvidence } from "../heat-contributors/evidence";
 import { recommendationResources } from "../knowledge-base/recommendation-resources";
 import { reviewedOn, techniques, sources as librarySources, efforts, type Technique } from "../knowledge-base/catalogue";
 import { hasReportedAC } from "./recommendation-policy";
+import { availableSimpleActions } from "./simple-actions";
 import styles from "./cooling-research.module.css";
 
-type ResearchProps = { draft: AssessmentDraft; selectedId: OptionId | null; onChoose: (id: OptionId) => void };
-export function CoolingResearch({ draft, selectedId, onChoose }: ResearchProps) {
+type ResearchProps = { draft: AssessmentDraft; selectedId: OptionId | null; onChoose: (id: OptionId) => void; selectedTechniques: string[]; onToggleTechnique: (id: string) => void };
+export function CoolingResearch({ draft, selectedId, onChoose, selectedTechniques, onToggleTechnique }: ResearchProps) {
   const context = coolingResearchContext(draft);
   if (!context.options.length && !recommendationResources(context).techniqueIds.length) return null;
   // Changing room facts or eligibility cancels the old request and clears its guidance.
-  return <ResearchRequest key={JSON.stringify(context)} draft={draft} context={context} selectedId={selectedId} onChoose={onChoose} />;
+  return <ResearchRequest key={JSON.stringify(context)} draft={draft} context={context} selectedId={selectedId} onChoose={onChoose} selectedTechniques={selectedTechniques} onToggleTechnique={onToggleTechnique} />;
 }
 
-function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps & { context: CoolingResearchContext }) {
+function ResearchRequest({ draft, context, selectedId, onChoose, selectedTechniques, onToggleTechnique }: ResearchProps & { context: CoolingResearchContext }) {
   const options = coolingOptions(draft).options;
   const resources = recommendationResources(context);
   const constraints = { coolingEquipment: context.room.coolingEquipment, techniqueIds: resources.techniqueIds };
@@ -54,21 +55,25 @@ function ResearchRequest({ draft, context, selectedId, onChoose }: ResearchProps
   }
 
   const shownOptions = result ? result.suggestions.flatMap(suggestion => { const option = options.find(item => item.id === suggestion.optionId); return option ? [{ option, suggestion }] : []; }) : options.map(option => ({ option, suggestion: undefined }));
-  const shownTechniques = result ? result.techniques.flatMap(suggestion => { const technique = techniques.find(item => item.id === suggestion.techniqueId); return technique ? [{ technique, suggestion }] : []; }) : resources.techniqueIds.filter(id => !["external-shade", "shade-plants", "check-insulation"].includes(id)).slice(0, 3).flatMap(id => { const technique = techniques.find(item => item.id === id); return technique ? [{ technique, suggestion: undefined }] : []; });
+  const available = availableSimpleActions(draft);
+  const shownTechniques = available.map(technique => ({ technique, suggestion: result?.techniques.find(item => item.techniqueId === technique.id) })).sort((a, b) => Number(b.technique.id === "reduce-indoor-heat") - Number(a.technique.id === "reduce-indoor-heat"));
+  const passive = shownOptions.filter(({ option }) => option.id !== "ac-replacement");
+  const equipment = options.filter(option => option.id === "ac-replacement");
   const count = shownOptions.length + shownTechniques.length;
 
   return <section className={styles.research} aria-labelledby="cooling-research-title" aria-busy={pending}>
     <div className={styles.header}>
-      <div><span className={styles.eyebrow}>FROM YOUR ANSWERS TO YOUR NEXT STEP</span><h2 id="cooling-research-title">What you could explore</h2><p>Start with practical changes that fit your room, then explore improvements where relevant.</p></div>
+      <div><span className={styles.eyebrow}>FROM YOUR ANSWERS TO YOUR NEXT STEP</span><h2 id="cooling-research-title">Build your room plan</h2><p>Choose something to try today. Add a room investigation if you want to go further.</p></div>
       <button onClick={search} disabled={pending}>{pending ? "Finding your next steps…" : result ? "Refresh my recommendations" : "Personalise my recommendations"}<span aria-hidden="true">↗</span></button>
     </div>
     <p className={styles.disclosure}>Optional search of Australian government guidance. OpenAI receives room categories; your address, free-text answers, bills and quotes aren’t sent.</p>
     <p role="status" className={styles.message}>{pending ? `Finding practical guidance from Your Home and energy.gov.au${hasReportedAC(context.room.coolingEquipment) ? " and checking Energy Rating" : ""}. This may take a moment.` : message}</p>
     {pending ? <GuidanceSkeleton count={Math.max(1, Math.min(count, 4))} /> : <div className={styles.results}>
       <div className={styles.resultBar}><span>{count} {count === 1 ? "next step" : "next steps"} for your room</span><span>{result ? `Searched ${new Intl.DateTimeFormat("en-AU", { dateStyle: "medium", timeStyle: "short" }).format(new Date(result.retrievedAt))}` : "Reviewed starting points · personalise for your room"}</span></div>
-      {shownTechniques.length > 0 && <><h3 className={styles.groupTitle}>Simple changes to try</h3><div className={styles.panels} data-count={shownTechniques.length}>{shownTechniques.map(({ technique, suggestion }) => <TechniqueCard key={technique.id} technique={technique} suggestion={suggestion} />)}</div></>}
-      {shownOptions.length > 0 && <><h3 className={styles.groupTitle}>Improvements to investigate</h3><div className={styles.panels} data-count={shownOptions.length}>{shownOptions.map(({ option, suggestion }) => <ImprovementCard key={option.id} option={option} suggestion={suggestion} hasAC={hasReportedAC(context.room.coolingEquipment)} selected={selectedId === option.id} onChoose={onChoose} />)}</div><p className={styles.disclosure}>Choose an investigation to build your plan. Suitability, permissions and costs still need confirming; these options do not establish savings.</p></>}
-      {result && !shownOptions.length && options.length > 0 && <details className={styles.details}><summary>Other room investigations <span aria-hidden="true">⌄</span></summary><p>These reviewed starting points remain available if you want to investigate an upgrade.</p><div className={styles.panels} data-count={options.length}>{options.map(option => <ImprovementCard key={option.id} option={option} suggestion={undefined} hasAC={hasReportedAC(context.room.coolingEquipment)} selected={selectedId === option.id} onChoose={onChoose} />)}</div></details>}
+      {passive.length > 0 && <><h3 className={styles.groupTitle}>Reduce heat in the room</h3><p className={styles.disclosure}>Your answers point to these areas to check. This is a starting point, not a diagnosis or a ranking of savings.</p><div className={styles.panels} data-count={passive.length}>{passive.map(({ option, suggestion }) => <ImprovementCard key={option.id} option={option} suggestion={suggestion} hasAC={hasReportedAC(context.room.coolingEquipment)} selected={selectedId === option.id} onChoose={onChoose} />)}</div></>}
+      {shownTechniques.length > 0 && <><h3 className={styles.groupTitle}>Try today · Use less energy with what you have</h3><p className={styles.disclosure}>Add one or more actions. You can make a plan with these alone.</p><div className={styles.panels} data-count={shownTechniques.length}>{shownTechniques.map(({ technique, suggestion }) => <TechniqueCard key={technique.id} technique={technique} suggestion={suggestion} selected={selectedTechniques.includes(technique.id)} onToggle={() => onToggleTechnique(technique.id)} />)}</div></>}
+      {equipment.length > 0 && <details className={styles.details}><summary>Optional · Consider changing equipment {selectedId === "ac-replacement" ? "· Added to plan" : ""}<span aria-hidden="true">⌄</span></summary><p>Explore this if you are already considering replacement. You can start with room improvements and existing equipment.</p><div className={styles.panels} data-count={equipment.length}>{equipment.map(option => <ImprovementCard key={option.id} option={option} suggestion={result?.suggestions.find(item => item.optionId === option.id)} hasAC selected={selectedId === option.id} onChoose={onChoose} />)}</div></details>}
+      {result && options.some(option => option.id !== "ac-replacement" && !passive.some(item => item.option.id === option.id)) && <details className={styles.details}><summary>Other room investigations <span aria-hidden="true">⌄</span></summary><div className={styles.panels}>{options.filter(option => option.id !== "ac-replacement" && !passive.some(item => item.option.id === option.id)).map(option => <ImprovementCard key={option.id} option={option} suggestion={undefined} hasAC={hasReportedAC(context.room.coolingEquipment)} selected={selectedId === option.id} onChoose={onChoose} />)}</div></details>}
     </div>}
   </section>;
 }
@@ -118,14 +123,14 @@ function ImprovementCard({ option, suggestion, hasAC, selected, onChoose }: { op
       {suggestion && suggestion.techniqueIds.length > 0 && <LibraryGuides ids={suggestion.techniqueIds} />}
       <span className={styles.sourceLabel}>Read the guidance</span>
       <ul className={styles.sources} aria-label={`Sources for ${option.title}`}>{sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}<span aria-hidden="true">↗</span></a></li>)}</ul>
-      <div className={styles.cardActions}><span className={styles.readiness}>{option.id === "ac-replacement" ? "Check labels, sizing & quote" : option.readiness}</span><button aria-pressed={selected} aria-label={`${selected ? "Selected investigation" : "Choose this investigation"} · ${option.title}`} onClick={() => onChoose(option.id)}>{selected ? "Selected ✓" : "Choose this investigation"}<span aria-hidden="true">→</span></button></div>
+      <div className={styles.cardActions}><span className={styles.readiness}>{option.id === "ac-replacement" ? "Check labels, sizing & quote" : option.readiness}</span><button aria-pressed={selected} aria-label={`${selected ? "Remove investigation" : "Add investigation to plan"} · ${option.title}`} onClick={() => onChoose(option.id)}>{selected ? "Remove from plan" : "Add investigation to plan"}<span aria-hidden="true">→</span></button></div>
     </div>
   </article>;
 }
 
-function TechniqueCard({ technique, suggestion }: { technique: Technique; suggestion: ResearchTechnique | undefined }) {
+function TechniqueCard({ technique, suggestion, selected, onToggle }: { technique: Technique; suggestion: ResearchTechnique | undefined; selected: boolean; onToggle: () => void }) {
   const sources = suggestion?.sources ?? technique.sourceIds.map(id => librarySources[id]);
-  return <article className={styles.panel} aria-labelledby={`technique-${technique.id}`}>
+  return <article className={`${styles.panel} ${styles.simplePanel} ${selected ? styles.selected : ""}`} aria-labelledby={`technique-${technique.id}`}>
     <div className={styles.panelHeading}><span className={styles.icon} aria-hidden="true">✧</span><span className={styles.optionName}>{efforts[technique.effort]}</span></div>
     <h3 id={`technique-${technique.id}`}>{suggestion?.headline ?? technique.title}</h3>
     <div className={styles.roomFit}><span>{suggestion ? "Your room · reported by you" : "Reviewed starting point"}</span><p>{suggestion?.whyForRoom ?? technique.summary}</p></div>
@@ -133,7 +138,7 @@ function TechniqueCard({ technique, suggestion }: { technique: Technique; sugges
     <div className={styles.action}><span className={styles.actionEyebrow}>TRY THIS</span><h4>{suggestion?.nextAction.label ?? technique.steps[0]}</h4><p>{suggestion?.nextAction.detail ?? technique.steps[1]}</p></div>
     {suggestion && <ul className={styles.checks}>{suggestion.checks.map(check => <li key={check}><span aria-hidden="true">○</span>{check}</li>)}</ul>}
     <details className={styles.details}><summary>Suitability & checks <span aria-hidden="true">⌄</span></summary><ul>{technique.checks.map(check => <li key={check}>{check}</li>)}</ul></details>
-    <div className={styles.panelFooter}><span className={styles.sourceLabel}>Read the guidance</span><ul className={styles.sources}>{sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title} ↗</a></li>)}</ul><div className={styles.cardActions}><Link href={`/knowledge-base#${technique.id}`}>See how to try it →</Link></div></div>
+    <div className={styles.panelFooter}><span className={styles.sourceLabel}>Read the guidance</span><ul className={styles.sources}>{sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title} ↗</a></li>)}</ul><div className={styles.cardActions}><Link href={`/knowledge-base#${technique.id}`}>See how to try it →</Link><button aria-pressed={selected} aria-label={`${selected ? "Remove" : "Add to plan"} · ${technique.title}`} onClick={onToggle}>{selected ? "Added ✓ · Remove" : "Add to my plan +"}</button></div></div>
   </article>;
 }
 

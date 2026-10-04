@@ -4,6 +4,7 @@ import type { AssessmentDraft } from "../assessment/state.ts";
 import { assessContributors, type Contributor } from "../heat-contributors/model.ts";
 import { roomBaseline } from "../room-baseline/model.ts";
 import { replacementComparison, LABEL_METHOD } from "./replacement.ts";
+import { selectedSimpleActions } from "./simple-actions.ts";
 import { materialSignature } from "../../domain/material-signature.ts";
 
 export const OPTIONS_VERSION = "qualitative-options-v1";
@@ -71,7 +72,7 @@ export function selectCoolingOption(draft: AssessmentDraft, id: OptionId, record
   return { ...draft, selectedOption: { actionId: id, assessmentSignature: optionSignature(draft), recordedAt } };
 }
 export function coolingOptionsDestination(draft: AssessmentDraft): "/cooling-plan" | null {
-  return coolingOptions(draft).selected ? "/cooling-plan" : null;
+  return coolingOptions(draft).selected || selectedSimpleActions(draft).length ? "/cooling-plan" : null;
 }
 export function refineBudget(draft: AssessmentDraft): AssessmentDraft {
   return { ...draft, currentQuestionId: "budgetAud", completed: false };

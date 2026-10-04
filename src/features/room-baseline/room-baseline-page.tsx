@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { JourneyHeader } from "@/components/layout/journey-header";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { equipmentDetailText } from "../room-scene/equipment-details";
@@ -56,10 +57,7 @@ export function RoomBaselinePage() {
   const available = amount?.status === "known" && typeof amount.value === "number";
   const costSkipped = draft.answers.energyBasis?.status === "unknown";
   return <div className={styles.page}>
-    <header className={styles.header}>
-      <Link href="/" className={styles.brand}><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="4" fill="var(--color-heat-light)" stroke="var(--color-forest)" strokeWidth="2" /><path d="M8 25C9 9 19 15 25 7C26 20 19 25 12 23M7 26L21 13M12 21L13 15M16 18L22 18" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Home Heat Planner</span></Link>
-      <nav aria-label="Main navigation" className={styles.navigation}><Link href="/cooling-plan">My Plan</Link><Link href="/#how-it-works">How it works</Link><Link href="/#help">Help</Link></nav>
-    </header>
+    <JourneyHeader />
     {ready ? <>
       <div className={styles.layout}>
         <section className={styles.room} aria-labelledby="room-title">

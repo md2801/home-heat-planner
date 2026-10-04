@@ -9,6 +9,7 @@ import { factText, formatMoney } from "@/features/room-baseline/model";
 import { coolingOptions, coolingOptionsDestination, refineBudget, selectCoolingOption } from "./model";
 import styles from "./cooling-options.module.css";
 import { DynamicRoom as RoomScene } from "../room-scene/dynamic-room";
+import { equipmentPlacement } from "../room-scene/equipment-details";
 import { assessmentScene } from "../room-scene/assessment-scene";
 import { FinancialCoach } from "./financial-coach";
 import { ReplacementComparison } from "./replacement-comparison";
@@ -16,6 +17,7 @@ import { CoolingResearch } from "./cooling-research";
 import { techniques } from "../knowledge-base/catalogue";
 import { coolingResearchContext } from "./research-context";
 import { recommendationResources } from "../knowledge-base/recommendation-resources";
+import { selectedSimpleActions, toggleSimpleAction } from "./simple-actions";
 import { hasReportedAC } from "./recommendation-policy";
 
 export function CoolingOptionsPage() {
@@ -24,13 +26,16 @@ export function CoolingOptionsPage() {
   useEffect(() => { assessmentRepository.hydrate(); }, []);
   const view = coolingOptions(draft);
   const context = coolingResearchContext(draft);
+  const selectedActions = selectedSimpleActions(draft);
   const hasGuidance = view.options.length > 0 || recommendationResources(context).techniqueIds.length > 0;
+  const firstRoomStep = view.options.find(option => option.id !== "ac-replacement");
   const budget = view.baseline.profile.budgetAud;
   const budgetText = factText(budget, value => typeof value === "number" ? `${formatMoney(value)} maximum` : `${formatMoney(value.min)}–${formatMoney(value.max)}`);
   return <div className={styles.page}><JourneyHeader />{ready ? <>
     <div className={styles.heading}><div><h1>Your path to a heat-resilient room</h1><p>Keep heat out, release it when conditions allow, and cool efficiently when needed.</p>{budget.status === "known" && <span className={styles.budgetNote}>Your reported budget: {budgetText}.</span>}</div><button className={styles.secondary} onClick={() => { assessmentRepository.save(refineBudget(draft)); router.push("/assessment"); }}>{budget.status === "known" ? "Change budget" : "Set a budget"}</button></div>
     {hasGuidance ? <>
-      <CoolingResearch draft={draft} selectedId={view.selected?.id ?? null} onChoose={id => assessmentRepository.save(selectCoolingOption(draft, id, new Date().toISOString()))} />
+      <section className={styles.firstStep} aria-labelledby="first-step-title"><div><span className={styles.emptyEyebrow}>YOUR ROOM · A PLACE TO START</span><h2 id="first-step-title">{firstRoomStep ? firstRoomStep.title : "Start with a change you can try today"}</h2><p>{firstRoomStep ? firstRoomStep.contributor.reasons.filter(reason => reason.fact.status === "known").map(reason => `${reason.label}: ${reason.value}`).join(" · ") || firstRoomStep.description : "Reduce unnecessary heat and make the most of the equipment you already have."}</p><strong>{firstRoomStep?.contributor.nextStep ?? "Choose a practical action below and check how it affects your comfort."}</strong><p className={styles.budgetNote}>A starting point from your answers, not a prediction of savings. You can build a plan without buying new equipment.</p><a href="#cooling-research-title">Choose my next steps ↓</a></div><div className={styles.firstStepRoom}><RoomScene scene={assessmentScene(draft.answers, draft.sceneDetails)} placement={equipmentPlacement(draft.answers)} showDetails={false} focus={firstRoomStep?.id === "ceiling-insulation" ? "roof" : firstRoomStep ? "windows" : "none"} /></div></section>
+      <CoolingResearch draft={draft} selectedId={view.selected?.id ?? null} onChoose={id => { if (view.selected?.id === id) { const next = { ...draft }; delete next.selectedOption; assessmentRepository.save(next); } else assessmentRepository.save(selectCoolingOption(draft, id, new Date().toISOString())); }} selectedTechniques={selectedActions.map(t => t.id)} onToggleTechnique={id => assessmentRepository.save(toggleSimpleAction(draft, id, new Date().toISOString()))} />
       {view.options.some(option => option.id === "ac-replacement") && <ReplacementComparison draft={draft} profile={view.baseline.profile} storageNotice={notice} />}
       <details className={styles.optionalSection}><summary><span><strong>Understand your cooling costs</strong><small>Review your baseline, inputs and spending guide</small></span><span aria-hidden="true">⌄</span></summary><div className={styles.optionalBody}>
         {hasReportedAC(context.room.coolingEquipment) && (view.baseline.result?.amountAud.status === "known" || view.options.some(option => option.comparison.annualNetSavings.amountAud.status === "known")) && <FinancialCoach draft={draft} />}
@@ -41,6 +46,6 @@ export function CoolingOptionsPage() {
     <section className={styles.knowledgeLink} aria-labelledby="simple-techniques-title"><div><h2 id="simple-techniques-title">Start with a simple change</h2><p>Explore {techniques.length} practical ways to use less energy, with steps, checks and government guidance.</p></div><Link href="/knowledge-base">Browse simple techniques →</Link></section>
     <div className={styles.notes}><Link href="/assessment">Refine my answers →</Link></div>
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
-    <footer className={styles.footer}><Link href="/heat-contributors">← Back</Link>{view.options.length > 0 ? <div><p role="status">{view.selected ? `${view.selected.title} selected as your next investigation.` : "Choose an investigation to continue."}</p><button className={styles.primary} disabled={!view.selected} onClick={() => { const destination = coolingOptionsDestination(assessmentRepository.getSnapshot().draft); if (destination) router.push(destination); }}>Continue to my plan →</button></div> : <p role="status">{hasGuidance ? "Start with a technique above. You can refine your room answers whenever you learn more." : "Complete your room profile to explore next steps."}</p>}</footer>
+    <footer className={styles.footer}><Link href="/heat-contributors">← Back</Link><div><p role="status">{selectedActions.length || view.selected ? `${selectedActions.length} simple ${selectedActions.length === 1 ? "action" : "actions"}${view.selected ? ` + ${view.selected.title}` : ""} in your plan.` : "Choose a simple action or an investigation. No upgrade required."}</p><button className={styles.primary} disabled={!selectedActions.length && !view.selected} onClick={() => { const destination = coolingOptionsDestination(assessmentRepository.getSnapshot().draft); if (destination) router.push(destination); }}>Continue to my plan →</button></div></footer>
   </> : <p className={styles.notice} role="status">Loading your room answers…</p>}</div>;
 }

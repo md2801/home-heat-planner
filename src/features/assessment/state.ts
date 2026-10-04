@@ -24,6 +24,7 @@ export interface AssessmentDraft {
   coolingPlanDraft?: CoolingPlanDraft;
   followUpCheckIn?: FollowUpCheckIn;
   history?: PlanHistoryEntry[];
+  selectedTechniques?: { ids: string[]; assessmentSignature: string; recordedAt: string };
   selectedOption?: { actionId: "external-shading" | "ceiling-insulation" | "opening-review" | "ac-replacement"; assessmentSignature: string; recordedAt: string };
 }
 export function emptyAssessment(): AssessmentDraft {
@@ -116,6 +117,10 @@ export function isAssessmentDraft(value: unknown): value is AssessmentDraft {
   if (value.history !== undefined && !isHistory(value.history)) return false;
   if (value.coolingPlanDraft !== undefined && !safeJson(value.coolingPlanDraft)) return false;
   if (value.followUpCheckIn !== undefined && !safeJson(value.followUpCheckIn)) return false;
+  if (value.selectedTechniques !== undefined) {
+    const t = value.selectedTechniques;
+    if (!record(t) || !Array.isArray(t.ids) || t.ids.length > 14 || new Set(t.ids).size !== t.ids.length || !t.ids.every(id => typeof id === "string" && /^[a-z-]+$/.test(id)) || typeof t.assessmentSignature !== "string" || !t.assessmentSignature || typeof t.recordedAt !== "string" || !Number.isFinite(Date.parse(t.recordedAt))) return false;
+  }
   if (value.selectedOption !== undefined) {
     const selection = value.selectedOption;
     if (!record(selection) || typeof selection.actionId !== "string" || !["external-shading", "ceiling-insulation", "opening-review", "ac-replacement"].includes(selection.actionId) || typeof selection.assessmentSignature !== "string" || !selection.assessmentSignature || typeof selection.recordedAt !== "string" || !Number.isFinite(Date.parse(selection.recordedAt))) return false;

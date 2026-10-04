@@ -1,0 +1,9 @@
+# Keep local credentials and generated verification files out of deployments.
+.env
+.env.*
+.git
+.next
+node_modules
+artifacts
+*.log
+*.tsbuildinfo

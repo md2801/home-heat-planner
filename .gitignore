@@ -145,3 +145,6 @@ vite.config.ts.timestamp-*
 
 # Generated Next.js type declarations
 next-env.d.ts
+
+# Local Vercel project link and build output
+.vercel/

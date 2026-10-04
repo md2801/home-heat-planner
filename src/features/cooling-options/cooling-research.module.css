@@ -83,3 +83,25 @@
 .panels[data-count="4"] { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .pathway { margin:18px 0 -8px; font-size:10px; letter-spacing:.08em; color:var(--color-forest); font-weight:600; }
 @media(max-width:750px) { .panels[data-count="4"] {grid-template-columns:1fr;} }
+
+/* Short, actionable cards keep room changes ahead of equipment comparisons. */
+.simplePanel { padding: 20px; }
+.simplePanel h3 { font-size: 21px; margin: 12px 0; }
+.simplePanel .roomFit { display: none; }
+.simplePanel .action { margin-top: 14px; padding-top: 12px; }
+.simplePanel .action h4 { font-size: 15px; }
+.simplePanel .details { margin: 8px 0; }
+.simplePanel .sources { margin-bottom: 12px; }
+.groupTitle + .disclosure { margin: -4px 0 18px; }
+
+@media (min-width: 1001px) {
+  .panels[data-count="1"] { max-width:none; }
+  .panels[data-count="1"] > .panel:not(.simplePanel) { display:grid; grid-template-columns:1fr 1fr; column-gap:36px; }
+  .panels[data-count="1"] > .panel > .panelHeading { grid-column:1; grid-row:1; }
+  .panels[data-count="1"] > .panel > .pathway { grid-column:1; grid-row:2; }
+  .panels[data-count="1"] > .panel > h3 { grid-column:1; grid-row:3; margin:8px 0 16px; }
+  .panels[data-count="1"] > .panel > .roomFit { grid-column:1; grid-row:4; }
+  .panels[data-count="1"] > .panel > .benefit { grid-column:2; grid-row:1 / span 2; }
+  .panels[data-count="1"] > .panel > .action { grid-column:2; grid-row:3 / span 2; }
+  .panels[data-count="1"] > .panel > :is(.details, .checks, .panelFooter) { grid-column:1 / -1; }
+}

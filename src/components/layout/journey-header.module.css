@@ -1,10 +1,28 @@
-.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--color-line); }
-.brand { display: inline-flex; align-items: center; gap: 11px; min-height: 44px; color: var(--color-ink); font-size: clamp(20px, 1.55vw, 24px); font-weight: 700; letter-spacing: -.65px; white-space: nowrap; text-decoration: none; }
-.brand svg { width: 34px; height: 34px; flex-shrink: 0; }
-.navigation { display: flex; align-items: center; gap: 8px; color: var(--color-muted); font-size: 15px; }
-.navigation a { min-height: 44px; display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 8px; text-decoration: none; white-space: nowrap; }
-.navigation a:hover { background: var(--color-eucalyptus); color: var(--color-forest-dark); }
-.navigation a[aria-current="page"] { background: var(--color-eucalyptus); color: var(--color-forest-dark); font-weight: 600; }
-.header a:focus-visible { outline: 3px solid var(--color-cooling); outline-offset: 3px; }
-@media (max-width: 850px) { .header { flex-wrap: wrap; gap: 12px; padding: 18px 0; } .navigation { gap: 4px; } .navigation a { padding: 10px 12px; } }
-@media (max-width: 480px) { .brand { font-size: 21px; gap: 9px; } .brand svg { width: 30px; height: 30px; } .navigation { width: 100%; justify-content: space-between; gap: 0; font-size: 12px; } .navigation a { padding: 10px 7px; } }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0; margin-bottom: 12px; border-bottom: 1px solid #dedfd4; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--color-ink); font-size: clamp(20px, 1.6vw, 25px); font-weight: 700; letter-spacing: -.9px; text-decoration: none; white-space: nowrap; }
+.header .brand { color: var(--color-ink); }
+.brand svg { width: 44px; height: 44px; flex-shrink: 0; box-shadow: 0 3px 0 #d7dece; border-radius: 12px; }
+.brandText { display: grid; gap: 5px; }
+.brandText small { color: #637365; font-size: 10px; font-weight: 500; letter-spacing: 1.65px; text-transform: uppercase; }
+.navigation { display: flex; align-items: center; gap: 22px; font-size: 14px; color: #354b40; }
+.navLinks { display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid #e2e3d9; border-radius: 28px; background: #f1f2e9; }
+.navigation a { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 40px; padding: 0 17px; border-radius: 22px; text-decoration: none; white-space: nowrap; transition: background-color 150ms ease, color 150ms ease; }
+.header .navLinks a { color: inherit; }
+.navLinks a:hover { background: #fffdf7; color: var(--color-forest); }
+.navigation .planLink { min-height: 46px; padding: 0 19px; border: 1px solid #cad3c5; border-radius: 9px; font-weight: 600; background: #fffdf7; color: var(--color-forest); }
+.planLink svg { width: 18px; height: 18px; }
+.planLink span { margin-left: 8px; font-size: 19px; font-weight: 400; }
+.navigation .planLink:hover { background: #e8eee4; border-color: #9aac9c; }
+.header a:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 4px; }
+.navLinks a[aria-current="page"] { background: #fffdf7; color: var(--color-forest); font-weight: 600; }
+.navigation .planLink[aria-current="page"] { background: #e8eee4; border-color: #9aac9c; }
+@media (max-width: 1150px) { .navigation { font-size: 16px; } }
+@media (max-width: 1000px) { .header { flex-wrap: wrap; gap: 14px; } }
+@media (max-width: 850px) { .navigation { gap: 28px; font-size: 15px; } }
+@media (max-width: 480px) {
+  .brand { font-size: 21px; gap: 9px; letter-spacing: -.8px; }
+  .brand svg { width: 27px; height: 27px; }
+  .navigation { width: 100%; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
+  .navLinks { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { .navigation a { transition: none; } }
